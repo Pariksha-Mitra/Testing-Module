@@ -1,5 +1,6 @@
 "use client";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -13,9 +14,7 @@ export default function Header() {
           <p className="text-sm">{session?.user.username}, DETAILS</p>
         </div>
       </div>
-      <button onClick={() => signOut()}>
-        <img src="/logout.png" alt="Logout" className="w-16 h-16" />
-      </button>
+      <Image src="/logout.png" alt="Logout" width={64} height={64} onClick={() => signOut()}/>
     </div>
   );
-}
+} 
