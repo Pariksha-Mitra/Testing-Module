@@ -1,10 +1,11 @@
-import NextAuth, { AuthOptions, Session, SessionStrategy } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import User from "@/models/user.model";
-import { JWT } from "next-auth/jwt";
 import bcrypt from "bcryptjs";
+
+import NextAuth, { AuthOptions, Session, SessionStrategy } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import CredentialsProvider from "next-auth/providers/credentials";
+import userModel from "../models/user.model";
+import { connectDb } from "./db";
 import { ROLE } from "./types";
-import connectDB from "@/utils/db";
 
 type CredentialsType = {
   username: string;
@@ -23,16 +24,17 @@ export const authOptions: AuthOptions = {
           console.error("Please provide the credentials!");
           return null;
         }
+
+        await connectDb();
         try {
           if (!credentials.password || !credentials.username) {
             throw new Error("Missing fields!");
           }
 
-          await connectDB();
-
-          const user = await User.findOne({
-            username: credentials.username,
-          }).select("id username password role");
+          const user = await userModel
+            .findOne({ username: credentials.username })
+            .select("_id username password role")
+            .lean();
 
           if (!user) throw new Error("User not found!");
 
@@ -44,9 +46,11 @@ export const authOptions: AuthOptions = {
           if (!isValid) throw new Error("Wrong password!");
 
           return {
-            id: user.id,
-            username: user.username,
-            role: user.role as ROLE,
+
+            id: user._id.toString(),
+            username: user.username as string,
+            role: user.role,
+
           };
         } catch (error) {
           console.warn("Authorization error");
@@ -64,7 +68,7 @@ export const authOptions: AuthOptions = {
         token.username = user.username;
         token.id = user.id;
         token.role = user.role as ROLE;
-      }
+      } 
       return token;
     },
     async session({ session, token }): Promise<Session> {

@@ -1,11 +1,43 @@
 import { registerSchema } from "@/models/registerSchema";
-import User from "@/models/user.model";
+import userModel from "@/models/user.model";
 import { ROLE } from "@/utils/types";
+import { connectDb } from "@/utils/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
-import connectDB from "@/utils/db";
 
+/**
+ * @swagger
+ * /api/register:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               middleName:
+ *                 type: string
+ *               surname:
+ *                 type: string
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *               role:
+ *                 type: string
+ *                 enum: [teacher, student]
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Bad request
+ */
 export async function POST(req: Request) {
+  await connectDb();
   const {
     firstName,
     middleName,
@@ -20,7 +52,7 @@ export async function POST(req: Request) {
   const slug =
     `${firstName}-${surname}-${dateOfBirth}-${schoolId}`.toLowerCase();
 
-  await connectDB();
+  await connectDb();
 
   try {
     const validationData = {
@@ -47,7 +79,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const existingUser = await User.findOne({ slug });
+    const existingUser = await userModel.findOne({
+      slug,
+    });
 
     if (existingUser) {
       return NextResponse.json(
@@ -101,7 +135,9 @@ export async function POST(req: Request) {
 
     console.log(userData);
 
-    const result = await User.create(userData);
+    const result = await userModel.create(userData);
+
+    await result.save();
 
     return NextResponse.json(
       {
@@ -112,7 +148,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("SignUp error:");
+    console.log("SignUp error");
     return NextResponse.json(
       {
         message: "Signup failed!",

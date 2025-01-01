@@ -65,9 +65,14 @@ const Register = () => {
       } else {
         showToast(data.message || "Registration failed", "error");
       }
-    } catch (error: any) {
-      showToast(error.message || "An error occurred", "error");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message || "An error occurred", "error");
+      } else {
+        showToast("An unknown error occurred", "error");
+      }
     }
+    
   };
 
   return (

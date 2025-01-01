@@ -1,11 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
 import AuthHeader from "@/components/ui/AuthHeader";
 import Link from "next/link";
 import { useToast } from "@/components/ui/ToastProvider";
 import { ROLE } from "@/utils/types";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 const Login = () => {
   const [role, setRole] = useState<ROLE>(ROLE.Student);
@@ -13,7 +13,7 @@ const Login = () => {
   const [password, setPassword] = useState<string>("");
   const { showToast } = useToast();
   const router = useRouter();
-  const { data: session, status: sessionStatus } = useSession();
+  const { status: sessionStatus } = useSession();
 
   useEffect(() => {
     if (sessionStatus === "authenticated") router.push("/");
@@ -34,9 +34,14 @@ const Login = () => {
         router.push("/dashboard");
         showToast("Successfully Loggedn In.", "success");
       }
-    } catch (error: any) {
-      showToast(error.message, "error");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message || "An error occurred", "error");
+      } else {
+        showToast("An unknown error occurred", "error");
+      }
     }
+    
   };
 
   if (sessionStatus === "loading") {

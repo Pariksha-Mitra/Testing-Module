@@ -1,16 +1,21 @@
 import { getToken } from "next-auth/jwt";
-import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
   const url = request.nextUrl;
 
+  // Allow access to API docs without authentication
+  if (url.pathname.startsWith('/api-docs') || url.pathname.startsWith('/api/swagger')) {
+    return NextResponse.next();
+  }
+
   if (
     token &&
-    (url.pathname === "/" ||
-      url.pathname === "/login" ||
-      url.pathname === "/register")
+    (url.pathname.startsWith("/") ||
+      url.pathname.startsWith("/login") ||
+      url.pathname.startsWith("/new-password") ||
+      url.pathname.startsWith("/register"))
   ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
@@ -26,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/register", "/", "/dashboard/:path*"],
+  matcher: ["/login", "/register", "/", "/dashboard/:path*", "/new-password", "/api-docs", "/api/swagger"],
 };

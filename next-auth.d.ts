@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import { DefaultSession, DefaultUser } from "next-auth";
-import { Role } from "./utils/types";
+import { Role, ROLES } from "./server/utils/types";
 
 declare module "next-auth" {
   interface Session {
