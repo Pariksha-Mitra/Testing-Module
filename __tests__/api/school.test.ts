@@ -1,249 +1,336 @@
-import { POST } from "@/app/api/school/register/route";
-import { connectDb } from "@/utils/db";
-import { schoolSchema } from "@/models/schoolSchema";
+import { generateSchoolId, POST } from "@/app/api/school/register/route";
 import SchoolModel from "@/models/schoolModel";
-import { createId } from "@paralleldrive/cuid2";
-import { NextRequest, NextResponse } from "next/server";
+import { schoolSchema } from "@/models/schoolSchema";
+import { connectDb } from "@/utils/db";
+import { NextRequest } from "next/server";
 
 jest.mock("@/utils/db", () => ({
   connectDb: jest.fn(),
 }));
 
-jest.mock("@paralleldrive/cuid2", () => ({
-  createId: jest.fn(() => "uniqueString123"),
-}));
-
 jest.mock("@/models/schoolModel", () => ({
-  create: jest.fn(),
+  __esModule: true,
+  default: {
+    create: jest.fn(),
+  },
 }));
 
-describe("POST /school", () => {
+jest.mock("@/models/schoolSchema", () => ({
+  schoolSchema: {
+    safeParse: jest.fn(),
+  },
+}));
+
+jest.mock("@paralleldrive/cuid2", () => ({
+  createId: jest.fn(() => "mocked"),
+}));
+
+const createMockRequest = (body: any): NextRequest => {
+  return {
+    json: () => Promise.resolve(body),
+  } as unknown as NextRequest;
+};
+
+describe("POST /api/school/register", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (connectDb as jest.Mock).mockResolvedValue(undefined);
   });
 
-  const mockRequest = (body: Record<string, any>) => {
-    return {
-      body,
-      json: jest.fn(),
-    } as unknown as NextRequest;
-  };
+  describe("Successful school registration", () => {
+    it("should successfully register a new school", async () => {
+      const validSchoolData = {
+        name: "Test School",
+        contact: "1234567890",
+        address: "123 Test St",
+      };
 
-  const mockNextResponse = () => {
-    const json = jest.fn();
-    return {
-      json,
-      status: jest.fn(),
-    } as unknown as NextResponse;
-  };
+      const mockSchool = {
+        save: jest.fn().mockResolvedValue(true),
+      };
 
-  it("should connect to the database", async () => {
-    const validSchoolData = {
-      name: "Sunrise Academy",
-      contact: "1234567890",
-      address: "456 Elm St",
-    };
+      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: validSchoolData,
+      });
 
-    const req = mockRequest(validSchoolData);
-    await POST(req);
+      (SchoolModel.create as jest.Mock).mockResolvedValue(mockSchool);
 
-    expect(connectDb).toHaveBeenCalledTimes(1);
-  });
+      const response = await POST(createMockRequest(validSchoolData));
+      const responseData = await response.json();
 
-  it("should generate a unique school ID", async () => {
-    const validSchoolData = {
-      name: "Sunrise Academy",
-      contact: "1234567890",
-      address: "456 Elm St",
-    };
+      expect(connectDb).toHaveBeenCalled();
 
-    (schoolSchema.safeParse as jest.Mock).mockReturnValue({
-      success: true,
-      data: validSchoolData,
+      const expectedCreateData = {
+        ...validSchoolData,
+        schoolId: "TS-mocked",
+      };
+
+      expect(SchoolModel.create).toHaveBeenCalledWith(expectedCreateData);
+
+      expect(responseData).toEqual({
+        message: "School Added",
+        success: true,
+        id: "TS-mocked",
+      });
     });
 
-    const req = mockRequest(validSchoolData);
-    await POST(req);
+    it("should ignore extra fields in the request body", async () => {
+      const validDataWithExtraField = {
+        name: "Test School",
+        contact: "1234567890",
+        address: "123 Test St",
+        extraField: "Should be ignored",
+      };
 
-    expect(createId).toHaveBeenCalledTimes(1);
-    expect(createId).toHaveBeenCalledWith(); 
+      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: {
+          name: "Test School",
+          contact: "1234567890",
+          address: "123 Test St",
+        },
+      });
+
+      const mockSchool = {
+        save: jest.fn().mockResolvedValue(true),
+      };
+
+      (SchoolModel.create as jest.Mock).mockResolvedValue(mockSchool);
+
+      const response = await POST(createMockRequest(validDataWithExtraField));
+      const responseData = await response.json();
+
+      expect(SchoolModel.create).toHaveBeenCalledWith({
+        name: "Test School",
+        contact: "1234567890",
+        address: "123 Test St",
+        schoolId: "TS-mocked",
+      });
+
+      expect(responseData).toEqual({
+        message: "School Added",
+        success: true,
+        id: "TS-mocked",
+      });
+    });
   });
 
-  it("should throw an error if the school name is missing", async () => {
-    const invalidSchoolData = {
-      contact: "1234567890",
-      address: "456 Elm St",
-    };
+  describe("Validation handling", () => {
+    it("should handle missing request body", async () => {
+      const response = await POST(createMockRequest(null));
+      const responseData = await response.json();
 
-    (schoolSchema.safeParse as jest.Mock).mockReturnValue({
-      success: false,
-      error: { message: "Validation failed: Name is required" },
+      expect(response).toEqual(
+        expect.objectContaining({
+          status: 400,
+        })
+      );
+
+      expect(responseData).toEqual({
+        message: "Request body is required",
+      });
     });
 
-    const req = mockRequest(invalidSchoolData);
-    const res = await POST(req);
+    it("should handle validation errors", async () => {
+      const invalidData = {
+        contact: "1234567890",
+        address: "123 Test St",
+      };
 
-    expect(res).toEqual(
-      expect.objectContaining({
-        json: expect.objectContaining({
+      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        success: false,
+        error: {
           message: "Validation failed: Name is required",
-        }),
-        status: 500,
-      })
-    );
-  });
+        },
+      });
 
-  it("should handle duplicate school entries", async () => {
-    const validSchoolData = {
-      name: "Sunrise Academy",
-      contact: "1234567890",
-      address: "456 Elm St",
-    };
+      const response = await POST(createMockRequest(invalidData));
+      const responseData = await response.json();
 
-    const duplicateError = new Error("E11000 duplicate key error collection");
+      expect(response).toEqual(
+        expect.objectContaining({
+          status: 500,
+        })
+      );
 
-    (schoolSchema.safeParse as jest.Mock).mockReturnValue({
-      success: true,
-      data: validSchoolData,
+      expect(responseData).toEqual({
+        message: "Validation failed: Name is required",
+      });
     });
 
-    (SchoolModel.create as jest.Mock).mockRejectedValue(duplicateError);
+    it("should handle validation errors with multiple missing fields", async () => {
+      const incompleteData = {
+        contact: "1234567890",
+      };
 
-    const req = mockRequest(validSchoolData);
-    const res = await POST(req);
+      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        success: false,
+        error: {
+          message: "Validation failed: Name and Address are required",
+        },
+      });
 
-    expect(res).toEqual(
-      expect.objectContaining({
-        json: expect.objectContaining({
-          message: duplicateError.message,
-        }),
-        status: 500,
-      })
-    );
+      const response = await POST(createMockRequest(incompleteData));
+      const responseData = await response.json();
+
+      expect(response).toEqual(
+        expect.objectContaining({
+          status: 500,
+        })
+      );
+
+      expect(responseData).toEqual({
+        message: "Validation failed: Name and Address are required",
+      });
+    });
   });
 
-  it("should handle missing request body gracefully", async () => {
-    const req = mockRequest({}); 
+  describe("Error handling", () => {
+    it("should handle database connection errors", async () => {
+      const validData = {
+        name: "Test School",
+        contact: "1234567890",
+        address: "123 Test St",
+      };
 
-    const res = await POST(req);
+      const connectionError = new Error("Database connection failed");
+      (connectDb as jest.Mock).mockRejectedValue(connectionError);
 
-    expect(res).toEqual(
-      expect.objectContaining({
-        json: expect.objectContaining({
-          message: "Request body is required",
-        }),
-        status: 400,
-      })
-    );
-  });
+      const response = await POST(createMockRequest(validData));
+      const responseData = await response.json();
 
-  it("should handle network/database connection issues", async () => {
-    const validSchoolData = {
-      name: "Sunrise Academy",
-      contact: "1234567890",
-      address: "456 Elm St",
-    };
+      expect(response).toEqual(
+        expect.objectContaining({
+          status: 500,
+        })
+      );
 
-    const connectionError = new Error("Failed to connect to the database");
-
-    (connectDb as jest.Mock).mockRejectedValue(connectionError);
-
-    const req = mockRequest(validSchoolData);
-    const res = await POST(req);
-
-    expect(res).toEqual(
-      expect.objectContaining({
-        json: expect.objectContaining({
-          message: connectionError.message,
-        }),
-        status: 500,
-      })
-    );
-  });
-
-  it("should return success even with extra fields in the request body", async () => {
-    const validSchoolData = {
-      name: "Sunrise Academy",
-      contact: "1234567890",
-      address: "456 Elm St",
-      extraField: "This should be ignored",
-    };
-
-    const mockSchool = {
-      save: jest.fn(),
-    };
-
-    (schoolSchema.safeParse as jest.Mock).mockReturnValue({
-      success: true,
-      data: {
-        name: validSchoolData.name,
-        contact: validSchoolData.contact,
-        address: validSchoolData.address,
-      },
+      expect(responseData).toEqual({
+        message: "Database connection failed",
+        error: {},
+      });
     });
 
-    (SchoolModel.create as jest.Mock).mockReturnValue(mockSchool);
+    it("should handle duplicate school error", async () => {
+      const validData = {
+        name: "Test School",
+        contact: "1234567890",
+        address: "123 Test St",
+      };
 
-    const req = mockRequest(validSchoolData);
-    const res = await POST(req);
+      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: validData,
+      });
 
-    expect(res).toEqual(
-      expect.objectContaining({
-        json: expect.objectContaining({
-          message: "School Added",
-          success: true,
-        }),
-      })
-    );
-  });
+      const duplicateError = new Error("E11000 duplicate key error collection");
+      (SchoolModel.create as jest.Mock).mockRejectedValue(duplicateError);
 
-  it("should log error details for debugging purposes", async () => {
-    const validSchoolData = {
-      name: "Sunrise Academy",
-      contact: "1234567890",
-      address: "456 Elm St",
-    };
+      const response = await POST(createMockRequest(validData));
+      const responseData = await response.json();
 
-    const unexpectedError = new Error("Something went wrong!");
+      expect(response).toEqual(
+        expect.objectContaining({
+          status: 500,
+        })
+      );
 
-    console.error = jest.fn();
-
-    (schoolSchema.safeParse as jest.Mock).mockReturnValue({
-      success: true,
-      data: validSchoolData,
+      expect(responseData).toEqual({
+        message: "E11000 duplicate key error collection",
+        error: {},
+      });
     });
 
-    (SchoolModel.create as jest.Mock).mockRejectedValue(unexpectedError);
+    it("should handle save operation errors", async () => {
+      const validData = {
+        name: "Test School",
+        contact: "1234567890",
+        address: "123 Test St",
+      };
 
-    const req = mockRequest(validSchoolData);
-    await POST(req);
+      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: validData,
+      });
 
-    expect(console.error).toHaveBeenCalledWith(unexpectedError);
-  });
+      const mockSchool = {
+        save: jest.fn().mockRejectedValue(new Error("Save operation failed")),
+      };
 
-  it("should ensure school ID has a specific format", async () => {
-    const validSchoolData = {
-      name: "Sunrise Academy",
-      contact: "1234567890",
-      address: "456 Elm St",
-    };
+      (SchoolModel.create as jest.Mock).mockResolvedValue(mockSchool);
 
-    const schoolId = "SA-uniqueS";
+      const response = await POST(createMockRequest(validData));
+      const responseData = await response.json();
 
-    (schoolSchema.safeParse as jest.Mock).mockReturnValue({
-      success: true,
-      data: validSchoolData,
+      expect(response).toEqual(
+        expect.objectContaining({
+          status: 500,
+        })
+      );
+
+      expect(responseData).toEqual({
+        message: "Save operation failed",
+        error: {},
+      });
     });
 
-    (createId as jest.Mock).mockReturnValue("uniqueString123");
+    it("should handle unknown errors", async () => {
+      const validData = {
+        name: "Test School",
+        contact: "1234567890",
+        address: "123 Test St",
+      };
 
-    const req = mockRequest(validSchoolData);
-    await POST(req);
+      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: validData,
+      });
 
-    expect(SchoolModel.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        schoolId: schoolId,
-      })
-    );
+      (SchoolModel.create as jest.Mock).mockRejectedValue("Unknown error");
+
+      const response = await POST(createMockRequest(validData));
+      const responseData = await response.json();
+
+      expect(response).toEqual(
+        expect.objectContaining({
+          status: 500,
+        })
+      );
+
+      expect(responseData).toEqual({
+        message: "Unknown error occurred",
+        error: "Unknown error",
+      });
+    });
+  });
+
+  describe("Utility functions", () => {
+    it("should generate a valid schoolId for given school name", async () => {
+      const name = "Modern School";
+      const generatedId = generateSchoolId(name);
+      expect(generatedId).toMatch(/^MS-\w{6}$/);
+    });
+
+    it("should handle invalid JSON payloads", async () => {
+      const createMockInvalidRequest = (): NextRequest =>
+        ({
+          json: jest.fn().mockRejectedValue(new Error("Unexpected token")),
+        } as unknown as NextRequest);
+
+      const response = await POST(createMockInvalidRequest());
+      const responseData = await response.json();
+
+      expect(response).toEqual(
+        expect.objectContaining({
+          status: 500,
+        })
+      );
+
+      expect(responseData).toEqual({
+        message: "Unexpected token",
+        error: {},
+      });
+    });
   });
 });
