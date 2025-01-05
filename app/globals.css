@@ -5,14 +5,43 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rozha+One&display=swap");
 
 .rozha-one-regular {
-  font-family: "Rozha One";
+  font-family: "Rozha One", serif;
   font-weight: 400;
   font-style: normal;
 }
 
-
 .rozha-one-bold {
-  font-family: "Rozha One";
+  font-family: "Rozha One", serif; 
   font-weight: 800;
+  font-style: normal;
+}
+
+.laila-light {
+  font-family: "Laila", serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.laila-regular {
+  font-family: "Laila", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.laila-medium {
+  font-family: "Laila", serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.laila-semibold {
+  font-family: "Laila", serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.laila-bold {
+  font-family: "Laila", serif;
+  font-weight: 700;
   font-style: normal;
 }
