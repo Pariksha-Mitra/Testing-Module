@@ -26,6 +26,7 @@ export const authOptions: AuthOptions = {
         }
 
         await connectDb();
+
         try {
           if (!credentials.password || !credentials.username) {
             throw new Error("Missing fields!");
@@ -46,11 +47,9 @@ export const authOptions: AuthOptions = {
           if (!isValid) return null;
 
           return {
-
             id: user._id.toString(),
-            username: user.username as string,
+            username: user.username,
             role: user.role,
-
           };
         } catch (error) {
           console.warn("Authorization error");
@@ -68,7 +67,7 @@ export const authOptions: AuthOptions = {
         token.username = user.username;
         token.id = user.id;
         token.role = user.role as ROLE;
-      } 
+      }
       return token;
     },
     async session({ session, token }): Promise<Session> {

@@ -1,30 +1,29 @@
 import userModel from "@/models/user.model";
+import { ApiError, handleApiError } from "@/utils/api-error";
 import { connectDb } from "@/utils/db";
 import crypto from "crypto";
-import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-  service : "gmail",
+  service: "gmail",
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
 });
 
-export async function POST(req: Request): Promise<NextResponse> {
-  const { email } = await req.json();
-
-  if (!email) {
-    return NextResponse.json({ message: "Email is required" }, { status: 400 });
-  }
-
+export async function POST(req: Request) {
   try {
     await connectDb();
+    const { email } = await req.json();
+
+    if (!email) {
+      throw new ApiError(400, "Email is required");
+    }
 
     const user = await userModel.findOne({ email });
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      throw new ApiError(404, "User not found");
     }
 
     const resetToken = crypto.randomBytes(32).toString("hex");
@@ -69,12 +68,11 @@ export async function POST(req: Request): Promise<NextResponse> {
             </p>`,
     });
 
-    return NextResponse.json(
-      { message: "Password reset email sent" },
-      { status: 200 }
-    );
+    return Response.json({
+      success: true,
+      message: "Password reset email sent",
+    });
   } catch (error) {
-    console.error("Error in forgot password handler:", error);
-    return NextResponse.json({ message: "An error occurred" }, { status: 500 });
+    return handleApiError(error);
   }
-}
+} 

@@ -4,6 +4,7 @@ import { ROLE } from "@/utils/types";
 import { connectDb } from "@/utils/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
+import { ApiError, handleApiError } from "@/utils/api-error";
 
 /**
  * @swagger
@@ -37,24 +38,23 @@ import { NextResponse } from "next/server";
  *         description: Bad request
  */
 export async function POST(req: Request) {
-  await connectDb();
-  const {
-    firstName,
-    middleName,
-    surname,
-    dateOfBirth,
-    role,
-    schoolId,
-    email,
-    invitationId,
-  } = await req.json();
-
-  const slug =
-    `${firstName}-${surname}-${dateOfBirth}-${schoolId}`.toLowerCase();
-
-  await connectDb();
-
   try {
+    await connectDb();
+
+    const {
+      firstName,
+      middleName,
+      surname,
+      dateOfBirth,
+      role,
+      schoolId,
+      email,
+      invitationId,
+    } = await req.json();
+
+    const slug =
+      `${firstName}-${surname}-${dateOfBirth}-${schoolId}`.toLowerCase();
+
     const validationData = {
       firstName,
       middleName,
@@ -69,14 +69,7 @@ export async function POST(req: Request) {
     const validation = registerSchema.safeParse(validationData);
 
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          message: "Validation failed!",
-          success: false,
-          error: validation.error.format(),
-        },
-        { status: 400 }
-      );
+      throw new ApiError(400, "Validation failed", validation.error.format());
     }
 
     const existingUser = await userModel.findOne({
@@ -84,13 +77,7 @@ export async function POST(req: Request) {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        {
-          message: "User already exists, login instead.",
-          success: false,
-        },
-        { status: 409 }
-      );
+      throw new ApiError(409, "User already exists, login instead.");
     }
 
     const username = `${firstName.toLowerCase()}@${Math.floor(
@@ -114,7 +101,7 @@ export async function POST(req: Request) {
         password: hashedPassword,
         ...(role === ROLE.Teacher
           ? {
-              email: email || null,
+              email: email,
               invitationId,
             }
           : {}),
@@ -133,7 +120,6 @@ export async function POST(req: Request) {
       };
     }
 
-
     const result = await userModel.create(userData);
 
     await result.save();
@@ -147,17 +133,6 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.log("SignUp error");
-    return NextResponse.json(
-      {
-        message: "Signup failed!",
-        success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "An error occurred, something went wrong.",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
