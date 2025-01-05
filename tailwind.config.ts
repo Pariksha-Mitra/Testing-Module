@@ -12,6 +12,10 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        rozhaOne: ['var(--font-rozha-one)', 'serif'],
+        laila: ['var(--font-laila)', 'serif'],
+      },
     },
   },
   plugins: [],
