@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar";
+import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import React from "react";
 
 const DashboardLayout = ({
@@ -8,9 +8,9 @@ const DashboardLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <div className="flex bg-gradient-to-b from-yellow-200 to-blue-300">
+    <div className="relative flex bg-gradient-to-b from-yellow-200 to-blue-300 min-h-screen">
       <Sidebar />
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 ml-24">
         <Header />
         {children}
       </div>
