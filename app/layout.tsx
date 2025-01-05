@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Rozha_One, Laila } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/utils/AuthProvider";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const rozhaOne = Rozha_One({
+  weight: "400",
   subsets: ["latin"],
+  variable: "--font-rozha-one",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const laila = Laila({
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
+  variable: "--font-laila",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${rozhaOne.variable} ${laila.variable} antialiased`}
         cz-shortcut-listen="true"
       >
         <ToastProvider>
