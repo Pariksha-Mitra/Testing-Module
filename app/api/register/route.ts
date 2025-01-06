@@ -4,6 +4,7 @@ import { ROLE } from "@/utils/types";
 import { connectDb } from "@/utils/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
+import SchoolModel from "@/models/schoolModel";
 
 /**
  * @swagger
@@ -55,6 +56,20 @@ export async function POST(req: Request) {
   await connectDb();
 
   try {
+
+    const validSchoolId = await SchoolModel.findOne({
+      schoolId
+    })
+
+    if(!validSchoolId) {
+      return NextResponse.json({
+        message  : 'Invalid School id or School is not registered',
+        schoolId
+      }, {
+        status : 404
+      })
+    }
+
     const validationData = {
       firstName,
       middleName,
