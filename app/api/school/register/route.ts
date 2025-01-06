@@ -4,6 +4,105 @@ import { connectDb } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
 import { createId } from "@paralleldrive/cuid2";
 
+
+/**
+ * @swagger
+ * /api/school/register:
+ *   post:
+ *     tags: [School]
+ *     summary: Register a new school
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               contact:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: School added successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ * /api/school:
+ *   get:
+ *     tags: [School]
+ *     summary: Get all schools or a specific school by ID
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: ID of the school to retrieve
+ *     responses:
+ *       200:
+ *         description: List of all schools or the specified school
+ *       404:
+ *         description: School not found
+ *       500:
+ *         description: Internal server error
+ * /api/school/update:
+ *   put:
+ *     tags: [School]
+ *     summary: Update a school's details
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               contact:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: School updated successfully
+ *       400:
+ *         description: Request body or ID missing
+ *       404:
+ *         description: School not found
+ *       500:
+ *         description: Internal server error
+ * /api/school/delete:
+ *   delete:
+ *     tags: [School]
+ *     summary: Delete a school by ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: School deleted successfully
+ *       400:
+ *         description: ID is required
+ *       404:
+ *         description: School not found
+ *       500:
+ *         description: Internal server error
+ */
+
+
+
 export const generateSchoolId = (name: string) => {
   const initials = name
     .split(" ")
@@ -56,7 +155,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           message: error.message,
-          error: {},
+          error,
         },
         { status: 500 }
       );
@@ -99,13 +198,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       message: "School found",
       school,
+    }, {
+      status : 201
     });
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json(
         {
           message: error.message,
-          error: {},
+          error,
         },
         { status: 500 }
       );
