@@ -147,9 +147,7 @@ export async function POST(req: Request) {
       invitationId,
     } = await req.json();
 
-    const validSchoolId = await SchoolModel.findOne({
-      schoolId,
-    });
+    const validSchoolId = await SchoolModel.findById(schoolId);
 
     if (!validSchoolId) {
       return NextResponse.json(

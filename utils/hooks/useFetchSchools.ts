@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
 type School = {
-  id: string;
+  id: any;
+  _id: string;
   schoolId: string;
   name: string;
   contact: string;
@@ -14,7 +15,7 @@ export default function useFetchSchools() {
   const fetchSchools = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/school/register", {
+      const res = await fetch("/api/school", {
         method: "GET",
         credentials: "include",
       });
@@ -24,13 +25,12 @@ export default function useFetchSchools() {
       const schoolData = data.schools;
       const filtered: School[] = schoolData.map((school: School) => {
         return {
-          id: school.id,
+          id: school._id,
           name: school.name,
           contact: school.contact,
           schoolId: school.schoolId,
         };
       });
-
       setSchools(filtered);
     } catch (error) {
       if (error instanceof Error) {

@@ -2,11 +2,10 @@ import SchoolModel from "@/models/schoolModel";
 import { schoolSchema } from "@/models/schoolSchema";
 import { connectDb } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
-import { createId } from "@paralleldrive/cuid2";
 
 /**
  * @swagger
- * /api/school/register:
+ * /api/school:
  *   post:
  *     tags: [School]
  *     summary: Register a new school
@@ -97,14 +96,6 @@ import { createId } from "@paralleldrive/cuid2";
  *         description: Internal server error
  */
 
-export const generateSchoolId = (name: string) => {
-  const initials = name
-    .split(" ")
-    .map((word) => word[0].toUpperCase())
-    .join("");
-  const randomString = createId().slice(0, 6);
-  return `${initials}-${randomString}`;
-};
 
 export async function POST(req: NextRequest) {
   try {
@@ -128,13 +119,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const schoolId = generateSchoolId(validation.data.name);
-
     const school = await SchoolModel.create({
       name: validation.data.name,
       contact: validation.data.contact,
       address: validation.data.address,
-      schoolId,
     });
 
     await school.save();
@@ -142,7 +130,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       message: "School Added",
       success: true,
-      id: schoolId,
+      id: school.id,
     });
   } catch (error) {
     if (error instanceof Error) {

@@ -2,7 +2,6 @@ import mongoose, { Schema, Document } from "mongoose";
 
 interface School extends Document {
   name: string;
-  schoolId: string;
   registredAt: Date;
   contact: string;
   address: string;
@@ -15,13 +14,6 @@ const schoolSchema: Schema<School> = new Schema({
     required: [true, "Name is required!"],
     minlength: [3, "Name must be at least 3 characters long"],
     maxlength: [100, "Name must be at most 100 characters long"],
-  },
-  schoolId: {
-    type: String,
-    required: [true, "School ID is required!"],
-    unique: true,
-    minlength: [5, "School ID must be at least 5 characters long"],
-    maxlength: [20, "School ID must be at most 20 characters long"],
   },
   registredAt: {
     type: Date,

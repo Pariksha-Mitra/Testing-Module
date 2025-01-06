@@ -28,12 +28,12 @@ const Register = () => {
   const [surname, setSurname] = useState<string>("");
   const [dateOfBirth, setDateOfBirth] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [schoolId, setSchoolId] = useState<string>("शाळा क्रमांक १");
+  const [schoolId, setSchoolId] = useState<string>("");
   const [invitationId, setInvitationId] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [open, setOpen] = useState(false);
   const { showToast } = useToast();
-  const { schools,isLoading } = useFetchSchools()
+  const { schools, isLoading } = useFetchSchools()
   const router = useRouter();
 
   useEffect(() => {
@@ -69,6 +69,8 @@ const Register = () => {
         email: role === ROLE.Teacher ? email.trim() : null,
         invitationId: role === ROLE.Teacher ? invitationId.trim() : null,
       };
+
+      console.log(schoolId)
 
       const response = await fetch("/api/register", {
         method: "POST",
@@ -183,15 +185,23 @@ const Register = () => {
                 <select
                   title="school"
                   value={schoolId}
-                  onChange={(e) => setSchoolId(e.target.value)}
+                  onChange={(e) => {
+                    setSchoolId(e.target.value)
+                  }}
                   className="p-3 border border-black shadow-md rounded-2xl"
                 >
-                  {!isLoading && (
+                  <option value="" disabled>
+                    Select a school
+                  </option>
+                  {!isLoading &&
                     schools.map((school) => {
-                      return <option value={school.schoolId} onSelect={() => setSchoolId(school.id)}>{school.name}</option>
-                    })
-                  )}
+                      return <option key={school.id as string} value={school.id as string}>
+                        {school.name}
+                      </option>
+                    })}
                 </select>
+
+
               </div>
 
               {/* Teacher-specific Fields */}
