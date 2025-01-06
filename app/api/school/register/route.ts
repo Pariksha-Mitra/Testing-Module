@@ -4,7 +4,6 @@ import { connectDb } from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
 import { createId } from "@paralleldrive/cuid2";
 
-
 /**
  * @swagger
  * /api/school/register:
@@ -31,7 +30,6 @@ import { createId } from "@paralleldrive/cuid2";
  *         description: Bad request
  *       500:
  *         description: Internal server error
- * /api/school:
  *   get:
  *     tags: [School]
  *     summary: Get all schools or a specific school by ID
@@ -49,7 +47,6 @@ import { createId } from "@paralleldrive/cuid2";
  *         description: School not found
  *       500:
  *         description: Internal server error
- * /api/school/update:
  *   put:
  *     tags: [School]
  *     summary: Update a school's details
@@ -77,7 +74,6 @@ import { createId } from "@paralleldrive/cuid2";
  *         description: School not found
  *       500:
  *         description: Internal server error
- * /api/school/delete:
  *   delete:
  *     tags: [School]
  *     summary: Delete a school by ID
@@ -100,8 +96,6 @@ import { createId } from "@paralleldrive/cuid2";
  *       500:
  *         description: Internal server error
  */
-
-
 
 export const generateSchoolId = (name: string) => {
   const initials = name
