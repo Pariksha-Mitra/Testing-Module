@@ -1,20 +1,16 @@
 import userModel from "@/models/user.model";
+import { ApiError, handleApiError } from "@/utils/api-error";
 import { connectDb } from "@/utils/db";
 import crypto from "crypto";
-import { NextResponse } from "next/server";
 
-export async function POST(req: Request): Promise<NextResponse> {
-  const { token, newPassword } = await req.json();
-
-  if (!token || !newPassword) {
-    return NextResponse
-      .json({ message: "Token and new password are required." },{
-        status : 400
-      });
-  }
-
+export async function POST(req: Request) {
   try {
     await connectDb();
+    const { token, newPassword } = await req.json();
+
+    if (!token || !newPassword) {
+      throw new ApiError(400, "Token and new password are required");
+    }
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -24,9 +20,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     });
 
     if (!user) {
-      return NextResponse.json({ message: "Invalid or expired token." }, {
-        status : 400
-      });
+      throw new ApiError(400, "Invalid or expired token");
     }
 
     user.password = newPassword;
@@ -34,14 +28,11 @@ export async function POST(req: Request): Promise<NextResponse> {
     user.resetPasswordExpires = undefined;
     await user.save();
 
-    return NextResponse
-      .json({ message: "Password has been reset successfully." }, {
-        status : 200
-      });
-  } catch (error) {
-    console.error("Error in reset password handler:", error);
-    return NextResponse.json({ message: "An error occurred." }, {
-        status : 500
+    return Response.json({
+      success: true,
+      message: "Password has been reset successfully",
     });
+  } catch (error) {
+    return handleApiError(error);
   }
 }

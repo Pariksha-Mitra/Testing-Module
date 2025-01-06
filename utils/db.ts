@@ -1,29 +1,42 @@
 import mongoose from "mongoose";
+import { ApiError } from "./api-error";
+import { ErrorCodes } from "./error-codes";
 
-type ConnectionObject = {
-  isConnected?: number;
-};
+const MONGODB_URI = process.env.MONGO_URI as string;
 
-const connection: ConnectionObject = {};
+if (!MONGODB_URI) {
+  throw new ApiError(
+    ErrorCodes.SERVICE_UNAVAILABLE,
+    "Database configuration missing"
+  );
+}
+
+let cached = global as any;
+cached.mongoose = cached.mongoose || { conn: null, promise: null };
 
 export const connectDb = async () => {
-  if (connection.isConnected) {
-    console.log("Already connected to DB!");
-  }
-
   try {
-    const db = await mongoose.connect(process.env.MONGO_URI as string);
-    connection.isConnected = db.connections[0].readyState;
-
-    console.log("Database connected!");
-  } catch (error) {
-    console.log("Database connection failed!");
-    console.error(error);
-    if (process.env.NODE_ENV !== "test") {
-      process.exit(1); // Only exit in non-test environments
-    } else {
-      throw new Error("Failed to connect to the database");
+    if (cached.mongoose.conn) {
+      console.log("Using existing connection");
+      return cached.mongoose.conn;
     }
+
+    if (!cached.mongoose.promise) {
+      const opts = {
+        bufferCommands: false,
+      };
+
+      cached.mongoose.promise = mongoose.connect(MONGODB_URI, opts);
+    }
+
+    cached.mongoose.conn = await cached.mongoose.promise;
+    console.log("Database connected!");
+    return cached.mongoose.conn;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(
+      ErrorCodes.SERVICE_UNAVAILABLE,
+      "Database connection failed"
+    );
   }
 };
-
