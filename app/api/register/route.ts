@@ -132,12 +132,10 @@ import { ApiError, handleApiError } from "@/utils/api-error";
  *                   description: Detailed error message
  */
 
-
 export async function POST(req: Request) {
   await connectDb();
-  
-  try {
 
+  try {
     const {
       firstName,
       middleName,
@@ -148,18 +146,21 @@ export async function POST(req: Request) {
       email,
       invitationId,
     } = await req.json();
-    
-    const validSchoolId = await SchoolModel.findOne({
-      schoolId
-    })
 
-    if(!validSchoolId) {
-      return NextResponse.json({
-        message  : 'Invalid School id or School is not registered',
-        schoolId
-      }, {
-        status : 404
-      })
+    const validSchoolId = await SchoolModel.findOne({
+      schoolId,
+    });
+
+    if (!validSchoolId) {
+      return NextResponse.json(
+        {
+          message: "Invalid School id or School is not registered",
+          schoolId,
+        },
+        {
+          status: 404,
+        }
+      );
     }
 
     const slug =

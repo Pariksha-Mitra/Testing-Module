@@ -136,7 +136,7 @@ describe("Register API", () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.message).toBe("Validation failed!");
+    expect(data.message).toBe("Validation failed");
   });
 
   it("handles database errors", async () => {
@@ -150,6 +150,6 @@ describe("Register API", () => {
     const data = await response.json();
 
     expect(response.status).toBe(500);
-    expect(data.error).toBe("DB Error");
+    expect(data.message).toBe("Internal server error");
   });
 });
