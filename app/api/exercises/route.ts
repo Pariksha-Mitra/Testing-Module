@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Chapter, Standard, Exercise } from "@/server/models/questionsSchema";
+import { Question, Exercise } from "@/server/models/questionsSchema";
 import connectDB from "@/server/utils/db";
 
 
@@ -52,6 +52,7 @@ export async function POST(req: Request) {
     try {
       await connectDB();
   
+      // Extract exercise ID from the query parameters
       const { searchParams } = new URL(req.url);
       const exerciseId = searchParams.get("id");
   
@@ -62,25 +63,32 @@ export async function POST(req: Request) {
         );
       }
   
-      const deletedExercise = await Exercise.findByIdAndDelete(exerciseId);
-  
-      if (!deletedExercise) {
+      const exercise = await Exercise.findById(exerciseId);
+      if (!exercise) {
         return NextResponse.json(
           { error: "Exercise not found" },
           { status: 404 }
         );
       }
   
+      await Question.deleteMany({ exercise: exerciseId });
+  
+      const deletedExercise = await Exercise.findByIdAndDelete(exerciseId);
+  
       return NextResponse.json(
-        { message: "Exercise deleted successfully", exercise: deletedExercise },
+        {
+          message: "Exercise and related questions deleted successfully",
+          deletedExercise,
+        },
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error deleting exercise:", error);
+      console.error("Error deleting exercise and related questions:", error);
       return NextResponse.json(
-        { error: "Failed to delete the exercise" },
+        { error: "Failed to delete the exercise and related questions" },
         { status: 500 }
       );
     }
   }
+  
   
