@@ -23,9 +23,13 @@ jest.mock("@/models/user.model", () => ({
 jest.mock("@/models/schoolModel", () => ({
   __esModule: true,
   default: {
+    findById: jest.fn(),
     findOne: jest.fn(),
   },
 }));
+(SchoolModel.findById as jest.Mock).mockResolvedValue({
+  schoolId: "school123",
+});
 
 interface MockUser {
   save: () => Promise<any>;
@@ -61,7 +65,9 @@ describe("Register API", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword");
-    (SchoolModel.findOne as jest.Mock).mockResolvedValue({ schoolId: "school123" });
+    (SchoolModel.findOne as jest.Mock).mockResolvedValue({
+      schoolId: "school123",
+    });
     (UserModel.findOne as jest.Mock).mockResolvedValue(null);
     (UserModel.create as jest.Mock).mockImplementation((data: any) => ({
       ...mockUser,
@@ -98,18 +104,18 @@ describe("Register API", () => {
   });
 
   it("returns 404 for invalid school", async () => {
-    (SchoolModel.findOne as jest.Mock).mockResolvedValueOnce(null);
-    const request = new Request("http://localhost:3000/api/register", {
-      method: "POST",
-      body: JSON.stringify(mockTeacherData),
+      (SchoolModel.findById as jest.Mock).mockResolvedValueOnce(null);
+      const request = new Request("http://localhost:3000/api/register", {
+        method: "POST",
+        body: JSON.stringify(mockTeacherData),
+      });
+  
+      const response = await POST(request);
+      const data = await response.json();
+  
+      expect(response.status).toBe(404);
+      expect(data.message).toBe("Invalid School id or School is not registered");
     });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(404);
-    expect(data.message).toBe("Invalid School id or School is not registered");
-  });
 
   it("returns 409 for existing user", async () => {
     (UserModel.findOne as jest.Mock).mockResolvedValueOnce({ exists: true });
@@ -140,7 +146,9 @@ describe("Register API", () => {
   });
 
   it("handles database errors", async () => {
-    (UserModel.create as jest.Mock).mockRejectedValueOnce(new Error("DB Error"));
+    (UserModel.create as jest.Mock).mockRejectedValueOnce(
+      new Error("DB Error")
+    );
     const request = new Request("http://localhost:3000/api/register", {
       method: "POST",
       body: JSON.stringify(mockTeacherData),
