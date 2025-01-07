@@ -1,12 +1,27 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import AuthHeader from "@/components/ui/AuthHeader";
 import Link from "next/link";
 import { useToast } from "@/components/ui/ToastProvider";
-import { ROLES } from "@/server/utils/types";
+import { ROLE } from "@/utils/types";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Slide from "@mui/material/Slide";
+import { TransitionProps } from "@mui/material/transitions";
+import { useRouter } from "next/navigation";
+
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & { children: React.ReactElement },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const Register = () => {
-  const [role, setRole] = useState<ROLES>(ROLES.Student);
+  const [role, setRole] = useState<ROLE>(ROLE.Student);
   const [firstName, setFirstName] = useState<string>("");
   const [middleName, setMiddleName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
@@ -14,15 +29,19 @@ const Register = () => {
   const [email, setEmail] = useState<string>("");
   const [schoolId, setSchoolId] = useState<string>("शाळा क्रमांक १");
   const [invitationId, setInvitationId] = useState<string>("");
-
+  const [username, setUsername] = useState<string>("");
+  const [open, setOpen] = useState(false);
   const { showToast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const today = new Date();
     today.setFullYear(today.getFullYear() - 10);
-    const formattedDate = today.toISOString().split('T')[0];
+    const formattedDate = today.toISOString().split("T")[0];
     setDateOfBirth(formattedDate);
   }, []);
+
+  const handleClose = () => setOpen(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,7 +51,7 @@ const Register = () => {
       return;
     }
 
-    if (role === ROLES.Teacher && (!email.trim() || !invitationId.trim())) {
+    if (role === ROLE.Teacher && (!email.trim() || !invitationId.trim())) {
       showToast("Teachers must provide email and invitation code", "error");
       return;
     }
@@ -42,11 +61,11 @@ const Register = () => {
         firstName: firstName.trim(),
         middleName: middleName.trim(),
         surname: surname.trim(),
-        dateOfBirth: new Date(dateOfBirth).toISOString().split('T')[0],
+        dateOfBirth: new Date(dateOfBirth).toISOString().split("T")[0],
         role,
         schoolId,
-        email: role === ROLES.Teacher ? email.trim() : null,
-        invitationId: role === ROLES.Teacher ? invitationId.trim() : null
+        email: role === ROLE.Teacher ? email.trim() : null,
+        invitationId: role === ROLE.Teacher ? invitationId.trim() : null,
       };
 
       const response = await fetch("/api/register", {
@@ -60,14 +79,20 @@ const Register = () => {
       const data = await response.json();
 
       if (data.success) {
+        setUsername(data.user.username); // Assuming the server returns the username
+        setOpen(true); // Show the dialog
         showToast(data.message, "success");
-        showToast(`Your username: ${data.user?.username || ''}`, "success");
       } else {
         showToast(data.message || "Registration failed", "error");
       }
-    } catch (error: any) {
-      showToast(error.message || "An error occurred", "error");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message || "An error occurred", "error");
+      } else {
+        showToast("An unknown error occurred", "error");
+      }
     }
+    
   };
 
   return (
@@ -81,6 +106,7 @@ const Register = () => {
           >
             <h2 className="text-4xl font-bold text-center mb-8">नोंदणी करा</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Form Fields */}
               <div className="flex flex-col">
                 <label className="text-xl font-light mb-2">पहिले नाव</label>
                 <input
@@ -117,65 +143,60 @@ const Register = () => {
               <div className="flex flex-col">
                 <label className="text-xl font-light mb-2">जन्मतारीख</label>
                 <input
-                  placeholder="DOB"
                   type="date"
                   className="p-3 border border-black shadow-md rounded-2xl"
                   value={dateOfBirth}
-                  onChange={(e) => {
-                    const selectedDate = e.target.value;
-                    if (selectedDate) {
-                      setDateOfBirth(selectedDate);
-                    }
-                  }}
-                  max={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  max={new Date().toISOString().split("T")[0]}
                 />
               </div>
 
+              {/* Role Selection */}
               <div className="flex flex-col">
                 <label className="text-xl font-light mb-2">भूमिका</label>
                 <div className="flex">
                   <button
                     type="button"
-                    onClick={() => setRole(ROLES.Teacher)}
-                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-l-xl ${role === ROLES.Teacher && "bg-red-400 text-white"
-                      }`}
+                    onClick={() => setRole(ROLE.Teacher)}
+                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-l-xl ${
+                      role === ROLE.Teacher && "bg-red-400 text-white"
+                    }`}
                   >
                     शिक्षक
                   </button>
                   <button
                     type="button"
-                    onClick={() => setRole(ROLES.Student)}
-                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-r-xl ${role === ROLES.Student && "bg-red-400 text-white"
-                      } `}
+                    onClick={() => setRole(ROLE.Student)}
+                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-r-xl ${
+                      role === ROLE.Student && "bg-red-400 text-white"
+                    } `}
                   >
                     विद्यार्थी
                   </button>
                 </div>
               </div>
 
+              {/* School Name */}
               <div className="flex flex-col">
                 <label className="text-xl font-light mb-2">शाळेचे नाव</label>
-                <div className="relative">
-                  <select
-                    title="School"
-                    value={schoolId}
-                    onChange={(e) => setSchoolId(e.target.value)}
-                    className="p-3 border border-black shadow-md rounded-2xl w-full appearance-none"
-                  >
-                    <option value="शाळा क्रमांक १">शाळा क्रमांक १</option>
-                    <option value="शाळा क्रमांक २">शाळा क्रमांक २</option>
-                  </select>
-                  <div className="absolute top-3 right-3 w-6 h-6 bg-[url('/down-arrow.png')] pointer-events-none"></div>
-                </div>
+                <select
+                  value={schoolId}
+                  onChange={(e) => setSchoolId(e.target.value)}
+                  className="p-3 border border-black shadow-md rounded-2xl"
+                >
+                  <option value="शाळा क्रमांक १">शाळा क्रमांक १</option>
+                  <option value="शाळा क्रमांक २">शाळा क्रमांक २</option>
+                </select>
               </div>
 
-              {role === ROLES.Teacher && (
+              {/* Teacher-specific Fields */}
+              {role === ROLE.Teacher && (
                 <>
                   <div className="flex flex-col">
                     <label className="text-xl font-light mb-2">ई-मेल</label>
                     <input
-                      className="p-3 border border-black shadow-md rounded-2xl"
                       type="email"
+                      className="p-3 border border-black shadow-md rounded-2xl"
                       placeholder="abc123@gmail.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -186,8 +207,8 @@ const Register = () => {
                       आमंत्रण कोड
                     </label>
                     <input
-                      className="p-3 border border-black shadow-md rounded-2xl"
                       type="text"
+                      className="p-3 border border-black shadow-md rounded-2xl"
                       placeholder="XYZ-123-ABC"
                       value={invitationId}
                       onChange={(e) => setInvitationId(e.target.value)}
@@ -197,6 +218,7 @@ const Register = () => {
               )}
             </div>
 
+            {/* Submit Button */}
             <div className="flex justify-center mt-8">
               <button
                 type="submit"
@@ -214,6 +236,61 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog
+        open={open}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={handleClose}
+        aria-describedby="alert-dialog-slide-description"
+        sx={{
+          "& .MuiDialog-paper": {
+            borderRadius: "20px",
+            backgroundColor: "white", // Adjust according to your theme
+            color: "black", // Text color
+            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)",
+            padding: "16px",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontSize: "1.5rem",
+            fontWeight: "bold",
+            textAlign: "center",
+            color: "red", // Adjust according to your theme
+          }}
+        >
+          {"नोंदणी यशस्वी"}
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            textAlign: "center",
+            fontSize: "1.1rem",
+            color: "black", // Adjust according to your theme
+          }}
+        >
+          <DialogContentText id="alert-dialog-slide-description">
+            तुमचे वापरकर्ता नाव: <b>{username}</b> <br />
+            तुमचे वापरकर्तानाव हा तुमचा पासवर्ड आहे परंतु तुम्ही लॉग इन
+            केल्यानंतर बदलू शकता.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            justifyContent: "center",
+            padding: "16px",
+          }}
+        >
+          <button
+            onClick={() => router.push("/login")}
+            className="py-2 px-12 bg-red-400 text-white text-2xl font-medium rounded-2xl shadow-md hover:bg-red-500 transition-colors"
+          >
+            लॉग इन
+          </button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

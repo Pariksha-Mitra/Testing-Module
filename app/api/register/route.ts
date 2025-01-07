@@ -1,28 +1,60 @@
-import { registerSchema } from "@/server/models/registerSchema";
-import User from "@/server/models/user.model";
-import { ROLES } from "@/server/utils/types";
+import { registerSchema } from "@/models/registerSchema";
+import userModel from "@/models/user.model";
+import { ROLE } from "@/utils/types";
+import { connectDb } from "@/utils/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
-import connectDB from "@/server/utils/db";
+import { ApiError, handleApiError } from "@/utils/api-error";
 
+/**
+ * @swagger
+ * /api/register:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               middleName:
+ *                 type: string
+ *               surname:
+ *                 type: string
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *               role:
+ *                 type: string
+ *                 enum: [teacher, student]
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Bad request
+ */
 export async function POST(req: Request) {
-  const {
-    firstName,
-    middleName,
-    surname,
-    dateOfBirth,
-    role,
-    schoolId,
-    email,
-    invitationId,
-  } = await req.json();
-
-  const slug =
-    `${firstName}-${surname}-${dateOfBirth}-${schoolId}`.toLowerCase();
-
-  await connectDB();
-
   try {
+    await connectDb();
+
+    const {
+      firstName,
+      middleName,
+      surname,
+      dateOfBirth,
+      role,
+      schoolId,
+      email,
+      invitationId,
+    } = await req.json();
+
+    const slug =
+      `${firstName}-${surname}-${dateOfBirth}-${schoolId}`.toLowerCase();
+
     const validationData = {
       firstName,
       middleName,
@@ -31,32 +63,21 @@ export async function POST(req: Request) {
       dateOfBirth,
       role,
       schoolId,
-      ...(role === ROLES.Teacher ? { email, invitationId } : {}),
+      ...(role === ROLE.Teacher ? { email, invitationId } : {}),
     };
 
     const validation = registerSchema.safeParse(validationData);
 
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          message: "Validation failed!",
-          success: false,
-          error: validation.error.format(),
-        },
-        { status: 400 }
-      );
+      throw new ApiError(400, "Validation failed", validation.error.format());
     }
 
-    const existingUser = await User.findOne({ slug });
+    const existingUser = await userModel.findOne({
+      slug,
+    });
 
     if (existingUser) {
-      return NextResponse.json(
-        {
-          message: "User already exists, login instead.",
-          success: false,
-        },
-        { status: 409 }
-      );
+      throw new ApiError(409, "User already exists, login instead.");
     }
 
     const username = `${firstName.toLowerCase()}@${Math.floor(
@@ -78,9 +99,9 @@ export async function POST(req: Request) {
         schoolId,
         username,
         password: hashedPassword,
-        ...(role === ROLES.Teacher
+        ...(role === ROLE.Teacher
           ? {
-              email: email || null,
+              email: email,
               invitationId,
             }
           : {}),
@@ -99,9 +120,9 @@ export async function POST(req: Request) {
       };
     }
 
-    console.log(userData);
+    const result = await userModel.create(userData);
 
-    const result = await User.create(userData);
+    await result.save();
 
     return NextResponse.json(
       {
@@ -112,17 +133,6 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("SignUp error:");
-    return NextResponse.json(
-      {
-        message: "Signup failed!",
-        success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "An error occurred, something went wrong.",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

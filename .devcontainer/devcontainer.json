@@ -1,16 +1,48 @@
 {
-    "name": "Pariksha Mitra",
-    "build": {
-      "dockerfile": "Dockerfile"
-    },
-    "postCreateCommand": "npm install",
-    "remoteUser": "root",
-    "customizations": {
-      "vscode": {
-        "extensions": [
-          "esbenp.prettier-vscode",
-          "dbaeumer.vscode-eslint"
-        ]
-      }
+  "name": "Pariksha Mitra",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached"
+  ],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached",
+  "workspaceFolder": "/app",
+  "remoteUser": "node",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "Postman.postman-for-vscode",
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        "dsznajder.es7-react-js-snippets",
+        "ms-vscode.vscode-typescript-next",
+        "ChakrounAnas.turbo-console-log",
+        "developer2006.svg-gallery",
+        "shd101wyy.markdown-preview-enhanced",
+        "ms-vsliveshare.vsliveshare",
+        "ritwickdey.LiveServer",
+        "firsttris.vscode-jest-runner",
+        "Orta.vscode-jest",
+        "VisualStudioExptTeam.intellicode-api-usage-examples",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "donjayamanne.githistory",
+        "mhutchie.git-graph",
+        "adpyke.codesnap",
+        "streetsidesoftware.code-spell-checker"
+      ]
     }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "postCreateCommand": "npm install",
+  "remoteEnv": {
+    "NODE_ENV": "development"
   }
+}

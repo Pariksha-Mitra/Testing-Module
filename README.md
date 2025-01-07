@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pariksha Mitra
+
+This repository contains the source code for the Testing Module of Pariksha Mitra, an educational application designed for Marathi medium students from grades 5th to 10th.
+
+## Features
+
+### For Students
+- Access to practice tests and exercises
+- Chapter-wise question selection
+- Interactive learning games for each chapter
+- Personalized performance analysis
+- Student-specific dashboard
+
+### For Teachers
+- Secure authentication system
+- Easy test creation and management
+- In-depth class performance analytics
+- Identification of focus areas
+- Teacher-specific dashboard
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+- Node.js (v16 or higher)
+- npm or yarn
+- MongoDB (for local development)
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/yourusername/your-repo.git
+    cd your-repo
+    ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+2. Install dependencies:
+    ```sh
+    npm install
+    ```
+
+## Development
+
+### Environment Setup
+Create a `.env` file in the root directory:
+```env
+MONGO_URI=mongodb://localhost:27017/parikshamitra
+NEXTAUTH_SECRET=your-secret-key
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Available Scripts
+```bash
+npm run dev     # Start development server
+npm run build   # Build for production
+npm start       # Start production server
+npm test        # Run test suite
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Troubleshooting
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Common issues and solutions:
 
-## Learn More
+1. **Database Connection Issues**
+   - Verify MongoDB is running
+   - Check connection string in `.env`
+   - Ensure network connectivity
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Build Errors**
+   - Clear cache: `rm -rf .next`
+   - Reinstall dependencies: `npm ci`

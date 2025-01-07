@@ -12,7 +12,7 @@ export type options = {
   value: string;
 };
 
-export enum ROLES {
+export enum ROLE {
   Teacher = "teacher",
   Student = "student",
 }
@@ -20,13 +20,9 @@ export enum ROLES {
 export interface ToggleGroupProps {
   id: string;
   label: string;
-  selectedValue?: ROLES;
-  onChange?: (value: ROLES) => void;
+  selectedValue?: ROLE;
+  onChange?: (value: ROLE) => void;
 }
 
-export enum Role {
-  Teacher = "Teacher",
-  Student = "Student",
-}
 
 

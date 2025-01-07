@@ -1,10 +1,11 @@
-import NextAuth, { AuthOptions, Session, SessionStrategy } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import User from "@/server/models/user.model";
-import { JWT } from "next-auth/jwt";
 import bcrypt from "bcryptjs";
-import { Role, ROLES } from "./types";
-import connectDB from "@/server/utils/db";
+
+import NextAuth, { AuthOptions, Session, SessionStrategy } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import CredentialsProvider from "next-auth/providers/credentials";
+import userModel from "../models/user.model";
+import { connectDb } from "./db";
+import { ROLE } from "./types";
 
 type CredentialsType = {
   username: string;
@@ -23,28 +24,30 @@ export const authOptions: AuthOptions = {
           console.error("Please provide the credentials!");
           return null;
         }
+
+        await connectDb();
+
         try {
           if (!credentials.password || !credentials.username) {
             throw new Error("Missing fields!");
           }
 
-          await connectDB();
+          const user = await userModel
+            .findOne({ username: credentials.username })
+            .select("_id username password role")
+            .lean();
 
-          const user = await User.findOne({
-            username: credentials.username,
-          }).select("id username password role");
-
-          if (!user) throw new Error("User not found!");
+          if (!user) return null;
 
           const isValid = await bcrypt.compare(
             credentials.password,
             user.password
           );
 
-          if (!isValid) throw new Error("Wrong password!");
+          if (!isValid) return null;
 
           return {
-            id: user.id,
+            id: user._id.toString(),
             username: user.username,
             role: user.role,
           };
@@ -61,8 +64,9 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }): Promise<JWT> {
       if (user) {
-        (token.username = user.username), (token.id = user.id);
-        token.role = user.role as Role;
+        token.username = user.username;
+        token.id = user.id;
+        token.role = user.role as ROLE;
       }
       return token;
     },
