@@ -1,6 +1,85 @@
 import { NextResponse } from "next/server";
-import { Question } from "@/server/models/questionsSchema";
-import connectDB from "@/server/utils/db";
+import { Question } from "@/models/questionsSchema";
+import {connectDB} from "@/utils/db";
+
+/**
+ * @swagger
+ * /api/questions/{questionId}:
+ *   get:
+ *     tags:
+ *       - Questions
+ *     summary: Get a single question by its ID
+ *     description: Retrieve a question by its ID along with related details such as exercise, chapter, and standard.
+ *     parameters:
+ *       - in: path
+ *         name: questionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the question to retrieve.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the question.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 singleQuestion:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     questionText:
+ *                       type: string
+ *                     questionType:
+ *                       type: string
+ *                     answerFormat:
+ *                       type: string
+ *                     options:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     numericalAnswer:
+ *                       type: number
+ *                     exerciseTitle:
+ *                       type: string
+ *                     exerciseDescription:
+ *                       type: string
+ *                     exerciseId:
+ *                       type: string
+ *                     chapterTitle:
+ *                       type: string
+ *                     chapterDescription:
+ *                       type: string
+ *                     chapterId:
+ *                       type: string
+ *                     standardName:
+ *                       type: string
+ *                     standardDescription:
+ *                       type: string
+ *                     standardId:
+ *                       type: string
+ *       404:
+ *         description: Question not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *       500:
+ *         description: Failed to retrieve the question due to a server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
+
 
 export async function GET(req: Request, context: any) {
   try {
