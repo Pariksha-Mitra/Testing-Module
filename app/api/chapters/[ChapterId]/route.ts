@@ -1,6 +1,38 @@
 import { NextResponse } from "next/server";
-import { Chapter } from "@/server/models/questionsSchema";
-import connectDB from "@/server/utils/db";
+import { Chapter } from "@/models/questionsSchema";
+import {connectDB} from "@/utils/db";
+
+/**
+ * @swagger
+ * paths:
+ *   /api/chapters/{chapterId}:
+ *     get:
+ *       tags:
+ *         - Chapters
+ *       summary: "Get a single chapter by ID"
+ *       description: "Retrieve a single chapter from the database by its ID."
+ *       parameters:
+ *         - name: "chapterId"
+ *           in: "path"
+ *           required: true
+ *           description: "The ID of the chapter to retrieve."
+ *           schema:
+ *             type: "string"
+ *       responses:
+ *         200:
+ *           description: "Successfully retrieved the chapter."
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: "object"
+ *                 properties:
+ *                   singleChapter:
+ *                     $ref: "#/components/schemas/Chapter"
+ *         404:
+ *           description: "Chapter not found."
+ *         500:
+ *           description: "Failed to retrieve the chapter due to a server error."
+ */
 
 export async function GET(req: Request, context: any) {
   try {
