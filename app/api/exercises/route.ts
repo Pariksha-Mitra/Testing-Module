@@ -1,6 +1,115 @@
 import { NextResponse } from "next/server";
-import { Question, Exercise } from "@/server/models/questionsSchema";
-import connectDB from "@/server/utils/db";
+import { Question, Exercise } from "@/models/questionsSchema";
+import {connectDB} from "@/utils/db";
+
+/**
+ * @swagger
+ * paths:
+ *   /api/exercises:
+ *     get:
+ *       tags:
+ *         - Exercises
+ *       summary: "Get all exercises"
+ *       description: "Retrieve a list of all exercises from the database."
+ *       responses:
+ *         200:
+ *           description: "Successfully retrieved the list of exercises."
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: "object"
+ *                 properties:
+ *                   exercises:
+ *                     type: "array"
+ *                     items:
+ *                       $ref: "#/components/schemas/Exercise"
+ *         400:
+ *           description: "Failed to retrieve exercises."
+ *   /api/exercises:
+ *     post:
+ *       tags:
+ *         - Exercises
+ *       summary: "Create a new exercise"
+ *       description: "Create a new exercise and associate it with a chapter."
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: "object"
+ *               properties:
+ *                 title:
+ *                   type: "string"
+ *                 description:
+ *                   type: "string"
+ *                 chapterId:
+ *                   type: "string"
+ *       responses:
+ *         201:
+ *           description: "Successfully created the exercise."
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: "object"
+ *                 properties:
+ *                   message:
+ *                     type: "string"
+ *                   exercise:
+ *                     $ref: "#/components/schemas/Exercise"
+ *         400:
+ *           description: "Title, description, and chapterId are required."
+ *         500:
+ *           description: "Failed to create the exercise."
+ *   /api/exercises:
+ *     delete:
+ *       tags:
+ *         - Exercises
+ *       summary: "Delete an exercise by ID"
+ *       description: "Delete a specific exercise by its ID and all related questions."
+ *       parameters:
+ *         - name: "id"
+ *           in: "query"
+ *           required: true
+ *           description: "The ID of the exercise to delete."
+ *           schema:
+ *             type: "string"
+ *       responses:
+ *         200:
+ *           description: "Successfully deleted the exercise and its related questions."
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: "object"
+ *                 properties:
+ *                   message:
+ *                     type: "string"
+ *                   deletedExercise:
+ *                     $ref: "#/components/schemas/Exercise"
+ *         400:
+ *           description: "Exercise ID is required."
+ *         404:
+ *           description: "Exercise not found."
+ *         500:
+ *           description: "Failed to delete the exercise and related questions."
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Exercise:
+ *       type: "object"
+ *       properties:
+ *         _id:
+ *           type: "string"
+ *         title:
+ *           type: "string"
+ *         description:
+ *           type: "string"
+ *         chapter:
+ *           type: "string"
+ */
+
 
 
 export async function GET(){
