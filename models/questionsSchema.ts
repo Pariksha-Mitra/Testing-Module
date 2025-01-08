@@ -101,6 +101,12 @@ const questionSchema = new mongoose.Schema(
         message: "Options must contain at least one item.",
       },
     },
+    correctAnswer: {
+      type: String, // Could be an index of `options` or the actual answer text
+      required: function () {
+        return this.questionType === "MCQ";
+      },
+    },
     numericalAnswer: {
       type: Number,
       required: function () {
