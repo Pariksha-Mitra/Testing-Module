@@ -1,107 +1,141 @@
 import { NextResponse } from "next/server";
-import { Question } from "@/server/models/questionsSchema";
-import connectDB from "@/server/utils/db";
-
+import { Question } from "@/models/questionsSchema";
+import {connectDB} from "@/utils/db";
 
 /**
  * @swagger
- * /questions:
- *   get:
- *     summary: Get all questions
- *     description: Retrieve a list of all questions with related information.
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 questions:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       _id:
- *                         type: string
- *                       questionText:
- *                         type: string
- *                       questionType:
- *                         type: string
- *                       answerFormat:
- *                         type: string
- *                       exerciseTitle:
- *                         type: string
- *                       chapterTitle:
- *                         type: string
- *                       standardName:
- *                         type: string
- *
- * /questions:
- *   post:
- *     summary: Add a new question
- *     description: Create a new question with the required fields.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               standard:
- *                 type: string
- *               chapter:
- *                 type: string
- *               exercise:
- *                 type: string
- *               questionText:
- *                 type: string
- *               questionType:
- *                 type: string
- *               answerFormat:
- *                 type: string
- *               options:
- *                 type: array
- *                 items:
- *                   type: string
- *               numericalAnswer:
- *                 type: number
- *     responses:
- *       201:
- *         description: Question added successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 question:
- *                   type: object
- *
- * /questions:
- *   delete:
- *     summary: Delete a question
- *     description: Delete a question by ID.
- *     parameters:
- *       - in: query
- *         name: id
- *         schema:
- *           type: string
+ * paths:
+ *   /api/questions:
+ *     get:
+ *       tags:
+ *         - Questions
+ *       summary: "Get a list of all questions with their related exercise, chapter, and standard data"
+ *       description: "Retrieve all questions with their associated exercises, chapters, and standards."
+ *       responses:
+ *         200:
+ *           description: "Successfully retrieved all questions and their related data."
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: "object"
+ *                 properties:
+ *                   questions:
+ *                     type: "array"
+ *                     items:
+ *                       $ref: "#/components/schemas/Question"
+ *         500:
+ *           description: "Failed to fetch the questions."
+ *   /api/questions:
+ *     post:
+ *       tags:
+ *         - Questions
+ *       summary: "Add a new question"
+ *       description: "Add a new question to the database, including its standard, chapter, exercise, and other relevant details."
+ *       requestBody:
  *         required: true
- *         description: ID of the question to delete
- *     responses:
- *       200:
- *         description: Question deleted successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
+ *               type: "object"
  *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
+ *                 standard:
+ *                   type: "string"
+ *                 chapter:
+ *                   type: "string"
+ *                 exercise:
+ *                   type: "string"
+ *                 questionText:
+ *                   type: "string"
+ *                 questionType:
+ *                   type: "string"
+ *                 answerFormat:
+ *                   type: "string"
+ *                 options:
+ *                   type: "array"
+ *                   items:
+ *                     type: "string"
+ *                 correctAnswer:
+ *                   type: "string"
+ *                 numericalAnswer:
+ *                   type: "number"
+ *       responses:
+ *         200:
+ *           description: "Successfully added a new question."
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: "object"
+ *                 properties:
+ *                   message:
+ *                     type: "string"
+ *                   question:
+ *                     $ref: "#/components/schemas/Question"
+ *         400:
+ *           description: "Missing required fields."
+ *         500:
+ *           description: "Failed to add the question."
+ *   /api/questions:
+ *     delete:
+ *       tags:
+ *         - Questions
+ *       summary: "Delete a question by its ID"
+ *       description: "Delete a question based on its ID."
+ *       parameters:
+ *         - name: "id"
+ *           in: "query"
+ *           required: true
+ *           description: "The ID of the question to delete."
+ *           schema:
+ *             type: "string"
+ *       responses:
+ *         200:
+ *           description: "Successfully deleted the question."
+ *         400:
+ *           description: "Question ID is required."
+ *         404:
+ *           description: "Question not found."
+ *         500:
+ *           description: "Failed to delete the question."
+ * 
+ * components:
+ *   schemas:
+ *     Question:
+ *       type: "object"
+ *       properties:
+ *         _id:
+ *           type: "string"
+ *         questionText:
+ *           type: "string"
+ *         questionType:
+ *           type: "string"
+ *         answerFormat:
+ *           type: "string"
+ *         options:
+ *           type: "array"
+ *           items:
+ *             type: "string"
+ *         correctAnswer:
+ *           type: "string"
+ *         numericalAnswer:
+ *           type: "number"
+ *         exerciseTitle:
+ *           type: "string"
+ *         exerciseDescription:
+ *           type: "string"
+ *         exerciseId:
+ *           type: "string"
+ *         chapterTitle:
+ *           type: "string"
+ *         chapterDescription:
+ *           type: "string"
+ *         chapterId:
+ *           type: "string"
+ *         standardName:
+ *           type: "string"
+ *         standardDescription:
+ *           type: "string"
+ *         standardId:
+ *           type: "string"
  */
 
 
@@ -132,6 +166,7 @@ export async function GET() {
         questionType: question.questionType,
         answerFormat: question.answerFormat,
         options: question.options,
+        correctAnswer: question.correctAnswer,
         numericalAnswer: question.numericalAnswer,
         exerciseTitle: exercise.title,
         exerciseDescription: exercise.description,
@@ -159,6 +194,7 @@ export async function POST(req) {
     await connectDB();
 
     const body = await req.json();
+    console.log(body);
 
     const {
       standard,
@@ -168,10 +204,13 @@ export async function POST(req) {
       questionType,
       answerFormat,
       options,
+      correctAnswer,
       numericalAnswer,
     } = body;
 
-    if (!standard || !chapter || !exercise || !questionText || !questionType || !answerFormat) {
+    console.log("correct answer = ",correctAnswer)
+
+    if (!standard || !chapter || !exercise || !questionText || !questionType || !answerFormat || !correctAnswer) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -186,6 +225,7 @@ export async function POST(req) {
       questionType,
       answerFormat,
       options: questionType === "MCQ" ? options : [],
+      correctAnswer,
       numericalAnswer: questionType === "Numerical" ? numericalAnswer : null,
     });
 
