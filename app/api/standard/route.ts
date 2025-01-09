@@ -6,113 +6,157 @@ import { Exercise } from "@/models/questionsSchema";
 import { Question } from "@/models/questionsSchema";
 /**
  * @swagger
- * paths:
- *   /api/classes:
- *     get:
- *       tags:
- *         - Classes
- *       summary: "Get all classes (standards)"
- *       description: "Retrieve all the available standards (classes)."
- *       responses:
- *         200:
- *           description: "Successfully retrieved all classes."
- *           content:
- *             application/json:
- *               schema:
- *                 type: "object"
- *                 properties:
- *                   classes:
- *                     type: "array"
- *                     items:
- *                       $ref: "#/components/schemas/Standard"
- *         400:
- *           description: "Failed to retrieve classes."
- */
-
-/**
- * @swagger
- * paths:
- *   /api/classes:
- *     post:
- *       tags:
- *         - Classes
- *       summary: "Create a new class (standard)"
- *       description: "Create a new class (standard) by providing its name and description."
- *       requestBody:
- *         required: true
+ * /api/standard:
+ *   get:
+ *     summary: Retrieve all classes
+ *     description: Fetches a list of all classes (standards) along with their details such as standard name and description.
+ *     tags:
+ *       - Standards
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved all classes.
  *         content:
  *           application/json:
  *             schema:
- *               type: "object"
+ *               type: object
  *               properties:
- *                 standardName:
- *                   type: "string"
- *                   description: "Name of the standard (class)."
- *                 description:
- *                   type: "string"
- *                   description: "Description of the standard (class)."
- *       responses:
- *         201:
- *           description: "Successfully created a new standard."
- *           content:
- *             application/json:
- *               schema:
- *                 type: "object"
- *                 properties:
- *                   message:
- *                     type: "string"
- *                   standard:
- *                     $ref: "#/components/schemas/Standard"
- *         400:
- *           description: "Standard name is required."
- *         500:
- *           description: "Failed to create the standard."
- */
-
-/**
- * @swagger
- * paths:
- *   /api/classes:
- *     delete:
- *       tags:
- *         - Classes
- *       summary: "Delete a class (standard) and its related data"
- *       description: "Delete a class (standard) by providing its ID along with its related chapters, exercises, and questions."
- *       parameters:
- *         - name: "id"
- *           in: "query"
- *           required: true
- *           description: "The ID of the standard (class) to delete."
+ *                 classes:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "676f580403831da26a228fb6"
+ *                       standardName:
+ *                         type: integer
+ *                         example: 2
+ *                       description:
+ *                         type: string
+ *                         example: "Grade 2 - Advanced concepts"
+ *       400:
+ *         description: Failed to retrieve classes.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Failed to retrieve the Classes Information"
+ * 
+ *   post:
+ *     summary: Create a new standard
+ *     description: Adds a new standard (class) with its name and description.
+ *     tags:
+ *       - Standards
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
  *           schema:
- *             type: "string"
- *       responses:
- *         200:
- *           description: "Successfully deleted the standard and related data."
- *         404:
- *           description: "Standard or related data not found."
- *         500:
- *           description: "Failed to delete standard and related data."
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Standard:
- *       type: "object"
- *       properties:
- *         _id:
- *           type: "string"
- *         standardName:
- *           type: "string"
- *         description:
- *           type: "string"
+ *             type: object
+ *             properties:
+ *               standardName:
+ *                 type: integer
+ *                 example: 10
+ *               description:
+ *                 type: string
+ *                 example: "This is the standard for students in grade 10."
+ *     responses:
+ *       201:
+ *         description: Successfully created the standard.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Standard created successfully"
+ *                 standard:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: "6772a873bc41879fdd60748d"
+ *                     standardName:
+ *                       type: integer
+ *                       example: 10
+ *                     description:
+ *                       type: string
+ *                       example: "This is the standard for students in grade 10."
+ *       400:
+ *         description: Missing or invalid data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Standard name is required"
+ *       500:
+ *         description: Failed to create the standard.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Failed to create standard"
+ * 
+ *   delete:
+ *     summary: Delete a standard and related data
+ *     description: Deletes a specific standard by ID and removes all related chapters, exercises, and questions.
+ *     tags:
+ *       - Standards
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         description: The ID of the standard to delete.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully deleted the standard and related data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Standard and related data deleted successfully"
+ *       404:
+ *         description: Standard not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Id not Found"
+ *       500:
+ *         description: Failed to delete the standard and related data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Failed to delete standard and related data"
  */
 
 
 export async function GET() {
     try {
         await connectDB();
+        console.log("hello");
         const classes = await Standard.find();
         return NextResponse.json({classes}, {status:200}) 
     } catch (error) {
