@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 /**
  * @swagger
- * /api/school:
+ * /api/school/register:
  *   post:
  *     tags: [School]
  *     summary: Register a new school
@@ -33,8 +33,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 export async function POST(req: NextRequest) {
+  await connectDb();
+  
     try {
-      await connectDb();
   
       const body = await req.json();
   

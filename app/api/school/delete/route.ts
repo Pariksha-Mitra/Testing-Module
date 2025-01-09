@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 /**
  * @swagger
- * /api/school:
+ * /api/school/delete:
  *   delete:
  *     tags: [School]
  *     summary: Delete a school by ID

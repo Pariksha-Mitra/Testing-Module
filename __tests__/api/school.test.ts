@@ -1,4 +1,7 @@
-import { POST, GET, PUT, DELETE } from "@/app/api/school/route";
+import { POST } from "@/app/api/school/register/route";
+import { GET } from "@/app/api/school/get/route";
+import { PUT } from "@/app/api/school/update/route";
+import { DELETE } from "@/app/api/school/delete/route";
 import SchoolModel from "@/models/schoolModel";
 import { schoolSchema } from "@/models/schoolSchema";
 import { connectDb } from "@/utils/db";
