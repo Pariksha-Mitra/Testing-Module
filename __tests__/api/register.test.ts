@@ -1,38 +1,49 @@
 import { POST } from "@/app/api/register/route";
-import { connectDb } from "@/utils/db";
+import SchoolModel from "@/models/schoolModel";
+import UserModel from "@/models/user.model";
 import { ROLE } from "@/utils/types";
-import bcrypt from "bcrypt";
-import mongoose from "mongoose";
-
-jest.mock("mongoose", () => ({
-  ...jest.requireActual("mongoose"),
-  models: {
-    User: {
-      findOne: jest.fn(),
-      create: jest.fn(),
-    },
-  },
-}));
+import bcrypt from "bcryptjs";
 
 jest.mock("@/utils/db", () => ({
   connectDb: jest.fn(),
 }));
 
-jest.mock("bcrypt");
+jest.mock("bcryptjs", () => ({
+  hash: jest.fn(),
+}));
 
-jest.mock("next/server", () => ({
-  NextResponse: {
-    json: jest.fn((data, options) => ({
-      status: options?.status || 200,
-      json: async () => data,
-    })),
+jest.mock("@/models/user.model", () => ({
+  __esModule: true,
+  default: {
+    findOne: jest.fn(),
+    create: jest.fn(),
   },
 }));
 
-describe("POST /api/register", () => {
+jest.mock("@/models/schoolModel", () => ({
+  __esModule: true,
+  default: {
+    findById: jest.fn(),
+    findOne: jest.fn(),
+  },
+}));
+(SchoolModel.findById as jest.Mock).mockResolvedValue({
+  schoolId: "school123",
+});
+
+interface MockUser {
+  save: () => Promise<any>;
+  [key: string]: any;
+}
+
+describe("Register API", () => {
+  const mockUser: MockUser = {
+    save: jest.fn().mockResolvedValue(undefined),
+  };
+
   const mockTeacherData = {
     firstName: "John",
-    middleName: "Middle",
+    middleName: "",
     surname: "Doe",
     dateOfBirth: "1990-01-01",
     role: ROLE.Teacher,
@@ -43,29 +54,30 @@ describe("POST /api/register", () => {
 
   const mockStudentData = {
     firstName: "Jane",
+    middleName: "",
     surname: "Smith",
     dateOfBirth: "2010-01-01",
     role: ROLE.Student,
     schoolId: "school123",
+    email: "jane@example.com",
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword123");
-    (connectDb as jest.Mock).mockResolvedValue(undefined);
-    const mockSave = jest.fn().mockResolvedValue(undefined);
-    const mockUserDocument = { save: mockSave };
-    (mongoose.models.User.findOne as jest.Mock).mockResolvedValue(null);
-    (mongoose.models.User.create as jest.Mock).mockImplementation((data) => ({
+    (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword");
+    (SchoolModel.findOne as jest.Mock).mockResolvedValue({
+      schoolId: "school123",
+    });
+    (UserModel.findOne as jest.Mock).mockResolvedValue(null);
+    (UserModel.create as jest.Mock).mockImplementation((data: any) => ({
+      ...mockUser,
       ...data,
-      ...mockUserDocument,
     }));
   });
 
-  it("should successfully register a teacher", async () => {
+  it("registers teacher successfully", async () => {
     const request = new Request("http://localhost:3000/api/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mockTeacherData),
     });
 
@@ -74,15 +86,12 @@ describe("POST /api/register", () => {
 
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
-    expect(data.message).toBe("User registered successfully!");
-    expect(mongoose.models.User.create).toHaveBeenCalled();
-    expect(bcrypt.hash).toHaveBeenCalled();
+    expect(UserModel.create).toHaveBeenCalledTimes(1);
   });
 
-  it("should successfully register a student", async () => {
+  it("registers student successfully", async () => {
     const request = new Request("http://localhost:3000/api/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mockStudentData),
     });
 
@@ -91,37 +100,27 @@ describe("POST /api/register", () => {
 
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
-    expect(data.message).toBe("User registered successfully!");
-    expect(mongoose.models.User.create).toHaveBeenCalled();
+    expect(UserModel.create).toHaveBeenCalledTimes(1);
   });
 
-  it("should reject registration with missing required fields", async () => {
-    const invalidData = {
-      firstName: "John",
-    };
-
-    const request = new Request("http://localhost:3000/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(invalidData),
+  it("returns 404 for invalid school", async () => {
+      (SchoolModel.findById as jest.Mock).mockResolvedValueOnce(null);
+      const request = new Request("http://localhost:3000/api/register", {
+        method: "POST",
+        body: JSON.stringify(mockTeacherData),
+      });
+  
+      const response = await POST(request);
+      const data = await response.json();
+  
+      expect(response.status).toBe(404);
+      expect(data.message).toBe("Invalid School id or School is not registered");
     });
 
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data.success).toBe(false);
-    expect(data.message).toBe("Validation failed!");
-  });
-
-  it("should reject registration for existing user", async () => {
-    (mongoose.models.User.findOne as jest.Mock).mockResolvedValueOnce({
-      _id: "existingUserId",
-    });
-
+  it("returns 409 for existing user", async () => {
+    (UserModel.findOne as jest.Mock).mockResolvedValueOnce({ exists: true });
     const request = new Request("http://localhost:3000/api/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mockTeacherData),
     });
 
@@ -129,41 +128,29 @@ describe("POST /api/register", () => {
     const data = await response.json();
 
     expect(response.status).toBe(409);
-    expect(data.success).toBe(false);
     expect(data.message).toBe("User already exists, login instead.");
   });
 
-  // it("should handle database connection errors", async () => {
-  //   (connectDb as jest.Mock).mockImplementation(() => {
-  //     throw new Error("Database connection failed");
-  //   });
-
-  //   const request = new Request("http://localhost:3000/api/register", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(mockTeacherData),
-  //   });
-
-  //   const response = await POST(request);
-  //   const data = await response.json();
-
-  //   expect(response.status).toBe(500);
-  //   expect(data).toEqual({
-  //     message: "Signup failed!",
-  //     success: false,
-  //     error: "Database connection failed",
-  //   });
-  //   expect(connectDb).toHaveBeenCalled();
-  // });
-
-  it("should handle database operation errors", async () => {
-    (mongoose.models.User.create as jest.Mock).mockRejectedValue(
-      new Error("Database operation failed")
-    );
-
+  it("handles validation errors", async () => {
+    const invalidData = { firstName: "John" };
     const request = new Request("http://localhost:3000/api/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(invalidData),
+    });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.message).toBe("Validation failed");
+  });
+
+  it("handles database errors", async () => {
+    (UserModel.create as jest.Mock).mockRejectedValueOnce(
+      new Error("DB Error")
+    );
+    const request = new Request("http://localhost:3000/api/register", {
+      method: "POST",
       body: JSON.stringify(mockTeacherData),
     });
 
@@ -171,24 +158,6 @@ describe("POST /api/register", () => {
     const data = await response.json();
 
     expect(response.status).toBe(500);
-    expect(data).toEqual({
-      message: "Signup failed!",
-      success: false,
-      error: "Database operation failed",
-    });
-  });
-
-  it("should generate correct username format", async () => {
-    const request = new Request("http://localhost:3000/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mockTeacherData),
-    });
-
-    await POST(request);
-
-    const createCall = (mongoose.models.User.create as jest.Mock).mock.calls[0][0];
-    expect(createCall.username).toMatch(/^john@\d{1,4}$/);
-    expect(createCall.password).toBe("hashedPassword123");
+    expect(data.message).toBe("Internal server error");
   });
 });

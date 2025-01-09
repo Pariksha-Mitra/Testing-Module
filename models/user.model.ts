@@ -98,7 +98,6 @@ const userSchema: Schema<User> = new Schema<User>({
       type: String,
       required: [true, "School ID is required"],
       trim: true,
-      unique: true,
     },
     slug: {
       type: String,
