@@ -24,7 +24,7 @@ const schoolSchema: Schema<School> = new Schema({
     required: [true, "Contact is required!"],
     match: [
       /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
-      "Contact must be a valid 10-digit phone number",
+      "Contact must be a valid email address",
     ],
   },
   address: {
