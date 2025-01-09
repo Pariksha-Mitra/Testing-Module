@@ -1,9 +1,11 @@
-// import Header from "@/components/Header";
+"use client";
+
+import React from "react";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import QuestionBankHeader from "@/components/QuestionBankHeader";
-import React from "react";
+import { SelectionProvider } from "@/context/SelectionContext";
 
-const TestPageLayout = ({
+const QuestionBankPageLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -13,13 +15,16 @@ const TestPageLayout = ({
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 ml-24">
-        <QuestionBankHeader />
-        {children}
-      </div>
+      {/* Main Content wrapped with SelectionProvider */}
+      <SelectionProvider>
+        <div className="flex-1 p-6 ml-24">
+          {/* Header and Children can now consume SelectionContext */}
+          <QuestionBankHeader />
+          {children}
+        </div>
+      </SelectionProvider>
     </div>
   );
 };
 
-export default TestPageLayout;
+export default QuestionBankPageLayout;

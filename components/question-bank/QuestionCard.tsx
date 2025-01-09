@@ -1,12 +1,13 @@
 import * as React from "react";
 import { QuestionProps } from "@/utils/types";
 
-export const QuestionCard: React.FC<QuestionProps> = ({
+export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> = ({
   questionNumber,
   description,
   isSelected,
   onClick,
   onDelete,
+  icon,
 }) => {
   // We'll treat an empty description as the “Add question” state
   const showAddQuestion = !description;
@@ -14,8 +15,8 @@ export const QuestionCard: React.FC<QuestionProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`
-         rozha-one-regular flex flex-wrap gap-5 justify-between items-center pr-6 w-full bg-white rounded-3xl border border-solid shadow-lg border-zinc-400 max-md:pr-5 max-md:max-w-full
+      className={` 
+        rozha-one-regular flex flex-wrap gap-5 justify-between items-center pr-6 w-full bg-white rounded-3xl border border-solid shadow-lg border-zinc-400 max-md:pr-5 max-md:max-w-full
         ${
           isSelected
             ? "border-emerald-400 bg-emerald-50"
@@ -23,22 +24,30 @@ export const QuestionCard: React.FC<QuestionProps> = ({
         }
       `}
     >
-      {/* Left "Q.no." badge covering full height */}
+      {/* Left badge or icon */}
       <div
-        className=" self-stretch px-2 py-[19px] text-white text-center whitespace-nowrap bg-emerald-300 rounded-3xl shadow-lg"
-        style={{ minWidth: "120px" }}
+        className="self-stretch flex justify-center items-center px-2 py-[19px] text-white text-center whitespace-nowrap bg-emerald-300 rounded-3xl shadow-lg"
+        style={{ minWidth: "90px" }}
       >
-        {questionNumber}
+        {icon ? (
+          // If `icon` is provided, render it
+          <div className="flex justify-center items-center h-[32px]">
+            {icon}
+          </div>
+        ) : (
+          // Otherwise, render question number
+          questionNumber
+        )}
       </div>
 
       {/* Main content area (flex-1 so it expands) */}
       <div className="flex-1 flex items-center justify-between px-4 py-3">
         {/* If there's no description, show "Add question" text */}
-        <div className="overflow-hidden rozha-one-regular text-2xl">
+        <div className="overflow-hidden rozha-one-regular text-3xl ">
           {showAddQuestion ? (
-            <p className="text-blue-600  text-base">Add question</p>
+            <p className="text-[#2836ff] text-xl">Add question</p>
           ) : (
-            <p className="text-black text-base truncate">{description}</p>
+            <p className=" text-xl truncate">{description}</p>
           )}
         </div>
 

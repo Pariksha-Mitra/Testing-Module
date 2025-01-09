@@ -1,42 +1,42 @@
-"use client";
+import React, { useContext, useCallback } from "react";
 import Image from "next/image";
 import Dropdown from "@/components/Dropdown/Dropdown";
-import { useCallback, useMemo, useState } from "react";
+import { SelectionContext } from "@/context/SelectionContext";
 
 export default function QuestionBankHeader() {
-  const [selection, setSelection] = useState({
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  });
+  const context = useContext(SelectionContext);
+  
+  if (!context) {
+    throw new Error("QuestionBankHeader must be used within a SelectionProvider");
+  }
+  
+  const { selection, setSelection } = context;
 
   const handleSelect = useCallback(
-    (value: string | number, dropdownId: string) => {
-      console.log(`Dropdown ID: ${dropdownId}, Selected value: ${value}`);
+    (value: string | number, dropdownId: keyof typeof selection) => {
+      const stringValue = typeof value === "number" ? value.toString() : value;
+      console.log(`Dropdown ID: ${dropdownId}, Selected value: ${stringValue}`);
 
       // Update the selection state based on the dropdownId
       setSelection((prevSelection) => ({
         ...prevSelection,
-        [dropdownId]: value,
+        [dropdownId]: stringValue,
       }));
     },
     [setSelection]
   );
 
-  const classOptions = useMemo(() => ["५", "६", "७", "८", "९", "१०"], []);
-
-  const subjectOptions = useMemo(() => ["विषय १", "विषय २", "विषय ३"], []);
-
-  const lessonOptions = useMemo(() => ["धडा १", "धडा २", "धडा ३"], []);
-
-  const homeworkOptions = useMemo(() => ["स्वाध्याय १", "स्वाध्याय २"], []);
+  // Example: You can adjust these arrays to your real data
+  const classOptions = ["५", "६", "७", "८", "९", "१०"];
+  const subjectOptions = ["विषय १", "विषय २", "विषय ३"];
+  const lessonOptions = ["धडा १", "धडा २", "धडा ३"];
+  const homeworkOptions = ["स्वाध्याय १", "स्वाध्याय २"];
 
   return (
     <div className="bg-[#6378fd] text-white flex flex-col items-center p-4 rounded-lg shadow">
       <div className="flex items-center justify-center w-full text-center gap-8">
         <Image src="/question.svg" alt="test-paper" width={100} height={100} />
-        <p className="text-6xl font-rozhaOne">प्रश्न संच</p>
+        <p className="text-8xl font-rozhaOne">प्रश्न संच</p>
         <Image src="/paper.svg" alt="test-paper" width={80} height={80} />
       </div>
 
@@ -44,12 +44,12 @@ export default function QuestionBankHeader() {
         <Dropdown
           id="class-dropdown"
           items={classOptions}
-          label="प्रकार:"
+          label="इयत्ता:"
           defaultValue={selection.class}
           buttonBgColor="bg-[#fc708a]"
           buttonBorderColor="border-white"
           buttonBorderWidth="border-[2px]"
-          onSelect={(value) => handleSelect(value, "class-dropdown")}
+          onSelect={(value) => handleSelect(value, "class")}
           className="w-full sm:w-[20%]"
         />
 
@@ -61,7 +61,7 @@ export default function QuestionBankHeader() {
           buttonBgColor="bg-[#fc708a]"
           buttonBorderColor="border-white"
           buttonBorderWidth="border-[2px]"
-          onSelect={(value) => handleSelect(value, "subject-dropdown")}
+          onSelect={(value) => handleSelect(value, "subject")}
           className="w-full sm:w-[20%]"
         />
 
@@ -73,7 +73,7 @@ export default function QuestionBankHeader() {
           buttonBgColor="bg-[#fc708a]"
           buttonBorderColor="border-white"
           buttonBorderWidth="border-[2px]"
-          onSelect={(value) => handleSelect(value, "lesson-dropdown")}
+          onSelect={(value) => handleSelect(value, "lesson")}
           className="w-full sm:w-[20%]"
           allowAddOption
           allowAddOptionText={"add lesson"}
@@ -87,12 +87,11 @@ export default function QuestionBankHeader() {
           buttonBgColor="bg-[#fc708a]"
           buttonBorderColor="border-white"
           buttonBorderWidth="border-[2px]"
-          onSelect={(value) => handleSelect(value, "homework-dropdown")}
+          onSelect={(value) => handleSelect(value, "homework")}
           className="w-full sm:w-[20%]"
           allowAddOption
           allowAddOptionText={"add homework"}
         />
-        
       </div>
     </div>
   );
