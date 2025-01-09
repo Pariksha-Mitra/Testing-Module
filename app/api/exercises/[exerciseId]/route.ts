@@ -55,8 +55,8 @@ import {connectDB} from "@/utils/db";
 export async function GET(req: Request, context: any) {
   try {
     await connectDB();
-    const { ChapterId } = await context.params;
-    const singleExercise = await Exercise.findById(ChapterId);
+    const { exerciseId } = await context.params;
+    const singleExercise = await Exercise.findById(exerciseId);
 
     if (!singleExercise) {
       return NextResponse.json(
