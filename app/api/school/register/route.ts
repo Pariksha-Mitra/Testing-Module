@@ -34,7 +34,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   await connectDb();
-  
+  await SchoolModel.syncIndexes()
     try {
   
       const body = await req.json();
