@@ -15,7 +15,7 @@ export default function useFetchSchools() {
   const fetchSchools = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/school/get", {
+      const res = await fetch("/api/school/listSchool", {
         method: "GET",
         credentials: "include",
       });

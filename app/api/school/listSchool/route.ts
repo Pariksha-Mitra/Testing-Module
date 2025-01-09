@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 /**
  * @swagger
- * /api/school:
+ * /api/school/listSchool:
  *   get:
  *     tags: [School]
  *     summary: Get all schools or a specific school by ID

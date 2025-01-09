@@ -5,10 +5,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 /**
  * @swagger
- * /api/school:
- *   post:
+ * /api/school/updateSchool:
+ *   put:
  *     tags: [School]
- *     summary: Register a new school
+ *     summary: Update a school's details
  *     requestBody:
  *       required: true
  *       content:
@@ -16,6 +16,8 @@ import { NextRequest, NextResponse } from "next/server";
  *           schema:
  *             type: object
  *             properties:
+ *               id:
+ *                 type: string
  *               name:
  *                 type: string
  *               contact:
@@ -23,24 +25,26 @@ import { NextRequest, NextResponse } from "next/server";
  *               address:
  *                 type: string
  *     responses:
- *       201:
- *         description: School added successfully
+ *       200:
+ *         description: School updated successfully
  *       400:
- *         description: Bad request
+ *         description: Request body or ID missing
+ *       404:
+ *         description: School not found
  *       500:
  *         description: Internal server error
  */
 
 
-export async function POST(req: NextRequest) {
+export async function PUT(req: NextRequest) {
     try {
       await connectDb();
   
       const body = await req.json();
   
-      if (!body) {
+      if (!body || !body.id) {
         return NextResponse.json(
-          { message: "Request body is required" },
+          { message: "Request body and ID are required" },
           { status: 400 }
         );
       }
@@ -54,25 +58,30 @@ export async function POST(req: NextRequest) {
         );
       }
   
-      const school = await SchoolModel.create({
-        name: validation.data.name,
-        contact: validation.data.contact,
-        address: validation.data.address,
-      });
+      const updatedSchool = await SchoolModel.findByIdAndUpdate(
+        body.id,
+        validation.data,
+        { new: true }
+      );
   
-      await school.save();
+      if (!updatedSchool) {
+        return NextResponse.json(
+          { message: "School not found" },
+          { status: 404 }
+        );
+      }
   
       return NextResponse.json({
-        message: "School Added",
+        message: "School Updated",
         success: true,
-        id: school.id,
+        school: updatedSchool,
       });
     } catch (error) {
       if (error instanceof Error) {
         return NextResponse.json(
           {
             message: error.message,
-            error,
+            error: {},
           },
           { status: 500 }
         );

@@ -1,4 +1,7 @@
-import { POST, GET, PUT, DELETE } from "@/app/api/school/route";
+import { POST } from "@/app/api/school/addSchool/route";
+import { GET } from "@/app/api/school/listSchool/route";
+import { PUT } from "@/app/api/school/updateSchool/route";
+import { DELETE } from "@/app/api/school/deleteSchool/route";
 import SchoolModel from "@/models/schoolModel";
 import { schoolSchema } from "@/models/schoolSchema";
 import { connectDb } from "@/utils/db";
@@ -25,7 +28,10 @@ jest.mock("@/models/schoolSchema", () => ({
   },
 }));
 
-const createMockRequest = (body: any, url = "http://localhost/api/school"): NextRequest => {
+const createMockRequest = (
+  body: any,
+  url = "http://localhost/api/school"
+): NextRequest => {
   return {
     json: () => Promise.resolve(body),
     url,
@@ -38,13 +44,19 @@ describe("API /api/school", () => {
     (connectDb as jest.Mock).mockResolvedValue(undefined);
   });
 
-
   describe("POST /api/school", () => {
     it("should successfully create a new school", async () => {
-      const validSchoolData = { name: "Test School", contact: "1234567890", address: "Test Address" };
+      const validSchoolData = {
+        name: "Test School",
+        contact: "1234567890",
+        address: "Test Address",
+      };
       const mockSchool = { id: "123", save: jest.fn().mockResolvedValue(true) };
 
-      (schoolSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: validSchoolData });
+      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: validSchoolData,
+      });
       (SchoolModel.create as jest.Mock).mockResolvedValue(mockSchool);
 
       const response = await POST(createMockRequest(validSchoolData));
@@ -87,12 +99,12 @@ describe("API /api/school", () => {
           address: "123 Test St",
           extraField: "Ignored",
         };
-  
+
         const mockSchool = {
           save: jest.fn().mockResolvedValue(true),
           id: "mockedId",
         };
-  
+
         (schoolSchema.safeParse as jest.Mock).mockReturnValue({
           success: true,
           data: {
@@ -101,45 +113,45 @@ describe("API /api/school", () => {
             address: "123 Test St",
           },
         });
-  
+
         (SchoolModel.create as jest.Mock).mockResolvedValue(mockSchool);
-  
+
         const response = await POST(createMockRequest(validDataWithExtraField));
         const responseData = await response.json();
-  
+
         expect(SchoolModel.create).toHaveBeenCalledWith({
           name: "Test School",
           contact: "1234567890",
           address: "123 Test St",
         });
-  
+
         expect(responseData).toEqual({
           message: "School Added",
           success: true,
           id: "mockedId",
         });
       });
-  
+
       it("should handle unexpected errors", async () => {
         (connectDb as jest.Mock).mockImplementation(() => {
           throw new Error("Unexpected error");
         });
-  
+
         const validSchoolData = {
           name: "Test School",
           contact: "1234567890",
           address: "123 Test St",
         };
-  
+
         const response = await POST(createMockRequest(validSchoolData));
         const responseData = await response.json();
-  
+
         expect(response).toEqual(
           expect.objectContaining({
             status: 500,
           })
         );
-  
+
         expect(responseData).toEqual({
           message: "Unexpected error",
           error: expect.any(Object),
@@ -150,7 +162,10 @@ describe("API /api/school", () => {
 
   describe("GET /api/school", () => {
     it("should retrieve all schools", async () => {
-      const mockSchools = [{ id: "1", name: "School 1" }, { id: "2", name: "School 2" }];
+      const mockSchools = [
+        { id: "1", name: "School 1" },
+        { id: "2", name: "School 2" },
+      ];
       (SchoolModel.find as jest.Mock).mockResolvedValue(mockSchools);
 
       const response = await GET(createMockRequest(null));
@@ -158,24 +173,34 @@ describe("API /api/school", () => {
 
       expect(connectDb).toHaveBeenCalled();
       expect(SchoolModel.find).toHaveBeenCalled();
-      expect(responseData).toEqual({ message: "All schools", schools: mockSchools });
+      expect(responseData).toEqual({
+        message: "All schools",
+        schools: mockSchools,
+      });
     });
 
     it("should retrieve a school by ID", async () => {
       const mockSchool = { id: "1", name: "School 1" };
       (SchoolModel.findById as jest.Mock).mockResolvedValue(mockSchool);
 
-      const response = await GET(createMockRequest(null, "http://localhost/api/school?id=1"));
+      const response = await GET(
+        createMockRequest(null, "http://localhost/api/school?id=1")
+      );
       const responseData = await response.json();
 
       expect(SchoolModel.findById).toHaveBeenCalledWith("1");
-      expect(responseData).toEqual({ message: "School found", school: mockSchool });
+      expect(responseData).toEqual({
+        message: "School found",
+        school: mockSchool,
+      });
     });
 
     it("should return 404 if school not found", async () => {
       (SchoolModel.findById as jest.Mock).mockResolvedValue(null);
 
-      const response = await GET(createMockRequest(null, "http://localhost/api/school?id=1"));
+      const response = await GET(
+        createMockRequest(null, "http://localhost/api/school?id=1")
+      );
       const responseData = await response.json();
 
       expect(response.status).toBe(404);
@@ -185,16 +210,30 @@ describe("API /api/school", () => {
 
   describe("PUT /api/school", () => {
     it("should successfully update a school", async () => {
-      const validData = { id: "1", name: "Updated School", contact: "1234567890", address: "New Address" };
+      const validData = {
+        id: "1",
+        name: "Updated School",
+        contact: "1234567890",
+        address: "New Address",
+      };
       const updatedSchool = { ...validData };
 
-      (schoolSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: validData });
-      (SchoolModel.findByIdAndUpdate as jest.Mock).mockResolvedValue(updatedSchool);
+      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: validData,
+      });
+      (SchoolModel.findByIdAndUpdate as jest.Mock).mockResolvedValue(
+        updatedSchool
+      );
 
       const response = await PUT(createMockRequest(validData));
       const responseData = await response.json();
 
-      expect(SchoolModel.findByIdAndUpdate).toHaveBeenCalledWith("1", validData, { new: true });
+      expect(SchoolModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        "1",
+        validData,
+        { new: true }
+      );
       expect(responseData).toEqual({
         message: "School Updated",
         success: true,
@@ -207,13 +246,17 @@ describe("API /api/school", () => {
       const responseData = await response.json();
 
       expect(response.status).toBe(400);
-      expect(responseData).toEqual({ message: "Request body and ID are required" });
+      expect(responseData).toEqual({
+        message: "Request body and ID are required",
+      });
     });
 
     it("should return 404 if school not found", async () => {
       (SchoolModel.findByIdAndUpdate as jest.Mock).mockResolvedValue(null);
 
-      const response = await PUT(createMockRequest({ id: "1", name: "Updated School" }));
+      const response = await PUT(
+        createMockRequest({ id: "1", name: "Updated School" })
+      );
       const responseData = await response.json();
 
       expect(response.status).toBe(404);
