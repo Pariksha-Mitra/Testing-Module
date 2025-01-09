@@ -1,7 +1,7 @@
 import { registerSchema } from "@/models/registerSchema";
 import userModel from "@/models/user.model";
 import { ROLE } from "@/utils/types";
-import { connectDb } from "@/utils/db";
+import { connectDB } from "@/utils/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { ApiError, handleApiError } from "@/utils/api-error";
@@ -39,7 +39,7 @@ import { ApiError, handleApiError } from "@/utils/api-error";
  */
 export async function POST(req: Request) {
   try {
-    await connectDb();
+    await connectDB();
 
     const {
       firstName,
