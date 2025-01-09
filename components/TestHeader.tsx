@@ -1,16 +1,24 @@
 "use client";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import Dropdown from "@/components/Dropdown/Dropdown";
 import Image from "next/image";
+import { useQuestions } from "@/context/QuestionsContext";
 
 export default function TestHeader() {
-  // Initialize selection state
-  const [selection, setSelection] = useState({
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  });
+  const {
+    selection,
+    setSelection,
+    questions,
+    setQuestions,
+    selectedQuestionIndex,
+    setSelectedQuestionIndex,
+  } = useQuestions();
+
+  // Define dropdown options using useMemo for performance optimization
+  const classOptions = useMemo(() => ["५", "६", "७", "८", "९", "१०"], []);
+  const subjectOptions = useMemo(() => ["विषय १", "विषय २", "विषय ३"], []);
+  const lessonOptions = useMemo(() => ["धडा १", "धडा २", "धडा ३"], []);
+  const homeworkOptions = useMemo(() => ["स्वाध्याय १", "स्वाध्याय २"], []);
 
   /**
    * Handler for dropdown selection changes.
@@ -18,23 +26,64 @@ export default function TestHeader() {
    * @param dropdownKey - The key corresponding to the dropdown (e.g., 'class', 'subject').
    */
   const handleSelect = useCallback(
-    (value: string | number, dropdownKey: string) => {
+    async (value: string | number, dropdownKey: string) => {
       console.log(`Dropdown Key: ${dropdownKey}, Selected value: ${value}`);
 
-      // Update the selection state based on the dropdownKey
       setSelection((prevSelection) => ({
         ...prevSelection,
         [dropdownKey]: value,
       }));
+
+      setQuestions([]);
+      setSelectedQuestionIndex(0);
+
+      const fetchedQuestions = [
+        {
+          id: 1,
+          type: "MCQ" as const,
+          content: {
+            questionText: "",
+            options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+            correctAnswerIndex: 0,
+            description: "",
+          },
+        },
+        // Add more questions as needed
+      ];
+
+      setQuestions(fetchedQuestions);
     },
-    []
+    [setSelection, setQuestions, setSelectedQuestionIndex]
   );
 
-  // Define dropdown options using useMemo for performance optimization
-  const classOptions = useMemo(() => ["५", "६", "७", "८", "९", "१०"], []);
-  const subjectOptions = useMemo(() => ["विषय १", "विषय २", "विषय ३"], []);
-  const lessonOptions = useMemo(() => ["धडा १", "धडा २", "धडा ३"], []);
-  const homeworkOptions = useMemo(() => ["स्वाध्याय १", "स्वाध्याय २"], []);
+  /**
+   * Handles adding a new question.
+   */
+  const handleAddQuestion = useCallback(() => {
+    const newQuestion = {
+      id: questions.length + 1,
+      type: "MCQ" as const, // Default to MCQ or any default type
+      content: {
+        questionText: "",
+        description: "",
+        options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+        correctAnswerIndex: null,
+      },
+    };
+    setQuestions([...questions, newQuestion]);
+    setSelectedQuestionIndex(questions.length); // Select the new question
+  }, [questions, setQuestions, setSelectedQuestionIndex]);
+
+  /**
+   * Handles selecting a specific question.
+   * @param index - The index of the selected question.
+   */
+  const handleSelectQuestion = useCallback(
+    (index: number) => {
+      setSelectedQuestionIndex(index);
+    },
+    [setSelectedQuestionIndex]
+  );
 
   return (
     <div className="text-white rounded-lg">
@@ -49,12 +98,11 @@ export default function TestHeader() {
               width={70}
               height={70}
             />
-            <h1 className="text-6xl rozha-one-regular">चाचणी तयार करा</h1>
+            <h1 className="text-7xl rozha-one-regular">चाचणी तयार करा</h1>
           </div>
 
           {/* Dropdowns Section */}
           <div className="flex flex-wrap justify-between w-full mr-3 ml-3 gap-2">
-            {/* Class Dropdown */}
             <Dropdown
               id="class-dropdown"
               items={classOptions}
@@ -65,10 +113,7 @@ export default function TestHeader() {
               buttonBorderWidth="border-[2px]"
               onSelect={(value) => handleSelect(value, "class")}
               className="sm:w-[48%]"
-              
             />
-
-            {/* Subject Dropdown */}
             <Dropdown
               id="subject-dropdown"
               label="विषय:"
@@ -80,8 +125,6 @@ export default function TestHeader() {
               onSelect={(value) => handleSelect(value, "subject")}
               className="sm:w-[48%]"
             />
-
-            {/* Lesson Dropdown */}
             <Dropdown
               id="lesson-dropdown"
               label="धडा:"
@@ -95,8 +138,6 @@ export default function TestHeader() {
               allowAddOption
               allowAddOptionText="add lesson"
             />
-
-            {/* Homework Dropdown */}
             <Dropdown
               id="homework-dropdown"
               label="स्वाध्याय:"
@@ -113,29 +154,39 @@ export default function TestHeader() {
           </div>
         </div>
 
-        {/* Right Section: Visual Representation */}
-        <div className="flex flex-col p-4 rounded-lg shadow bg-[#6378fd] w-full md:w-1/2">
+        {/* Right Section: Question Navigation */}
+        <div className="flex flex-col p-4 rounded-lg shadow bg-[#6378fd] w-full md:w-1/2 ">
           <div className="grid grid-cols-7 gap-4 p-4">
-            {/* First Item */}
-            <div className="flex items-center">
-              <div className="flex items-center justify-center bg-green-400 w-10 h-10 text-white rounded-full font-bold laila-regular">
-                1
-              </div>
-            </div>
-
-            {/* Plus Icon */}
-            <div className="flex items-center">
-              <div className="flex items-center justify-center bg-[#a6b1ff] w-10 h-10 text-white rounded-full font-bold">
-                +
-              </div>
-            </div>
-
-            {/* Additional Items */}
-            {[...Array(19)].map((_, index: number) => (
+            {questions.map((question, index) => (
               <div
-                key={index + 2}
-                className="flex items-center justify-center bg-[#a6b1ff] w-10 h-10 text-white rounded-full"
-              />
+                key={question.id}
+                className={`flex pt-1 laila-semibold items-center justify-center ${
+                  selectedQuestionIndex === index ? "bg-green-400" : "bg-[#a6b1ff]"
+                } w-10 h-10 text-white rounded-full font-bold cursor-pointer`}
+                onClick={() => handleSelectQuestion(index)}
+              >
+                {question.id}
+              </div>
+            ))}
+            <div
+              className="flex items-center justify-center bg-[#a6b1ff] w-10 h-10 rounded-full cursor-pointer"
+              onClick={handleAddQuestion}
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 44 44"
+                fill="white"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M19.098 43.3068V0.147724H24.9276V43.3068H19.098ZM0.416193 24.625V18.8295H43.6094V24.625H0.416193Z" />
+              </svg>
+            </div>
+            {Array.from({ length: 21 - questions.length - 1 }, (_, i) => (
+              <div
+                key={`placeholder-${i}`}
+                className="w-10 h-10 bg-[#a6b1ff] rounded-full opacity-50"
+              ></div>
             ))}
           </div>
         </div>
