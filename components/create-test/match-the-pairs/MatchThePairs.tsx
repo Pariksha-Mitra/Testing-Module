@@ -1,7 +1,12 @@
+"use client";
 import React from "react";
 import Field from "@/components/create-test/match-the-pairs/Field";
 
-const MatchThePairs: React.FC = () => {
+interface MatchThePairsProps {
+  editable: boolean; // Added editable prop
+}
+
+const MatchThePairs: React.FC<MatchThePairsProps> = ({ editable }) => {
   const [fieldAValues, setFieldAValues] = React.useState<Record<string, string>>({
     a: "",
     b: "",
@@ -22,6 +27,8 @@ const MatchThePairs: React.FC = () => {
   const [activeA, setActiveA] = React.useState<string | null>(null);
 
   const handleFieldAChange = (key: string, value: string) => {
+    if (!editable) return; // Prevent changes if not editable
+
     setFieldAValues((prev) => ({
       ...prev,
       [key]: value,
@@ -29,6 +36,8 @@ const MatchThePairs: React.FC = () => {
   };
 
   const handleFieldBChange = (key: string, value: string) => {
+    if (!editable) return; // Prevent changes if not editable
+
     setFieldBValues((prev) => ({
       ...prev,
       [key]: value,
@@ -36,10 +45,14 @@ const MatchThePairs: React.FC = () => {
   };
 
   const handleConnectA = (key: string) => {
+    if (!editable) return; // Prevent connecting if not editable
+
     setActiveA((prev) => (prev === key ? null : key));
   };
 
   const handleConnectB = (key: string) => {
+    if (!editable) return; // Prevent connecting if not editable
+
     if (activeA) {
       setConnections((prev) => {
         const updated = { ...prev };
@@ -56,6 +69,12 @@ const MatchThePairs: React.FC = () => {
     }
   };
 
+  const handleClearConnections = () => {
+    if (!editable) return; // Prevent clearing if not editable
+
+    setConnections({});
+  };
+
   return (
     <div className="mt-3.5 w-full max-md:max-w-full">
       <div className="flex gap-5 max-md:flex-col">
@@ -67,6 +86,7 @@ const MatchThePairs: React.FC = () => {
             onConnect={handleConnectA}
             activeItem={activeA}
             connections={connections}
+            editable={editable} // Pass editable prop
           />
         </div>
         <div className="flex flex-col ml-5 w-6/12 max-md:ml-0 max-md:w-full">
@@ -78,6 +98,7 @@ const MatchThePairs: React.FC = () => {
             onConnect={handleConnectB}
             activeItem={null} // Field B doesn't have an active selection
             connections={connections}
+            editable={editable} // Pass editable prop
           />
         </div>
       </div>
@@ -88,14 +109,18 @@ const MatchThePairs: React.FC = () => {
         )}
         {Object.entries(connections).map(([keyA, keyB]) => (
           <div key={keyA} className="mt-1">
-            {`Field A ${keyA} -> Field B ${keyB}`}
+            {`Field A ${keyA.toUpperCase()} -> Field B ${keyB.toUpperCase()}`}
           </div>
         ))}
       </div>
       <div className="mt-5">
         <button
-          onClick={() => setConnections({})}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          onClick={handleClearConnections}
+          disabled={!editable} // Disable button when not editable
+          className={`px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 ${
+            !editable ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          aria-disabled={!editable} // Accessibility attribute
         >
           Clear All Connections
         </button>

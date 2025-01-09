@@ -5,7 +5,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({ label, bgColor, onCl
   return (
     <button
       onClick={onClick}
-      className={`px-10 py-4 ${bgColor} rounded-3xl border-[1.5px] border-black border-solid shadow-lg text-white`}
+      className={`cursor-pointer px-10 py-4 ${bgColor} rounded-3xl border-[1.5px] border-black border-solid shadow-lg text-white`}
       tabIndex={0}
       role="button"
       aria-label={label}
