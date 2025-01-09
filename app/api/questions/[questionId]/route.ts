@@ -117,6 +117,7 @@ export async function GET(req: Request, context: any) {
       questionType: singleQuestion.questionType,
       answerFormat: singleQuestion.answerFormat,
       options: singleQuestion.options,
+      correctAnswer: singleQuestion.correctAnswer,
       numericalAnswer: singleQuestion.numericalAnswer,
       exerciseTitle: singleQuestion.exercise?.title,
       exerciseDescription: singleQuestion.exercise?.description,
