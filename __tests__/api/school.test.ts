@@ -1,7 +1,7 @@
 import { POST } from "@/app/api/school/addSchool/route";
+import { DELETE } from "@/app/api/school/deleteSchool/route";
 import { GET } from "@/app/api/school/listSchool/route";
 import { PUT } from "@/app/api/school/updateSchool/route";
-import { DELETE } from "@/app/api/school/deleteSchool/route";
 import SchoolModel from "@/models/schoolModel";
 import { schoolSchema } from "@/models/schoolSchema";
 import { connectDb } from "@/utils/db";
@@ -19,6 +19,7 @@ jest.mock("@/models/schoolModel", () => ({
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
     findByIdAndDelete: jest.fn(),
+    syncIndexes : jest.fn(),
   },
 }));
 
@@ -27,6 +28,10 @@ jest.mock("@/models/schoolSchema", () => ({
     safeParse: jest.fn(),
   },
 }));
+
+beforeAll(() => {
+  process.env.MONGO_URI = "mongodb://localhost:27017/testdb";
+});
 
 const createMockRequest = (
   body: any,
@@ -42,7 +47,7 @@ describe("API /api/school", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (connectDb as jest.Mock).mockResolvedValue(undefined);
-  });
+  });  
 
   describe("POST /api/school", () => {
     it("should successfully create a new school", async () => {
@@ -133,9 +138,8 @@ describe("API /api/school", () => {
       });
 
       it("should handle unexpected errors", async () => {
-        (connectDb as jest.Mock).mockImplementation(() => {
-          throw new Error("Unexpected error");
-        });
+        const error = new Error("Database configuration missing");
+        (connectDb as jest.Mock).mockRejectedValue(error);
 
         const validSchoolData = {
           name: "Test School",
@@ -146,16 +150,11 @@ describe("API /api/school", () => {
         const response = await POST(createMockRequest(validSchoolData));
         const responseData = await response.json();
 
-        expect(response).toEqual(
-          expect.objectContaining({
-            status: 500,
-          })
-        );
-
-        expect(responseData).toEqual({
-          message: "Unexpected error",
-          error: expect.any(Object),
-        });
+        expect(response.status).toBe(500);
+        expect(responseData).toMatchObject({
+          message: "Database configuration missing",
+          success: false,
+        });        
       });
     });
   });

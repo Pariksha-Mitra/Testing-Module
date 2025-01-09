@@ -33,9 +33,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 export async function POST(req: NextRequest) {
+
     try {
       await connectDb();
-  
+      await SchoolModel.syncIndexes()
+      
       const body = await req.json();
   
       if (!body) {
@@ -68,20 +70,11 @@ export async function POST(req: NextRequest) {
         id: school.id,
       });
     } catch (error) {
-      if (error instanceof Error) {
-        return NextResponse.json(
-          {
-            message: error.message,
-            error,
-          },
-          { status: 500 }
-        );
-      }
-  
+      console.error(error);
       return NextResponse.json(
         {
-          message: "Unknown error occurred",
-          error: error,
+          message: error instanceof Error ? error.message : "Internal Server Error",
+          success: false,
         },
         { status: 500 }
       );
