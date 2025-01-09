@@ -1,144 +1,63 @@
 import { NextResponse } from "next/server";
 import { Question } from "@/models/questionsSchema";
-import {connectDB} from "@/utils/db";
+import { connectDB } from "@/utils/db";
 
 /**
  * @swagger
- * paths:
- *   /api/questions:
- *     get:
- *       tags:
- *         - Questions
- *       summary: "Get a list of all questions with their related exercise, chapter, and standard data"
- *       description: "Retrieve all questions with their associated exercises, chapters, and standards."
- *       responses:
- *         200:
- *           description: "Successfully retrieved all questions and their related data."
- *           content:
- *             application/json:
- *               schema:
- *                 type: "object"
- *                 properties:
- *                   questions:
- *                     type: "array"
- *                     items:
- *                       $ref: "#/components/schemas/Question"
- *         500:
- *           description: "Failed to fetch the questions."
- *   /api/questions:
- *     post:
- *       tags:
- *         - Questions
- *       summary: "Add a new question"
- *       description: "Add a new question to the database, including its standard, chapter, exercise, and other relevant details."
- *       requestBody:
- *         required: true
+ * /api/questions:
+ *   get:
+ *     tags:
+ *       - Questions
+ *     summary: Get all questions
+ *     description: Fetches all questions from the database, including associated exercise, chapter, and standard details.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved questions.
  *         content:
  *           application/json:
  *             schema:
- *               type: "object"
+ *               type: object
  *               properties:
- *                 standard:
- *                   type: "string"
- *                 chapter:
- *                   type: "string"
- *                 exercise:
- *                   type: "string"
- *                 questionText:
- *                   type: "string"
- *                 questionType:
- *                   type: "string"
- *                 answerFormat:
- *                   type: "string"
- *                 options:
- *                   type: "array"
+ *                 questions:
+ *                   type: array
  *                   items:
- *                     type: "string"
- *                 correctAnswer:
- *                   type: "string"
- *                 numericalAnswer:
- *                   type: "number"
- *       responses:
- *         200:
- *           description: "Successfully added a new question."
- *           content:
- *             application/json:
- *               schema:
- *                 type: "object"
- *                 properties:
- *                   message:
- *                     type: "string"
- *                   question:
- *                     $ref: "#/components/schemas/Question"
- *         400:
- *           description: "Missing required fields."
- *         500:
- *           description: "Failed to add the question."
- *   /api/questions:
- *     delete:
- *       tags:
- *         - Questions
- *       summary: "Delete a question by its ID"
- *       description: "Delete a question based on its ID."
- *       parameters:
- *         - name: "id"
- *           in: "query"
- *           required: true
- *           description: "The ID of the question to delete."
- *           schema:
- *             type: "string"
- *       responses:
- *         200:
- *           description: "Successfully deleted the question."
- *         400:
- *           description: "Question ID is required."
- *         404:
- *           description: "Question not found."
- *         500:
- *           description: "Failed to delete the question."
- * 
- * components:
- *   schemas:
- *     Question:
- *       type: "object"
- *       properties:
- *         _id:
- *           type: "string"
- *         questionText:
- *           type: "string"
- *         questionType:
- *           type: "string"
- *         answerFormat:
- *           type: "string"
- *         options:
- *           type: "array"
- *           items:
- *             type: "string"
- *         correctAnswer:
- *           type: "string"
- *         numericalAnswer:
- *           type: "number"
- *         exerciseTitle:
- *           type: "string"
- *         exerciseDescription:
- *           type: "string"
- *         exerciseId:
- *           type: "string"
- *         chapterTitle:
- *           type: "string"
- *         chapterDescription:
- *           type: "string"
- *         chapterId:
- *           type: "string"
- *         standardName:
- *           type: "string"
- *         standardDescription:
- *           type: "string"
- *         standardId:
- *           type: "string"
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       questionText:
+ *                         type: string
+ *                       questionType:
+ *                         type: string
+ *                       answerFormat:
+ *                         type: string
+ *                       options:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                       numericalAnswer:
+ *                         type: number
+ *                       exerciseTitle:
+ *                         type: string
+ *                       exerciseDescription:
+ *                         type: string
+ *                       exerciseId:
+ *                         type: string
+ *                       chapterTitle:
+ *                         type: string
+ *                       chapterDescription:
+ *                         type: string
+ *                       chapterId:
+ *                         type: string
+ *                       standardName:
+ *                         type: string
+ *                       standardDescription:
+ *                         type: string
+ *                       standardId:
+ *                         type: string
+ *       500:
+ *         description: Failed to fetch questions.
  */
-
-
 export async function GET() {
   try {
     await connectDB();
@@ -170,13 +89,13 @@ export async function GET() {
         numericalAnswer: question.numericalAnswer,
         exerciseTitle: exercise.title,
         exerciseDescription: exercise.description,
-        exerciseId: exercise._id,  // Added exercise ID
+        exerciseId: exercise._id,
         chapterTitle: chapter.title,
         chapterDescription: chapter.description,
-        chapterId: chapter._id,  // Added chapter ID
+        chapterId: chapter._id,
         standardName: standard.standardName,
         standardDescription: standard.description,
-        standardId: standard._id,  // Added standard ID
+        standardId: standard._id,
       };
     });
 
@@ -186,15 +105,62 @@ export async function GET() {
   }
 }
 
-
-
-
+/**
+ * @swagger
+ * /api/questions:
+ *   post:
+ *     tags:
+ *       - Questions
+ *     summary: Add a new question
+ *     description: Adds a new question to the database with references to standard, chapter, and exercise.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - standard
+ *               - chapter
+ *               - exercise
+ *               - questionText
+ *               - questionType
+ *               - answerFormat
+ *               - correctAnswer
+ *             properties:
+ *               standard:
+ *                 type: string
+ *               chapter:
+ *                 type: string
+ *               exercise:
+ *                 type: string
+ *               questionText:
+ *                 type: string
+ *               questionType:
+ *                 type: string
+ *               answerFormat:
+ *                 type: string
+ *               options:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               correctAnswer:
+ *                 type: string
+ *               numericalAnswer:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Question added successfully.
+ *       400:
+ *         description: Missing required fields.
+ *       500:
+ *         description: Failed to add question.
+ */
 export async function POST(req) {
   try {
     await connectDB();
 
     const body = await req.json();
-    console.log(body);
 
     const {
       standard,
@@ -207,8 +173,6 @@ export async function POST(req) {
       correctAnswer,
       numericalAnswer,
     } = body;
-
-    console.log("correct answer = ",correctAnswer)
 
     if (!standard || !chapter || !exercise || !questionText || !questionType || !answerFormat || !correctAnswer) {
       return NextResponse.json(
@@ -231,38 +195,64 @@ export async function POST(req) {
 
     const savedQuestion = await newQuestion.save();
 
-    return NextResponse.json({ message: "Question added successfully", question: savedQuestion });
+    return NextResponse.json({ message: "Question added successfully", question: savedQuestion }, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to add question" }, { status: 500 });
   }
 }
 
-
+/**
+ * @swagger
+ * /api/questions:
+ *   delete:
+ *     tags:
+ *       - Questions
+ *     summary: Delete a question
+ *     description: Deletes a question by ID from the database.
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the question to delete.
+ *     responses:
+ *       200:
+ *         description: Question deleted successfully.
+ *       400:
+ *         description: Missing question ID.
+ *       404:
+ *         description: Question not found.
+ *       500:
+ *         description: Failed to delete question.
+ */
 export async function DELETE(req: Request) {
-    try {
-      await connectDB();
-      const { searchParams } = new URL(req.url);
-      const questionId = searchParams.get("id");
-  
-      if (!questionId) {
-        return NextResponse.json(
-          { success: false, error: "Question ID is required" },{ status: 400 }
-        );}
-  
-      const deletedQuestion = await Question.findByIdAndDelete(questionId);
-  
-      if (!deletedQuestion) {
-        return NextResponse.json(
-          { success: false, error: "Question not found" },{ status: 404 }
-        );}
-  
-      return NextResponse.json(
-        { success: true, message: "Question deleted successfully" }, { status: 200 }
-      );} 
+  try {
+    await connectDB();
+    const { searchParams } = new URL(req.url);
+    const questionId = searchParams.get("id");
 
-    catch (error) {
+    if (!questionId) {
       return NextResponse.json(
-        { success: false, error: "Failed to delete question" },{ status: 500 });
+        { success: false, error: "Question ID is required" }, { status: 400 }
+      );
     }
+
+    const deletedQuestion = await Question.findByIdAndDelete(questionId);
+
+    if (!deletedQuestion) {
+      return NextResponse.json(
+        { success: false, error: "Question not found" }, { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, message: "Question deleted successfully" }, { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "Failed to delete question" }, { status: 500 }
+    );
   }
+}
