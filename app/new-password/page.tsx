@@ -1,14 +1,12 @@
-import React, { Suspense } from 'react'
-import NewPassword from './NewPassword'
+import React, { Suspense } from "react";
+import NewPassword from "@/components/NewPassword";
 
-const NewPass = () => {
+const Page = () => {
   return (
-    
-      <Suspense fallback={"Loading..."}>
-          <NewPassword />
-      </Suspense>
-    
-  )
-}
+    <Suspense fallback={"Loading..."}>
+      <NewPassword />
+    </Suspense>
+  );
+};
 
-export default NewPass
+export default Page;

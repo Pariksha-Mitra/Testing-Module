@@ -1,7 +1,9 @@
+import Link from "next/link";
+
 const Home = () => {
   return (
     <div className="flex justify-center items-center w-full h-dvh">
-      <h1 className="text-xl">Hello world</h1>
+      <Link href={"/dashboard"}>Dashboard</Link>
     </div>
   );
 };
