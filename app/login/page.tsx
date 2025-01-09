@@ -16,7 +16,7 @@ const Login = () => {
   const { status: sessionStatus } = useSession();
 
   useEffect(() => {
-    if (sessionStatus === "authenticated") router.push("/");
+    if (sessionStatus === "authenticated") router.push("/dashboard");
   }, [sessionStatus, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {

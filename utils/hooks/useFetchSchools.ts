@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 type School = {
-  id: any;
+  id: unknown;
   _id: string;
   schoolId: string;
   name: string;
