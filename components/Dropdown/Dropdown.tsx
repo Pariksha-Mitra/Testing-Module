@@ -180,7 +180,7 @@ const Dropdown: FC<DropdownProps> = ({
           onClick={() => handleOptionClick(option, index)}
           onMouseEnter={() => setHighlightedIndex(index)}
           className={clsx(
-            "cursor-pointer",
+            "cursor-pointer text-lg",
             isSelected ? "bg-blue-100" : isHighlighted ? "bg-blue-50" : "bg-white",
             "hover:bg-blue-50",
             index !== finalOptions.length - 1 && "border-b border-gray-200",
@@ -213,8 +213,8 @@ const Dropdown: FC<DropdownProps> = ({
           "h-[50px] text-left"
         )}
       >
-        <span className="mr-2 flex-grow">{label}</span>
-        <div className="w-[80%] h-8 bg-white rounded-lg flex items-center justify-center text-black mr-2 overflow-hidden whitespace-nowrap text-ellipsis">
+        <span className="mr-2 flex-grow text-xl">{label}</span>
+        <div className="w-[80%] h-9 bg-white text-lg rounded-lg flex items-center justify-center text-black mr-2 overflow-hidden whitespace-nowrap text-ellipsis">
           {selected !== null ? selected : "-"}
         </div>
 
