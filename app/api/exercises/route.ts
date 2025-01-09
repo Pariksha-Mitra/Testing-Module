@@ -25,7 +25,6 @@ import {connectDB} from "@/utils/db";
  *                       $ref: "#/components/schemas/Exercise"
  *         400:
  *           description: "Failed to retrieve exercises."
- *   /api/exercises:
  *     post:
  *       tags:
  *         - Exercises
@@ -60,7 +59,6 @@ import {connectDB} from "@/utils/db";
  *           description: "Title, description, and chapterId are required."
  *         500:
  *           description: "Failed to create the exercise."
- *   /api/exercises:
  *     delete:
  *       tags:
  *         - Exercises
@@ -111,13 +109,12 @@ import {connectDB} from "@/utils/db";
  */
 
 
-
 export async function GET(){
     try {
         await connectDB();
 
-        const chapters = await Exercise.find();
-        return NextResponse.json({chapters}, {status: 200});
+        const exercises = await Exercise.find();
+        return NextResponse.json({exercises}, {status: 200});
         
     } catch (error) {
         return NextResponse.json({error:"Failed to retrive the chapter information"},{status: 400});
