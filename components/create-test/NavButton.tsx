@@ -21,7 +21,7 @@ export const NavButton: React.FC<NavButtonProps> = ({
         role="button"
         tabIndex={0}
         aria-label={ariaLabel || imageAlt}
-        className="flex flex-col justify-center items-center px-16 py-1.5 bg-rose-400 rounded-3xl border border-[1.5px] border-white border-solid shadow-sm max-md:px-5 cursor-pointer hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 transition-colors"
+        className="flex flex-col justify-center items-center px-16 py-1.5 bg-rose-400 rounded-3xl border-[1.5px] border-white border-solid shadow-sm max-md:px-5 cursor-pointer hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 transition-colors"
         onClick={handleClick}
       >
         <Image
