@@ -21,7 +21,7 @@ const standardSchema = new mongoose.Schema(
 
 const chapterSchema = new mongoose.Schema(
   {
-    standard: {
+    fk_standard_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Standard",
       required: true,
@@ -41,7 +41,7 @@ const chapterSchema = new mongoose.Schema(
 
 const exerciseSchema = new mongoose.Schema(
   {
-    chapter: {
+    fk_chapter_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chapter",
       required: true,
@@ -61,17 +61,17 @@ const exerciseSchema = new mongoose.Schema(
 
 const questionSchema = new mongoose.Schema(
   {
-    standard: {
+    fk_standard_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Standard",
       required: true,
     },
-    chapter: {
+    fk_chapter_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chapter",
       required: true,
     },
-    exercise: {
+    fk_exercise_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Exercise",
       required: true,
