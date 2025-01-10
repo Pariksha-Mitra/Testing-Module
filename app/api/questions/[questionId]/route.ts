@@ -88,15 +88,16 @@ export async function GET(req: Request, context: any) {
 
     // Extract the questionId from the request params
     const { questionId } = await context.params;
+    console.log("questionId = ",questionId);
 
     // Fetch the single question by its ID and populate the related documents
     const singleQuestion = await Question.findById(questionId)
       .populate({
-        path: "exercise",
+        path: "fk_exercise_id",
         populate: {
-          path: "chapter",
+          path: "fk_chapter_id",
           populate: {
-            path: "standard",
+            path: "fk_standard_id",
           },
         },
       })
