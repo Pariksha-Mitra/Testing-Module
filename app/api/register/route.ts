@@ -1,7 +1,7 @@
 import { registerSchema } from "@/models/registerSchema";
 import userModel from "@/models/user.model";
 import { ROLE } from "@/utils/types";
-import { connectDB } from "@/utils/db";
+import { connectDb } from "@/utils/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import SchoolModel from "@/models/schoolModel";
@@ -131,12 +131,6 @@ import { ApiError, handleApiError } from "@/utils/api-error";
  *                   type: string
  *                   description: Detailed error message
  */
-<<<<<<< HEAD
-export async function POST(req: Request) {
-  try {
-    await connectDB();
-=======
->>>>>>> 8d26fc910bb2f1d1bc5b0e37d1b073991c2db4a5
 
 export async function POST(req: Request) {
   await connectDb();
