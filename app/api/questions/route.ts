@@ -64,20 +64,20 @@ export async function GET() {
 
     const questions = await Question.find()
       .populate({
-        path: "exercise",
+        path: "fk_exercise_id",
         populate: {
-          path: "chapter",
+          path: "fk_chapter_id",
           populate: {
-            path: "standard",
+            path: "fk_standard_id",
           },
         },
       })
       .exec();
 
     const flattenedQuestions = questions.map((question) => {
-      const exercise = question.exercise || {};
-      const chapter = exercise.chapter || {};
-      const standard = chapter.standard || {};
+      const exercise = question.fk_exercise_id || {};
+      const chapter = exercise.fk_chapter_id || {};
+      const standard = chapter.fk_standard_id || {};
 
       return {
         _id: question._id,
@@ -182,9 +182,9 @@ export async function POST(req) {
     }
 
     const newQuestion = new Question({
-      standard,
-      chapter,
-      exercise,
+      fk_standard_id : standard,
+      fk_chapter_id : chapter,
+      fk_exercise_id : exercise,
       questionText,
       questionType,
       answerFormat,
