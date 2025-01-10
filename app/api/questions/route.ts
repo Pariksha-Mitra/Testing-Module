@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Question } from "@/models/questionsSchema";
-import { connectDB } from "@/utils/db";
+import { connectDb } from "@/utils/db";
 
 /**
  * @swagger
@@ -60,7 +60,7 @@ import { connectDB } from "@/utils/db";
  */
 export async function GET() {
   try {
-    await connectDB();
+    await connectDb();
 
     const questions = await Question.find()
       .populate({
@@ -158,7 +158,7 @@ export async function GET() {
  */
 export async function POST(req) {
   try {
-    await connectDB();
+    await connectDb();
 
     const body = await req.json();
 
@@ -229,7 +229,7 @@ export async function POST(req) {
  */
 export async function DELETE(req: Request) {
   try {
-    await connectDB();
+    await connectDb();
     const { searchParams } = new URL(req.url);
     const questionId = searchParams.get("id");
 

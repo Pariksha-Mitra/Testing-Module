@@ -14,7 +14,7 @@ if (!MONGODB_URI) {
 let cached = global as any;
 cached.mongoose = cached.mongoose || { conn: null, promise: null };
 
-export const connectDB = async () => {
+export const connectDb = async () => {
   try {
     if (cached.mongoose.conn) {
       console.log("Using existing connection");

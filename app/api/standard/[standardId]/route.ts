@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Standard } from "@/models/questionsSchema";
-import {connectDB} from "@/utils/db";
+import {connectDb} from "@/utils/db";
 
 /**
  * @swagger
@@ -87,7 +87,7 @@ import {connectDB} from "@/utils/db";
 
 export async function GET(req: Request, context: any) {
   try {
-    await connectDB();
+    await connectDb();
     const {standardId} = await context.params;
     if (!standardId) {
         return NextResponse.json(

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Question } from "@/models/questionsSchema";
-import {connectDB} from "@/utils/db";
+import {connectDb} from "@/utils/db";
 
 /**
  * @swagger
@@ -84,7 +84,7 @@ import {connectDB} from "@/utils/db";
 export async function GET(req: Request, context: any) {
   try {
     // Connect to the database
-    await connectDB();
+    await connectDb();
 
     // Extract the questionId from the request params
     const { questionId } = await context.params;

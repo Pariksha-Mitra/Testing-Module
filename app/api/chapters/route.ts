@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Chapter, Standard, Exercise, Question } from "@/models/questionsSchema";
-import { connectDB } from "@/utils/db";
+import { connectDb } from "@/utils/db";
 
 /**
  * @swagger
@@ -25,7 +25,7 @@ import { connectDB } from "@/utils/db";
  */
 export async function GET() {
     try {
-        await connectDB();
+        await connectDb();
 
         const chapters = await Chapter.find();
         return NextResponse.json({ chapters }, { status: 200 });
@@ -78,7 +78,7 @@ export async function GET() {
  */
 export async function POST(req: Request) {
     try {
-        await connectDB();
+        await connectDb();
 
         // Parse the request body
         const { title, description, standardId } = await req.json();
@@ -170,7 +170,7 @@ export async function POST(req: Request) {
  */
 export async function DELETE(req: Request) {
     try {
-        await connectDB();
+        await connectDb();
 
         // Extract chapter ID from query parameters
         const { searchParams } = new URL(req.url);

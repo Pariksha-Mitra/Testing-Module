@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Chapter } from "@/models/questionsSchema";
-import {connectDB} from "@/utils/db";
+import {connectDb} from "@/utils/db";
 
 /**
  * @swagger
@@ -36,7 +36,7 @@ import {connectDB} from "@/utils/db";
 
 export async function GET(req: Request, context: any) {
   try {
-    await connectDB();
+    await connectDb();
     const { ChapterId } = await context.params;
     const singleChapter = await Chapter.findById(ChapterId);
 

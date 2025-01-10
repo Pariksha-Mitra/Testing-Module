@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import {Standard} from "@/models/questionsSchema";
-import {connectDB} from "@/utils/db"
+import {connectDb} from "@/utils/db"
 import { Chapter } from "@/models/questionsSchema";
 import { Exercise } from "@/models/questionsSchema";
 import { Question } from "@/models/questionsSchema";
@@ -155,7 +155,7 @@ import { Question } from "@/models/questionsSchema";
 
 export async function GET() {
     try {
-        await connectDB();
+        await connectDb();
         console.log("hello");
         const classes = await Standard.find();
         return NextResponse.json({classes}, {status:200}) 
@@ -167,7 +167,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    await connectDB();
+    await connectDb();
     const { standardName, description } = await req.json();
 
     if (!standardName) {
@@ -187,7 +187,7 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   try {
     // Connect to the database
-    await connectDB();
+    await connectDb();
 
     const {searchParams} = new URL(req.url);
     const standardId = searchParams.get("id");
