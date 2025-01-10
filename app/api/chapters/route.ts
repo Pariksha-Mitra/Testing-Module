@@ -104,7 +104,7 @@ export async function POST(req: Request) {
         const newChapter = new Chapter({
             title,
             description,
-            standard: standardId,
+            fk_standard_id: standardId,
         });
 
         // Save the Chapter to the database
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
                     _id: savedChapter._id,
                     title: savedChapter.title,
                     description: savedChapter.description,
-                    standard: savedChapter.standard,
+                    fk_standard_id: savedChapter.standard,
                 },
             },
             { status: 201 }
