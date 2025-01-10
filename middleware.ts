@@ -5,17 +5,19 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
   const url = request.nextUrl;
 
-  // Allow access to API docs without authentication
-  if (url.pathname.startsWith('/api-docs') || url.pathname.startsWith('/api/swagger')) {
+  if (
+    url.pathname.startsWith("/api-docs") ||
+    url.pathname.startsWith("/api/swagger")
+  ) {
     return NextResponse.next();
   }
 
   if (
     token &&
-    (url.pathname.startsWith("/") ||
-      url.pathname.startsWith("/login") ||
-      url.pathname.startsWith("/new-password") ||
-      url.pathname.startsWith("/register"))
+    (url.pathname === "/login" ||
+      url.pathname === "/register" ||
+      url.pathname === "/new-password" ||
+      url.pathname === "/")
   ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
@@ -31,5 +33,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/register", "/", "/dashboard/:path*", "/new-password", "/api-docs", "/api/swagger"],
+  matcher: [
+    "/login",
+    "/register",
+    "/",
+    "/dashboard/:path*",
+    "/new-password",
+    "/api-docs",
+    "/api/swagger",
+  ],
 };

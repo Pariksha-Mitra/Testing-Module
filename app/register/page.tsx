@@ -12,6 +12,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import { useRouter } from "next/navigation";
+import useFetchSchools from "@/utils/hooks/useFetchSchools";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement },
@@ -27,11 +28,12 @@ const Register = () => {
   const [surname, setSurname] = useState<string>("");
   const [dateOfBirth, setDateOfBirth] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [schoolId, setSchoolId] = useState<string>("शाळा क्रमांक १");
+  const [schoolId, setSchoolId] = useState<string>("");
   const [invitationId, setInvitationId] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [open, setOpen] = useState(false);
   const { showToast } = useToast();
+  const { schools, isLoading } = useFetchSchools()
   const router = useRouter();
 
   useEffect(() => {
@@ -68,6 +70,8 @@ const Register = () => {
         invitationId: role === ROLE.Teacher ? invitationId.trim() : null,
       };
 
+      console.log(schoolId)
+
       const response = await fetch("/api/register", {
         method: "POST",
         headers: {
@@ -92,7 +96,7 @@ const Register = () => {
         showToast("An unknown error occurred", "error");
       }
     }
-    
+
   };
 
   return (
@@ -143,6 +147,7 @@ const Register = () => {
               <div className="flex flex-col">
                 <label className="text-xl font-light mb-2">जन्मतारीख</label>
                 <input
+                  title="Date"
                   type="date"
                   className="p-3 border border-black shadow-md rounded-2xl"
                   value={dateOfBirth}
@@ -158,18 +163,16 @@ const Register = () => {
                   <button
                     type="button"
                     onClick={() => setRole(ROLE.Teacher)}
-                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-l-xl ${
-                      role === ROLE.Teacher && "bg-red-400 text-white"
-                    }`}
+                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-l-xl ${role === ROLE.Teacher && "bg-red-400 text-white"
+                      }`}
                   >
                     शिक्षक
                   </button>
                   <button
                     type="button"
                     onClick={() => setRole(ROLE.Student)}
-                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-r-xl ${
-                      role === ROLE.Student && "bg-red-400 text-white"
-                    } `}
+                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-r-xl ${role === ROLE.Student && "bg-red-400 text-white"
+                      } `}
                   >
                     विद्यार्थी
                   </button>
@@ -180,13 +183,25 @@ const Register = () => {
               <div className="flex flex-col">
                 <label className="text-xl font-light mb-2">शाळेचे नाव</label>
                 <select
+                  title="school"
                   value={schoolId}
-                  onChange={(e) => setSchoolId(e.target.value)}
+                  onChange={(e) => {
+                    setSchoolId(e.target.value)
+                  }}
                   className="p-3 border border-black shadow-md rounded-2xl"
                 >
-                  <option value="शाळा क्रमांक १">शाळा क्रमांक १</option>
-                  <option value="शाळा क्रमांक २">शाळा क्रमांक २</option>
+                  <option value="" disabled>
+                    Select a school
+                  </option>
+                  {!isLoading &&
+                    schools.map((school) => {
+                      return <option key={school.id as string} value={school.id as string}>
+                        {school.name}
+                      </option>
+                    })}
                 </select>
+
+
               </div>
 
               {/* Teacher-specific Fields */}
