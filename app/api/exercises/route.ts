@@ -137,7 +137,7 @@ export async function POST(req: Request) {
       const newExercise = new Exercise({
         title,
         description,
-        chapter: chapterId,
+        fk_chapter_id: chapterId,
       });
       const savedExercise = await newExercise.save();
   
