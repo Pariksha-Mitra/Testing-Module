@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Exercise } from "@/models/questionsSchema";
-import {connectDB} from "@/utils/db";
+import {connectDb} from "@/utils/db";
 
 /**
  * @swagger
@@ -54,7 +54,7 @@ import {connectDB} from "@/utils/db";
 
 export async function GET(req: Request, context: any) {
   try {
-    await connectDB();
+    await connectDb();
     const { exerciseId } = await context.params;
     const singleExercise = await Exercise.findById(exerciseId);
 
