@@ -67,9 +67,12 @@ export async function GET() {
         path: "fk_exercise_id",
         populate: {
           path: "fk_chapter_id",
-          populate: {
-            path: "fk_standard_id",
-          },
+          populate:{
+            path: "fk_subject_id",
+            populate: {
+              path: "fk_standard_id",
+            },
+          }
         },
       })
       .exec();
@@ -77,7 +80,8 @@ export async function GET() {
     const flattenedQuestions = questions.map((question) => {
       const exercise = question.fk_exercise_id || {};
       const chapter = exercise.fk_chapter_id || {};
-      const standard = chapter.fk_standard_id || {};
+      const subject =  chapter.fk_subject_id || {};
+      const standard = subject.fk_standard_id || {};
 
       return {
         _id: question._id,
@@ -93,6 +97,9 @@ export async function GET() {
         chapterTitle: chapter.title,
         chapterDescription: chapter.description,
         chapterId: chapter._id,
+        subjectName: subject.subjectName,
+        subjectDescription: subject.description,
+        subjectId: subject._id,
         standardName: standard.standardName,
         standardDescription: standard.description,
         standardId: standard._id,
@@ -164,6 +171,7 @@ export async function POST(req: Request) {
 
     const {
       standard,
+      subject,
       chapter,
       exercise,
       questionText,
@@ -174,7 +182,7 @@ export async function POST(req: Request) {
       numericalAnswer,
     } = body;
 
-    if (!standard || !chapter || !exercise || !questionText || !questionType || !answerFormat || !correctAnswer) {
+    if (!standard || !subject || !chapter || !exercise || !questionText || !questionType || !answerFormat || !correctAnswer) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -183,6 +191,7 @@ export async function POST(req: Request) {
 
     const newQuestion = new Question({
       fk_standard_id : standard,
+      fk_subject_id: subject,
       fk_chapter_id : chapter,
       fk_exercise_id : exercise,
       questionText,
