@@ -99,15 +99,18 @@ export async function GET(req: Request, context: Context) {
 
     // Fetch the single question by its ID and populate the related documents
     const singleQuestion = await Question.findById(questionId)
-      .populate({
-        path: "fk_exercise_id",
-        populate: {
-          path: "fk_chapter_id",
+    .populate({
+      path: "fk_exercise_id",
+      populate: {
+        path: "fk_chapter_id",
+        populate:{
+          path: "fk_subject_id",
           populate: {
             path: "fk_standard_id",
           },
-        },
-      })
+        }
+      },
+    })
       .exec();
 
     // If the question doesn't exist, return an error
@@ -133,10 +136,14 @@ export async function GET(req: Request, context: Context) {
       chapterTitle: singleQuestion.fk_exercise_id?.fk_chapter_id?.title,
       chapterDescription: singleQuestion.fk_exercise_id?.fk_chapter_id?.description,
       chapterId: singleQuestion.fk_exercise_id?.fk_chapter_id?._id, // Added chapter ID
+      subjectName: singleQuestion.fk_subject_id?.subjectName, // Updated to use fk_subject_id
+      subjectDescription: singleQuestion.fk_subject_id?.description, // Updated to use fk_subject_id
+      subjectId: singleQuestion.fk_subject_id?._id, // Updated to use fk_subject_id
       standardName: singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?.standardName,
       standardDescription: singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?.description,
       standardId: singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?._id, // Added standard ID
     };
+    
 
     // Return the flattened data
     return NextResponse.json({ singleQuestion: flattenedQuestion }, { status: 200 });
