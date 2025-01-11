@@ -26,7 +26,7 @@ const Page = () => {
     (
       questionIndex: number,
       field: keyof typeof currentQuestion.content,
-      value: any
+      value: typeof currentQuestion.content[typeof field] // Type inferred based on the field
     ) => {
       const updatedQuestions = [...questions];
       updatedQuestions[questionIndex] = {
@@ -40,6 +40,7 @@ const Page = () => {
     },
     [questions, setQuestions, currentQuestion]
   );
+  
 
   // Handler for changing the question type
   const handleQuestionTypeChange = useCallback(

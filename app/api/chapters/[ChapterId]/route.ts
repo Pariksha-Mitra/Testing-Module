@@ -34,9 +34,20 @@ import {connectDb} from "@/utils/db";
  *           description: "Failed to retrieve the chapter due to a server error."
  */
 
-export async function GET(req: Request, context: { params: { ChapterId: string } }) {
+interface RouteContext {
+  params: {
+    ChapterId: string;
+  };
+}
+
+export async function GET(req: Request, context: RouteContext) {
   try {
     await connectDb();
+
+    if (!context?.params?.ChapterId) {
+      return NextResponse.json({ error: "Invalid ChapterId" }, { status: 400 });
+    }
+
     const { ChapterId } = context.params;
     const singleChapter = await Chapter.findById(ChapterId);
 
@@ -56,4 +67,3 @@ export async function GET(req: Request, context: { params: { ChapterId: string }
     );
   }
 }
-
