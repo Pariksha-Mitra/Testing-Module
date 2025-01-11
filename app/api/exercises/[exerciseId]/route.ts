@@ -52,15 +52,15 @@ import {connectDb} from "@/utils/db";
  */
 
 
-export async function GET(req: Request, context: any) {
+export async function GET(req: Request, context: { params: { exerciseId: string } }) {
   try {
     await connectDb();
-    const { exerciseId } = await context.params;
+    const { exerciseId } = context.params;
     const singleExercise = await Exercise.findById(exerciseId);
 
     if (!singleExercise) {
       return NextResponse.json(
-        { error: "Chapter not found" },
+        { error: "Exercise not found" },
         { status: 404 }
       );
     }
@@ -69,7 +69,7 @@ export async function GET(req: Request, context: any) {
   } catch (error) {
     console.error("Error retrieving single exercise:", error);
     return NextResponse.json(
-      { error: "Failed to retrieve the single chapter exercise" },
+      { error: "Failed to retrieve the single exercise" },
       { status: 500 }
     );
   }

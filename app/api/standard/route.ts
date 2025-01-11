@@ -159,7 +159,7 @@ export async function GET() {
         console.log("hello");
         const classes = await Standard.find();
         return NextResponse.json({classes}, {status:200}) 
-    } catch (error) {
+    } catch {
         return NextResponse.json({error:"Failed to retrive the Classes Information"},{status: 400});
     }
 }

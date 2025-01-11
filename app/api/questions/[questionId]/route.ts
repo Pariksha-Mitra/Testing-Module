@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { Question } from "@/models/questionsSchema";
-import {connectDb} from "@/utils/db";
+import { connectDb } from "@/utils/db";
+
+// Define the type for context
+interface Context {
+  params: {
+    questionId: string;
+  };
+}
 
 /**
  * @swagger
@@ -81,14 +88,14 @@ import {connectDb} from "@/utils/db";
  */
 
 
-export async function GET(req: Request, context: any) {
+export async function GET(req: Request, context: Context) {
   try {
     // Connect to the database
     await connectDb();
 
     // Extract the questionId from the request params
-    const { questionId } = await context.params;
-    console.log("questionId = ",questionId);
+    const { questionId } = context.params;
+    console.log("questionId = ", questionId);
 
     // Fetch the single question by its ID and populate the related documents
     const singleQuestion = await Question.findById(questionId)
@@ -120,15 +127,15 @@ export async function GET(req: Request, context: any) {
       options: singleQuestion.options,
       correctAnswer: singleQuestion.correctAnswer,
       numericalAnswer: singleQuestion.numericalAnswer,
-      exerciseTitle: singleQuestion.exercise?.title,
-      exerciseDescription: singleQuestion.exercise?.description,
-      exerciseId: singleQuestion.exercise?._id,  // Added exercise ID
-      chapterTitle: singleQuestion.exercise?.chapter?.title,
-      chapterDescription: singleQuestion.exercise?.chapter?.description,
-      chapterId: singleQuestion.exercise?.chapter?._id,  // Added chapter ID
-      standardName: singleQuestion.exercise?.chapter?.standard?.standardName,
-      standardDescription: singleQuestion.exercise?.chapter?.standard?.description,
-      standardId: singleQuestion.exercise?.chapter?.standard?._id,  // Added standard ID
+      exerciseTitle: singleQuestion.fk_exercise_id?.title,
+      exerciseDescription: singleQuestion.fk_exercise_id?.description,
+      exerciseId: singleQuestion.fk_exercise_id?._id, // Added exercise ID
+      chapterTitle: singleQuestion.fk_exercise_id?.fk_chapter_id?.title,
+      chapterDescription: singleQuestion.fk_exercise_id?.fk_chapter_id?.description,
+      chapterId: singleQuestion.fk_exercise_id?.fk_chapter_id?._id, // Added chapter ID
+      standardName: singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?.standardName,
+      standardDescription: singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?.description,
+      standardId: singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?._id, // Added standard ID
     };
 
     // Return the flattened data

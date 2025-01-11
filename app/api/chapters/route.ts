@@ -30,7 +30,7 @@ export async function GET() {
         const chapters = await Chapter.find();
         return NextResponse.json({ chapters }, { status: 200 });
         
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Failed to retrieve the chapter information" }, { status: 400 });
     }
 }

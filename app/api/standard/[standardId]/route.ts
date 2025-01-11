@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { Standard } from "@/models/questionsSchema";
-import {connectDb} from "@/utils/db";
+import { connectDb } from "@/utils/db";
+
+// Define the type for context
+interface Context {
+  params: {
+    standardId: string;
+  };
+}
 
 /**
  * @swagger
@@ -85,18 +92,22 @@ import {connectDb} from "@/utils/db";
  */
 
 
-export async function GET(req: Request, context: any) {
+export async function GET(req: Request, context: Context) {
   try {
     await connectDb();
-    const {standardId} = await context.params;
-    if (!standardId) {
-        return NextResponse.json(
-          { success: false, error: "StandardId is required" },
-          { status: 400 }
-        );
-      }
 
-    const standard = await Standard.findById(standardId)
+    const { standardId } = context.params;
+    
+    // Check if standardId is provided
+    if (!standardId) {
+      return NextResponse.json(
+        { success: false, error: "StandardId is required" },
+        { status: 400 }
+      );
+    }
+
+    // Fetch the standard by its ID
+    const standard = await Standard.findById(standardId);
 
     if (!standard) {
       return NextResponse.json(
@@ -105,10 +116,12 @@ export async function GET(req: Request, context: any) {
       );
     }
 
+    // Return the standard data
     return NextResponse.json({ success: true, standard }, { status: 200 });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch standard data"},
+      { success: false, error: "Failed to fetch standard data" },
       { status: 500 }
     );
   }

@@ -34,10 +34,10 @@ import {connectDb} from "@/utils/db";
  *           description: "Failed to retrieve the chapter due to a server error."
  */
 
-export async function GET(req: Request, context: any) {
+export async function GET(req: Request, context: { params: { ChapterId: string } }) {
   try {
     await connectDb();
-    const { ChapterId } = await context.params;
+    const { ChapterId } = context.params;
     const singleChapter = await Chapter.findById(ChapterId);
 
     if (!singleChapter) {
@@ -56,3 +56,4 @@ export async function GET(req: Request, context: any) {
     );
   }
 }
+

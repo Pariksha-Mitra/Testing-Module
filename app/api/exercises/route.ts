@@ -116,7 +116,7 @@ export async function GET(){
         const exercises = await Exercise.find();
         return NextResponse.json({exercises}, {status: 200});
         
-    } catch (error) {
+    } catch {
         return NextResponse.json({error:"Failed to retrive the chapter information"},{status: 400});
     }
 }
