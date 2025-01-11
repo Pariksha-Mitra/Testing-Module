@@ -40,7 +40,7 @@ export async function GET() {
  * /chapters:
  *   post:
  *     summary: Create a new chapter
- *     description: Creates a new chapter in the database associated with a specific standard.
+ *     description: Creates a new chapter in the database associated with a specific subject.
  *     requestBody:
  *       required: true
  *       content:
@@ -49,13 +49,13 @@ export async function GET() {
  *             type: object
  *             required:
  *               - title
- *               - standardId
+ *               - subjectId
  *             properties:
  *               title:
  *                 type: string
  *               description:
  *                 type: string
- *               standardId:
+ *               subjectId:
  *                 type: string
  *     responses:
  *       201:
@@ -70,7 +70,7 @@ export async function GET() {
  *                 chapter:
  *                   $ref: '#/components/schemas/Chapter'
  *       400:
- *         description: Missing title or standard ID.
+ *         description: Missing title or subject ID.
  *       404:
  *         description: Standard ID not found.
  *       500:
@@ -81,10 +81,10 @@ export async function POST(req: Request) {
         await connectDb();
 
         // Parse the request body
-        const { title, description, standardId } = await req.json();
+        const { title, description, subjectId } = await req.json();
 
         // Validate required fields
-        if (!title || !standardId) {
+        if (!title || !subjectId) {
             return NextResponse.json(
                 { error: "Title and Standard ID are required" },
                 { status: 400 }
@@ -92,10 +92,10 @@ export async function POST(req: Request) {
         }
 
         // Check if the provided Standard exists
-        const standardExists = await Standard.findById(standardId);
-        if (!standardExists) {
+        const subjectdExists = await Standard.findById(subjectId);
+        if (!subjectdExists) {
             return NextResponse.json(
-                { error: "The provided Standard ID does not exist" },
+                { error: "The provided Subject ID does not exist" },
                 { status: 404 }
             );
         }
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
         const newChapter = new Chapter({
             title,
             description,
-            fk_standard_id: standardId,
+            fk_subject_id: subjectId,
         });
 
         // Save the Chapter to the database
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
                     _id: savedChapter._id,
                     title: savedChapter.title,
                     description: savedChapter.description,
-                    fk_standard_id: savedChapter.standard,
+                    fk_subject_id: savedChapter.subject,
                 },
             },
             { status: 201 }
