@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
 
+// Existing Enums
 const QuestionTypeEnum = ["MCQ", "True/False", "Numerical"];
 const AnswerFormatEnum = ["MCQ", "True/False", "Numerical"];
 
+// Standard Schema
 const standardSchema = new mongoose.Schema(
   {
     standardName: {
@@ -18,12 +20,33 @@ const standardSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
-const chapterSchema = new mongoose.Schema(
+// Subject Schema
+const subjectSchema = new mongoose.Schema(
   {
     fk_standard_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Standard",
+      required: true,
+    },
+    subjectName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+  },
+  { timestamps: true }
+);
+
+// Chapter Schema
+const chapterSchema = new mongoose.Schema(
+  {
+    fk_subject_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
       required: true,
     },
     title: {
@@ -39,6 +62,7 @@ const chapterSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Exercise Schema
 const exerciseSchema = new mongoose.Schema(
   {
     fk_chapter_id: {
@@ -59,11 +83,17 @@ const exerciseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Question Schema
 const questionSchema = new mongoose.Schema(
   {
     fk_standard_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Standard",
+      required: true,
+    },
+    fk_subject_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
       required: true,
     },
     fk_chapter_id: {
@@ -103,21 +133,19 @@ const questionSchema = new mongoose.Schema(
     },
     correctAnswer: {
       type: String, // Could be an index of `options` or the actual answer text
-      required: function () {
-        return this.questionType === "MCQ";
-      },
+      required: true
     },
     numericalAnswer: {
       type: Number,
-      required: function () {
-        return this.questionType === "Numerical";
-      },
+      required: true,
     },
   },
   { timestamps: true }
 );
 
+// Model exports
 export const Standard = mongoose.models.Standard || mongoose.model("Standard", standardSchema);
+export const Subject = mongoose.models.Subject || mongoose.model("Subject", subjectSchema);
 export const Chapter = mongoose.models.Chapter || mongoose.model("Chapter", chapterSchema);
 export const Exercise = mongoose.models.Exercise || mongoose.model("Exercise", exerciseSchema);
 export const Question = mongoose.models.Question || mongoose.model("Question", questionSchema);
