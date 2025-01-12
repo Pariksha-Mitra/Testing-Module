@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { Chapter, Standard, Exercise, Question } from "@/models/questionsSchema";
+import { Chapter,Subject, Standard, Exercise, Question } from "@/models/questionsSchema";
 import { connectDb } from "@/utils/db";
 
 /**
  * @swagger
- * /chapters:
+ * /api/chapters:
  *   get:
  *     summary: Get all chapters
  *     description: Fetches a list of all chapters from the database.
@@ -37,7 +37,7 @@ export async function GET() {
 
 /**
  * @swagger
- * /chapters:
+ * /api/chapters:
  *   post:
  *     summary: Create a new chapter
  *     description: Creates a new chapter in the database associated with a specific subject.
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
         }
 
         // Check if the provided Standard exists
-        const subjectdExists = await Standard.findById(subjectId);
+        const subjectdExists = await Subject.findById(subjectId);
         if (!subjectdExists) {
             return NextResponse.json(
                 { error: "The provided Subject ID does not exist" },
@@ -134,7 +134,7 @@ export async function POST(req: Request) {
 
 /**
  * @swagger
- * /chapters:
+ * /api/chapters:
  *   delete:
  *     summary: Delete a chapter by ID
  *     description: Deletes a chapter along with related exercises and questions from the database.
