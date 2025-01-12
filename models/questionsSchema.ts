@@ -120,28 +120,35 @@ const questionSchema = new mongoose.Schema(
     answerFormat: {
       type: String,
       required: true,
-      enum: AnswerFormatEnum,
+      enum: ["SingleChoice", "MultipleChoice", "Text", "Number", "MCQ"], // Added "MCQ"
     },
     options: {
       type: [String],
+      default: [], // Ensures options is an empty array by default
       validate: {
         validator: function (value) {
-          return value && value.length > 0;
+          return this.questionType === "MCQ" ? value && value.length > 0 : true;
         },
-        message: "Options must contain at least one item.",
+        message: "Options must contain at least one item for MCQ.",
       },
     },
     correctAnswer: {
       type: String, // Could be an index of `options` or the actual answer text
-      required: true
+      required: function () {
+        return this.questionType === "MCQ";
+      },
     },
     numericalAnswer: {
       type: Number,
-      required: true,
+      required: function () {
+        return this.questionType === "Numerical";
+      },
     },
   },
   { timestamps: true }
 );
+
+
 
 // Model exports
 export const Standard = mongoose.models.Standard || mongoose.model("Standard", standardSchema);
