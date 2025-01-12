@@ -170,10 +170,10 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const {
-      standard,
-      subject,
-      chapter,
-      exercise,
+      standardId,
+      subjectId,
+      chapterId,
+      exerciseId,
       questionText,
       questionType,
       answerFormat,
@@ -182,18 +182,43 @@ export async function POST(req: Request) {
       numericalAnswer,
     } = body;
 
-    if (!standard || !subject || !chapter || !exercise || !questionText || !questionType || !answerFormat || !correctAnswer) {
+    if (
+      !standardId ||
+      !subjectId ||
+      !chapterId ||
+      !exerciseId ||
+      !questionText ||
+      !questionType ||
+      !answerFormat ||
+      (questionType === "MCQ" && !correctAnswer) ||
+      (questionType === "Numerical" && numericalAnswer == null)
+    ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
+    if (questionType === "MCQ" && (!options || options.length === 0)) {
+      return NextResponse.json(
+        { error: "MCQ questions require at least one option." },
+        { status: 400 }
+      );
+    }
+
+    const validAnswerFormats = ["SingleChoice", "MultipleChoice", "Text", "Number", "MCQ"];
+    if (!validAnswerFormats.includes(answerFormat)) {
+      return NextResponse.json(
+        { error: `Invalid answerFormat. Expected one of: ${validAnswerFormats.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
     const newQuestion = new Question({
-      fk_standard_id : standard,
-      fk_subject_id: subject,
-      fk_chapter_id : chapter,
-      fk_exercise_id : exercise,
+      fk_standard_id: standardId,
+      fk_subject_id: subjectId,
+      fk_chapter_id: chapterId,
+      fk_exercise_id: exerciseId,
       questionText,
       questionType,
       answerFormat,
@@ -202,14 +227,23 @@ export async function POST(req: Request) {
       numericalAnswer: questionType === "Numerical" ? numericalAnswer : null,
     });
 
+    console.log(newQuestion);
+
     const savedQuestion = await newQuestion.save();
 
-    return NextResponse.json({ message: "Question added successfully", question: savedQuestion }, { status: 201 });
+    return NextResponse.json(
+      { message: "Question added successfully", question: savedQuestion },
+      { status: 201 }
+    );
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to add question" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to add question" },
+      { status: 500 }
+    );
   }
 }
+
 
 /**
  * @swagger
