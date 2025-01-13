@@ -1,14 +1,40 @@
-// context/QuestionsContext.tsx
-"use client";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useState
+  } from 'react';
+import { Question, QuestionsContextProps, QuestionType } from '@/utils/types';
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Question, QuestionsContextProps } from "@/utils/types";
+// Constants for default values
+const DEFAULT_CONTEXT: QuestionsContextProps = {
+  questions: [],
+  selectedQuestionIndex: 0,
+  setSelectedQuestionIndex: () => {},
+  selection: {
+    class: "५",
+    subject: "विषय १",
+    lesson: "धडा १",
+    homework: "स्वाध्याय १",
+  },
+  setSelection: () => {},
+  setQuestions: () => {},
+};
 
+/**
+ * Context for managing questions throughout the application
+ * @description Provides question state and operations to child components
+ */
 const QuestionsContext = createContext<QuestionsContextProps | undefined>(
   undefined
 );
 
-export const useQuestions = () => {
+/**
+ * Custom hook to access the questions context
+ * @returns {QuestionsContextProps} The questions context value
+ * @throws {Error} If used outside of QuestionsProvider
+ */
+export const useQuestions = (): QuestionsContextProps => {
   const context = useContext(QuestionsContext);
   if (!context) {
     throw new Error("useQuestions must be used within a QuestionsProvider");
@@ -16,6 +42,9 @@ export const useQuestions = () => {
   return context;
 };
 
+/**
+ * Props for the QuestionsProvider component
+ */
 interface ProviderProps {
   children: ReactNode;
 }
@@ -32,7 +61,7 @@ export const QuestionsProvider: React.FC<ProviderProps> = ({ children }) => {
   const [questions, setQuestions] = useState<Question[]>([
     {
       id: 1,
-      type: "MCQ",
+      type: QuestionType.MCQ,
       content: {
         questionText: "",
         description: "",

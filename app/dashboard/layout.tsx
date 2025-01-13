@@ -1,12 +1,16 @@
-import Header from "@/components/Header";
-import Sidebar from "@/components/ui/Sidebar/Sidebar";
-import React from "react";
+import Header from '@/components/Header';
+import React from 'react';
+import Sidebar from '@/components/ui/Sidebar/Sidebar';
 
-const DashboardLayout = ({
-  children,
-}: Readonly<{
+interface DashboardLayoutProps {
   children: React.ReactNode;
-}>) => {
+}
+
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+  if (!children) {
+    throw new Error('DashboardLayout requires children');
+  }
+
   return (
     <div
       className="relative flex h-screen"

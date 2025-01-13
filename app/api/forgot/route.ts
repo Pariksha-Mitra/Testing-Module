@@ -1,9 +1,10 @@
-import userModel from "@/models/user.model";
-import { ApiError, handleApiError } from "@/utils/api-error";
-import { connectDb } from "@/utils/db";
-import crypto from "crypto";
-import nodemailer from "nodemailer";
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+import userModel from '@/models/user.model';
+import { ApiError, handleApiError } from '@/utils/api-error';
+import { connectDb } from '@/utils/db';
 
+// Create reusable transporter object using environment variables
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -26,21 +27,25 @@ export async function POST(req: Request) {
       throw new ApiError(404, "User not found");
     }
 
+    // Generate reset token with expiration
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
-    const tokenExpiration = new Date(Date.now() + 3600000);
+    const tokenExpiration = new Date(Date.now() + 3600000); // 1 hour
 
+    // Update user with reset token info
     user.resetPasswordToken = hashedToken;
     user.resetPasswordExpires = tokenExpiration;
     await user.save();
 
+    // Send reset email
     const resetUrl = `${process.env.NEXTAUTH_URL}/new-password?token=${resetToken}`;
     await transporter.sendMail({
       to: email,
       subject: "Reset Your Password",
+      // Add html template
       html: `
             <h1 style="font-family: Arial, sans-serif; color: #333333; font-size: 24px; margin-bottom: 20px;">
             Reset Your Password
@@ -75,4 +80,4 @@ export async function POST(req: Request) {
   } catch (error) {
     return handleApiError(error);
   }
-} 
+}

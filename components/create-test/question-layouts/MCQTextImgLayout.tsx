@@ -1,7 +1,7 @@
-"use client";
+"use client"
+import ImgMCQ from '@/components/create-test/ImgMCQ';
+import React, { ChangeEvent } from 'react';
 
-import React, { ChangeEvent } from "react";
-import ImgMCQ from "@/components/create-test/ImgMCQ";
 
 interface MCQTextImgLayoutProps {
   questionIndex: number;
@@ -10,6 +10,7 @@ interface MCQTextImgLayoutProps {
   onQuestionTextChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onDescriptionChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   editable: boolean; // Added editable prop
+  className?: string; // Add optional className prop
 }
 
 export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
@@ -19,12 +20,20 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
   onQuestionTextChange,
   onDescriptionChange,
   editable, // Destructure editable
+  className = '', // Default value
 }) => (
   <div
-    className={`flex flex-col md:flex-row px-3 py-3 mt-6 w-full border border-black space-y-3 md:space-y-0 md:space-x-3 ${
-      !editable ? "pointer-events-none opacity-50" : ""
-    }`}
+    className={`
+      flex flex-col md:flex-row 
+      px-3 py-3 mt-6 w-full 
+      border border-black 
+      space-y-3 md:space-y-0 md:space-x-3
+      ${!editable ? "pointer-events-none opacity-50" : ""}
+      ${className}
+    `}
     aria-disabled={!editable} // Accessibility attribute
+    role="group"
+    aria-label={`Question ${questionIndex + 1}`}
   >
     {/* First Column: Q{questionIndex + 1} */}
     <div className="w-full md:w-[3%] p-3 mr-2 text-lg">

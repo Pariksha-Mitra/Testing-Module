@@ -1,19 +1,27 @@
-import userModel from "@/models/user.model";
-import { ApiError, handleApiError } from "@/utils/api-error";
-import { connectDb } from "@/utils/db";
-import crypto from "crypto";
+import crypto from 'crypto';
+import userModel from '@/models/user.model';
+import { ApiError, handleApiError } from '@/utils/api-error';
+import { connectDb } from '@/utils/db';
+
+interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
 
 export async function POST(req: Request) {
   try {
     await connectDb();
-    const { token, newPassword } = await req.json();
+
+    const { token, newPassword } = (await req.json()) as ResetPasswordRequest;
 
     if (!token || !newPassword) {
       throw new ApiError(400, "Token and new password are required");
     }
 
+    // Hash token for comparison
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
+    // Find user with valid token
     const user = await userModel.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() },
@@ -23,6 +31,7 @@ export async function POST(req: Request) {
       throw new ApiError(400, "Invalid or expired token");
     }
 
+    // Update user password and clear reset tokens
     user.password = newPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;

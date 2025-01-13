@@ -1,6 +1,6 @@
-import SchoolModel from "@/models/schoolModel";
-import { connectDb } from "@/utils/db";
-import { NextRequest, NextResponse } from "next/server";
+import SchoolModel from '@/models/schoolSchema';
+import { connectDb } from '@/utils/db';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * @swagger
@@ -24,54 +24,54 @@ import { NextRequest, NextResponse } from "next/server";
  *         description: Internal server error
  */
 
-
 export async function GET(req: NextRequest) {
+  try {
     await connectDb();
-  
-    try {
-      const { searchParams } = new URL(req.url);
-      const id = searchParams.get("id");
-  
-      if (!id) {
-        const schools = await SchoolModel.find();
-        return NextResponse.json({
-          message: "All schools",
-          schools,
-        });
-      }
-  
-      const school = await SchoolModel.findById(id);
-  
-      if (!school) {
-        return NextResponse.json(
-          { message: "School not found" },
-          { status: 404 }
-        );
-      }
-  
-      return NextResponse.json({
-        message: "School found",
-        school,
-      }, {
-        status : 201
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        return NextResponse.json(
-          {
-            message: error.message,
-            error,
-          },
-          { status: 500 }
-        );
-      }
-  
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      const schools = await SchoolModel.find();
       return NextResponse.json(
         {
-          message: "Unknown error occurred",
-          error: error,
+          success: true,
+          message: "All schools retrieved",
+          schools,
         },
-        { status: 500 }
+        { status: 200 }
+      ); // Use 200 for successful GET
+    }
+
+    const school = await SchoolModel.findById(id);
+
+    if (!school) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "School not found",
+        },
+        { status: 404 }
       );
     }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "School found",
+        school,
+      },
+      { status: 200 }
+    ); // Use 200 instead of 201 for GET
+  } catch (error) {
+    console.error("Error retrieving schools:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      },
+      { status: 500 }
+    );
   }
+}

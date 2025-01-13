@@ -77,6 +77,7 @@ export const swaggerConfig = {
       },
     },
     paths: {
+      
       "/api/auth/signin": {
         post: {
           tags: ["Auth"],

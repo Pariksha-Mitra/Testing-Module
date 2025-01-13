@@ -1,7 +1,7 @@
-import * as React from "react";
-import { QuestionCard } from "./QuestionCard";
-import { QuestionListProps } from "@/utils/types";
-import Link from "next/link";
+import * as React from 'react';
+import Link from 'next/link';
+import { QuestionCard } from './QuestionCard';
+import { QuestionListProps } from '@/utils/types';
 
 export const QuestionList: React.FC<QuestionListProps> = ({
   questions,
@@ -18,6 +18,10 @@ export const QuestionList: React.FC<QuestionListProps> = ({
     console.log("Add question clicked");
     // Any extra logic you want here that won't affect the UI
   };
+
+  if (!questions) {
+    return <div>No questions available</div>;
+  }
 
   return (
     <div className="flex flex-col gap-3 text-2xl mr-3 p-2">

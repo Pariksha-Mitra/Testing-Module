@@ -1,6 +1,6 @@
-import React, { FC, useCallback, useState } from "react";
-import { AddOptionModalProps } from "@/utils/types";
-import clsx from "clsx";
+import clsx from 'clsx';
+import React, { FC, useCallback, useState } from 'react';
+import { AddOptionModalProps } from '@/utils/types';
 
 const AddOptionModal: FC<AddOptionModalProps> = ({
   visible,
@@ -13,13 +13,14 @@ const AddOptionModal: FC<AddOptionModalProps> = ({
   const [value, setValue] = useState<string>("");
 
   // Handler for confirm button
-  const handleConfirm = useCallback(() => {
-    const trimmed = value.trim();
-    if (trimmed !== "") {
-      onConfirm(trimmed);
-      setValue(""); 
+  const handleConfirm = () => {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) {
+      return; // Don't allow empty values
     }
-  }, [value, onConfirm]);
+    onConfirm(trimmedValue);
+    setValue("");
+  };
 
   // Handler for cancel button
   const handleCancel = useCallback(() => {
@@ -55,6 +56,7 @@ const AddOptionModal: FC<AddOptionModalProps> = ({
           {/* Confirm Button */}
           <button
             onClick={handleConfirm}
+            aria-label="Confirm option"
             className="rounded-full flex items-center justify-center w-11 h-11 shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
           >
             <svg

@@ -2,30 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rozha+One&display=swap");
+/* Import fonts with proper performance settings */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rozha+One&display=swap&display=swap");
 
+/* Font Classes */
 .rozha-one-regular {
   font-family: "Rozha One", serif;
   font-weight: 400;
   font-style: normal;
+  font-display: swap; /* Add font-display for better performance */
 }
 
 .rozha-one-bold {
   font-family: "Rozha One", serif; 
   font-weight: 800;
   font-style: normal;
+  font-display: swap;
 }
 
 .laila-light {
   font-family: "Laila", serif;
   font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
 .laila-regular {
   font-family: "Laila", serif;
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 .laila-medium {

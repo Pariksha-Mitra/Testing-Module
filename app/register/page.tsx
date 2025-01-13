@@ -1,18 +1,19 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import AuthHeader from "@/components/ui/AuthHeader";
-import Link from "next/link";
-import { useToast } from "@/components/ui/ToastProvider";
-import { ROLE } from "@/utils/types";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
-import { useRouter } from "next/navigation";
-import useFetchSchools from "@/utils/hooks/useFetchSchools";
+"use client"
+import AuthHeader from '@/components/ui/AuthHeader';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import Slide from '@mui/material/Slide';
+import useFetchSchools from '@/utils/hooks/useFetchSchools';
+import { ROLE } from '@/utils/types';
+import { TransitionProps } from '@mui/material/transitions';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/ToastProvider';
+
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement },
@@ -112,8 +113,9 @@ const Register = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Form Fields */}
               <div className="flex flex-col">
-                <label className="text-xl font-light mb-2">पहिले नाव</label>
+                <label htmlFor="firstName" className="text-xl font-light mb-2">पहिले नाव</label>
                 <input
+                  id="firstName"
                   className="p-3 border border-black shadow-md rounded-2xl"
                   type="text"
                   placeholder="First Name Here"
@@ -123,8 +125,9 @@ const Register = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="text-xl font-light mb-2">मधले नाव</label>
+                <label htmlFor="middleName" className="text-xl font-light mb-2">मधले नाव</label>
                 <input
+                  id="middleName"
                   className="p-3 border border-black shadow-md rounded-2xl"
                   type="text"
                   placeholder="Middle Name Here"
@@ -134,8 +137,9 @@ const Register = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="text-xl font-light mb-2">आडनाव</label>
+                <label htmlFor="surname" className="text-xl font-light mb-2">आडनाव</label>
                 <input
+                  id="surname"
                   className="p-3 border border-black shadow-md rounded-2xl"
                   type="text"
                   placeholder="Surname Here"
@@ -145,9 +149,9 @@ const Register = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="text-xl font-light mb-2">जन्मतारीख</label>
+                <label htmlFor="dateOfBirth" className="text-xl font-light mb-2">जन्मतारीख</label>
                 <input
-                  title="Date"
+                  id="dateOfBirth"
                   type="date"
                   className="p-3 border border-black shadow-md rounded-2xl"
                   value={dateOfBirth}
@@ -158,8 +162,8 @@ const Register = () => {
 
               {/* Role Selection */}
               <div className="flex flex-col">
-                <label className="text-xl font-light mb-2">भूमिका</label>
-                <div className="flex">
+                <label htmlFor="role" className="text-xl font-light mb-2">भूमिका</label>
+                <div id="role" className="flex">
                   <button
                     type="button"
                     onClick={() => setRole(ROLE.Teacher)}
@@ -181,9 +185,9 @@ const Register = () => {
 
               {/* School Name */}
               <div className="flex flex-col">
-                <label className="text-xl font-light mb-2">शाळेचे नाव</label>
+                <label htmlFor="school" className="text-xl font-light mb-2">शाळेचे नाव</label>
                 <select
-                  title="school"
+                  id="school"
                   value={schoolId}
                   onChange={(e) => {
                     setSchoolId(e.target.value)
@@ -208,8 +212,9 @@ const Register = () => {
               {role === ROLE.Teacher && (
                 <>
                   <div className="flex flex-col">
-                    <label className="text-xl font-light mb-2">ई-मेल</label>
+                    <label htmlFor="teacherEmail" className="text-xl font-light mb-2">ई-मेल</label>
                     <input
+                      id="teacherEmail"
                       type="email"
                       className="p-3 border border-black shadow-md rounded-2xl"
                       placeholder="abc123@gmail.com"
@@ -218,10 +223,11 @@ const Register = () => {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xl font-light mb-2">
+                    <label htmlFor="invitationCode" className="text-xl font-light mb-2">
                       आमंत्रण कोड
                     </label>
                     <input
+                      id="invitationCode"
                       type="text"
                       className="p-3 border border-black shadow-md rounded-2xl"
                       placeholder="XYZ-123-ABC"

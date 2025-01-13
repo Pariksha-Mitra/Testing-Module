@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -32,10 +33,10 @@
     "react-dom": "^18.2.0",
     "swagger-ui-dist": "^5.0.0",
     "swagger-ui-react": "^5.18.2",
-    "vitest": "^2.1.8",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.1.4",
     "@eslint/eslintrc": "^3",
     "@testing-library/jest-dom": "^6.6.3",
     "@types/bcrypt": "^5.0.2",

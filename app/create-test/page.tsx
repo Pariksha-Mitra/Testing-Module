@@ -1,16 +1,21 @@
-"use client";
-import React, { useCallback, useMemo, ChangeEvent, useState } from "react";
-import { useQuestions } from "@/context/QuestionsContext";
-import { QuestionType } from "@/utils/types";
-import Dropdown from "@/components/Dropdown/Dropdown";
-import { ActionButton } from "@/components/create-test/ActionButton";
-import { MCQImgTextLayout } from "@/components/create-test/question-layouts/MCQImgTextLayout";
-import { MCQImgImgLayout } from "@/components/create-test/question-layouts/MCQImgImgLayout";
-import { MCQTextImgLayout } from "@/components/create-test/question-layouts/MCQTextImgLayout";
-import { GeneralQuestionLayout } from "@/components/create-test/question-layouts/GeneralQuestionLayout";
-import { NavButton } from "@/components/create-test/NavButton";
+"use client"
+import Dropdown from '@/components/Dropdown/Dropdown';
+import React, {
+  ChangeEvent,
+  useCallback,
+  useMemo,
+  useState
+  } from 'react';
+import { ActionButton } from '@/components/create-test/ActionButton';
+import { GeneralQuestionLayout } from '@/components/create-test/question-layouts/GeneralQuestionLayout';
+import { MCQImgImgLayout } from '@/components/create-test/question-layouts/MCQImgImgLayout';
+import { MCQImgTextLayout } from '@/components/create-test/question-layouts/MCQImgTextLayout';
+import { MCQTextImgLayout } from '@/components/create-test/question-layouts/MCQTextImgLayout';
+import { NavButton } from '@/components/create-test/NavButton';
+import { QuestionType } from '@/utils/types';
+import { useQuestions } from '@/context/QuestionsContext';
 
-const Page = () => {
+const Page: React.FC = () => {
   const {
     questions,
     setQuestions,
@@ -20,13 +25,14 @@ const Page = () => {
 
   const currentQuestion = questions[selectedQuestionIndex];
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Helper function to update any field in currentQuestion.content
   const updateQuestionField = useCallback(
     (
       questionIndex: number,
       field: keyof typeof currentQuestion.content,
-      value: any
+      value: typeof currentQuestion.content[typeof field] // Type inferred based on the field
     ) => {
       const updatedQuestions = [...questions];
       updatedQuestions[questionIndex] = {
@@ -40,25 +46,30 @@ const Page = () => {
     },
     [questions, setQuestions, currentQuestion]
   );
+  
 
   // Handler for changing the question type
   const handleQuestionTypeChange = useCallback(
-    (value: string | number, dropdownId: string) => {
+    async (value: string | number, dropdownId: string) => {
       if (dropdownId === "dropdown-2") {
-        const updatedQuestions = [...questions];
-        updatedQuestions[selectedQuestionIndex] = {
-          ...currentQuestion,
-          type: value as QuestionType,
-          // You could reset content here or partially reset
-          content: {
-            questionText: "",
-            description: "",
-            options: ["Option 1", "Option 2", "Option 3", "Option 4"],
-            correctAnswerIndex: null,
-            image: "", // Initialize image field
-          },
-        };
-        setQuestions(updatedQuestions);
+        setIsLoading(true);
+        try {
+          const updatedQuestions = [...questions];
+          updatedQuestions[selectedQuestionIndex] = {
+            ...currentQuestion,
+            type: value as QuestionType,
+            content: {
+              questionText: "",
+              description: "",
+              options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+              correctAnswerIndex: null,
+              image: "",
+            },
+          };
+          setQuestions(updatedQuestions);
+        } finally {
+          setIsLoading(false);
+        }
       }
     },
     [questions, selectedQuestionIndex, setQuestions, currentQuestion]
@@ -79,16 +90,28 @@ const Page = () => {
   );
 
   // Handlers for question fields
-  const handleQuestionTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    updateQuestionField(selectedQuestionIndex, "questionText", e.target.value);
-  };
+  const handleQuestionTextChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
+      updateQuestionField(
+        selectedQuestionIndex,
+        "questionText",
+        e.target.value
+      );
+    },
+    [selectedQuestionIndex, updateQuestionField]
+  );
 
   const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     updateQuestionField(selectedQuestionIndex, "description", e.target.value);
   };
 
-  const handleImageChange = (image: string) => {
-    updateQuestionField(selectedQuestionIndex, "image", image);
+  const handleImageChange = async (image: string) => {
+    setIsLoading(true);
+    try {
+      updateQuestionField(selectedQuestionIndex, "image", image);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleImageRemove = () => {
@@ -96,8 +119,12 @@ const Page = () => {
   };
 
   // Early return if no question data
-  if (!currentQuestion || !currentQuestion.content) {
+  if (!currentQuestion?.content) {
     return <div>No question data available.</div>;
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
   // Buttons Data
@@ -108,6 +135,9 @@ const Page = () => {
     },
     { label: "DELETE", bgColor: "bg-[#f44144]" },
   ];
+
+  const canGoNext = selectedQuestionIndex < questions.length - 1;
+  const canGoPrevious = selectedQuestionIndex > 0;
 
   return (
     <>
@@ -137,14 +167,18 @@ const Page = () => {
                 key={index}
                 label={button.label}
                 bgColor={button.bgColor}
-                onClick={() => {
-                  if (button.label === "EDIT") {
-                    setIsEditing(true);
-                  } else if (button.label === "SAVE") {
-                    setIsEditing(false);
-                  } else if (button.label === "DELETE") {
-                    // Handle delete action
-                    console.log("DELETE clicked");
+                onClick={async () => {
+                  setIsLoading(true);
+                  try {
+                    if (button.label === "EDIT") {
+                      setIsEditing(true);
+                    } else if (button.label === "SAVE") {
+                      setIsEditing(false);
+                    } else if (button.label === "DELETE") {
+                      // Handle delete action
+                    }
+                  } finally {
+                    setIsLoading(false);
                   }
                 }}
               />
@@ -159,83 +193,85 @@ const Page = () => {
         >
           {/* Render the appropriate layout based on question type */}
           {(() => {
-            switch (currentQuestion.type) {
-              case "MCQ (IMG-Text)":
-                return (
-                  <MCQImgTextLayout
-                    questionIndex={selectedQuestionIndex}
-                    questionDescription={
-                      currentQuestion.content.description || ""
-                    }
-                    questionText={currentQuestion.content.questionText || ""}
-                    image={currentQuestion.content.image || ""}
-                    onDescriptionChange={handleDescriptionChange}
-                    onQuestionTextChange={handleQuestionTextChange}
-                    onImageChange={handleImageChange}
-                    onImageRemove={handleImageRemove}
-                    editable={isEditing} 
-                  />
-                );
+            try {
+              switch (currentQuestion.type) {
+                case "MCQ (IMG-Text)":
+                  return (
+                    <MCQImgTextLayout
+                      questionIndex={selectedQuestionIndex}
+                      questionDescription={
+                        currentQuestion.content.description ?? ""
+                      }
+                      questionText={currentQuestion.content.questionText ?? ""}
+                      image={currentQuestion.content.image ?? ""}
+                      onDescriptionChange={handleDescriptionChange}
+                      onQuestionTextChange={handleQuestionTextChange}
+                      onImageChange={handleImageChange}
+                      onImageRemove={handleImageRemove}
+                      editable={isEditing}
+                    />
+                  );
 
-              case "MCQ (IMG-IMG)":
-                return (
-                  <MCQImgImgLayout
-                    questionIndex={selectedQuestionIndex}
-                    questionDescription={
-                      currentQuestion.content.description || ""
-                    }
-                    image={currentQuestion.content.image || ""}
-                    onDescriptionChange={handleDescriptionChange}
-                    onImageChange={handleImageChange}
-                    onImageRemove={handleImageRemove}
-                    editable={isEditing} 
-                  />
-                );
+                case "MCQ (IMG-IMG)":
+                  return (
+                    <MCQImgImgLayout
+                      questionIndex={selectedQuestionIndex}
+                      questionDescription={
+                        currentQuestion.content.description ?? ""
+                      }
+                      image={currentQuestion.content.image ?? ""}
+                      onDescriptionChange={handleDescriptionChange}
+                      onImageChange={handleImageChange}
+                      onImageRemove={handleImageRemove}
+                      editable={isEditing}
+                    />
+                  );
 
-              case "MCQ (Text-IMG)":
-                return (
-                  <MCQTextImgLayout
-                    questionIndex={selectedQuestionIndex}
-                    questionText={currentQuestion.content.questionText || ""}
-                    questionDescription={
-                      currentQuestion.content.description || ""
-                    }
-                    onQuestionTextChange={handleQuestionTextChange}
-                    onDescriptionChange={handleDescriptionChange}
-                    editable={isEditing} 
-                  />
-                );
+                case "MCQ (Text-IMG)":
+                  return (
+                    <MCQTextImgLayout
+                      questionIndex={selectedQuestionIndex}
+                      questionText={currentQuestion.content.questionText ?? ""}
+                      questionDescription={
+                        currentQuestion.content.description ?? ""
+                      }
+                      onQuestionTextChange={handleQuestionTextChange}
+                      onDescriptionChange={handleDescriptionChange}
+                      editable={isEditing}
+                    />
+                  );
 
-              default:
-                return (
-                  <GeneralQuestionLayout
-                    questionIndex={selectedQuestionIndex}
-                    questionType={currentQuestion.type}
-                    questionText={currentQuestion.content.questionText || ""}
-                    questionDescription={
-                      currentQuestion.content.description || ""
-                    }
-                    onQuestionTextChange={handleQuestionTextChange}
-                    onDescriptionChange={handleDescriptionChange}
-                    editable={isEditing} 
-                  />
-                );
+                default:
+                  return (
+                    <GeneralQuestionLayout
+                      questionIndex={selectedQuestionIndex}
+                      questionType={currentQuestion.type}
+                      questionText={currentQuestion.content.questionText ?? ""}
+                      questionDescription={
+                        currentQuestion.content.description ?? ""
+                      }
+                      onQuestionTextChange={handleQuestionTextChange}
+                      onDescriptionChange={handleDescriptionChange}
+                      editable={isEditing}
+                    />
+                  );
+              }
+            } catch (error) {
+              console.error(error);
+              return <div>Error loading question</div>;
             }
           })()}
         </div>
       </div>
 
       {/* Nav Buttons (Previous/Next) */}
-      <div
-        className="flex flex-wrap gap-10 self-center mt-4 max-w-full w-[506px] mx-auto items-center justify-center"
-        role="group"
-        aria-label="Navigation cards"
-      >
+      <fieldset className="flex flex-wrap gap-10 self-center mt-4 max-w-full w-[506px] mx-auto items-center justify-center border-none">
+        <legend className="sr-only">Navigation cards</legend>
         <NavButton
           imageSrc="/nav-left.png"
           tooltipText="मागील"
           onClick={() => {
-            if (selectedQuestionIndex > 0) {
+            if (canGoPrevious) {
               setSelectedQuestionIndex(selectedQuestionIndex - 1);
             }
           }}
@@ -244,12 +280,12 @@ const Page = () => {
           imageSrc="/nav-right.png"
           tooltipText="पुढील"
           onClick={() => {
-            if (selectedQuestionIndex < questions.length - 1) {
+            if (canGoNext) {
               setSelectedQuestionIndex(selectedQuestionIndex + 1);
             }
           }}
         />
-      </div>
+      </fieldset>
     </>
   );
 };

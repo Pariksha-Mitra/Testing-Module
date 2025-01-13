@@ -1,10 +1,9 @@
-"use client";
-
-import React, { useContext, useMemo, useState } from "react";
-import { QuestionProps } from "@/utils/types";
-import { QuestionList } from "@/components/question-bank/QuestionList";
-import "@/styles/scrollbar.css";
-import { SelectionContext } from "@/context/SelectionContext";
+"use client"
+import React, { useContext, useMemo, useState } from 'react';
+import { QuestionList } from '@/components/question-bank/QuestionList';
+import { QuestionProps } from '@/utils/types';
+import { SelectionContext } from '@/context/SelectionContext';
+import '@/styles/scrollbar.css';
 
 const initialQuestions: QuestionProps[] = [
   {
@@ -100,7 +99,7 @@ const initialQuestions: QuestionProps[] = [
   },
 ];
 
-const Page = () => {
+const Page: React.FC = () => {
   const context = useContext(SelectionContext);
   if (!context) {
     throw new Error("Page must be used within a SelectionProvider");
@@ -130,7 +129,7 @@ const Page = () => {
   }, [questionList, selection]);
 
   // 4) Handler for selecting a question
-  const handleQuestionSelect = (index: number) => {
+  const handleQuestionSelect = (index: number): void => {
     setSelectedQuestionIndex(index);
   };
 

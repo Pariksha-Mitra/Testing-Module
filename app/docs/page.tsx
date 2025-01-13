@@ -1,17 +1,28 @@
-"use client";
-import { useFetchSwagger } from "@/utils/hooks/useFetchSwagger";
-import SwaggerUI from "swagger-ui-react";
-import "swagger-ui-react/swagger-ui.css";
+"use client"
+import SwaggerUI from 'swagger-ui-react';
+import { useFetchSwagger } from '@/utils/hooks/useFetchSwagger';
+import 'swagger-ui-react/swagger-ui.css';
 
-const ApiDocs = () => {
+// Add explicit return type
+const ApiDocs: React.FC = () => {
   const { spec, isLoading } = useFetchSwagger();
 
+  // Add better loading state UI
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Loading API documentation...
+      </div>
+    );
   }
 
+  // Add better error state UI
   if (!spec) {
-    return <div>Failed to load Swagger spec</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen text-red-500">
+        Failed to load API documentation
+      </div>
+    );
   }
 
   return <SwaggerUI spec={spec} />;

@@ -1,9 +1,16 @@
-import React, { Suspense } from "react";
-import NewPassword from "@/components/NewPassword";
+import NewPassword from '@/components/NewPassword';
+import React, { Suspense } from 'react';
 
-const Page = () => {
+// Add explicit return type
+const Page: React.FC = () => {
   return (
-    <Suspense fallback={"Loading..."}>
+    <Suspense 
+      fallback={
+        <div className="flex justify-center items-center">
+          Loading...
+        </div>
+      }
+    >
       <NewPassword />
     </Suspense>
   );

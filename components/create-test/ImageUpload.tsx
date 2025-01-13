@@ -1,6 +1,5 @@
-"use client";
-
-import React, { ChangeEvent, useCallback } from "react";
+"use client"
+import React, { ChangeEvent, useCallback, useState } from 'react';
 
 interface ImageUploadProps {
   image: string | null;
@@ -8,6 +7,9 @@ interface ImageUploadProps {
   onRemove: () => void;
   editable: boolean;
   className?: string;
+  // Add validation props
+  maxSizeInMB?: number;
+  acceptedFileTypes?: string[];
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -16,25 +18,56 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   onRemove,
   editable,
   className,
+  maxSizeInMB = 5, // Default 5MB
+  acceptedFileTypes = ["image/jpeg", "image/png", "image/gif"],
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  
+
   const handleFileChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
+    async (e: ChangeEvent<HTMLInputElement>) => {
       if (!editable) return;
+      setIsLoading(true); // Start loading
       const file = e.target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          onImageChange(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+
+      try {
+        if (file) {
+          // Size validation
+          if (file.size > maxSizeInMB * 1024 * 1024) {
+            throw new Error(`File size must be less than ${maxSizeInMB}MB`);
+          }
+
+          // Type validation
+          if (!acceptedFileTypes.includes(file.type)) {
+            throw new Error("File type not supported");
+          }
+
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            onImageChange(reader.result as string);
+            setIsLoading(false); // Stop loading on success
+          };
+          reader.onerror = () => {
+            setError("Error reading file");
+            setIsLoading(false); // Stop loading on error
+          };
+          reader.readAsDataURL(file);
+        }
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Unknown error");
+        console.error("Error handling file:", error);
+        setIsLoading(false); // Stop loading on validation error
       }
     },
-    [onImageChange, editable]
+    [editable, maxSizeInMB, acceptedFileTypes, onImageChange]
   );
 
   const handlePaste = useCallback(
     (e: React.ClipboardEvent<HTMLDivElement>) => {
       if (!editable) return;
+      setIsLoading(true); // Start loading
       const clipboardItems = e.clipboardData?.items;
       if (clipboardItems) {
         for (const item of clipboardItems) {
@@ -44,6 +77,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               const reader = new FileReader();
               reader.onloadend = () => {
                 onImageChange(reader.result as string);
+                setIsLoading(false); // Stop loading on success
+              };
+              reader.onerror = () => {
+                setError("Error reading pasted file");
+                setIsLoading(false); // Stop loading on error
               };
               reader.readAsDataURL(file);
               break;
@@ -51,6 +89,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           }
         }
       }
+      setIsLoading(false); // Stop loading if no image found in clipboard
     },
     [onImageChange, editable]
   );
@@ -61,9 +100,18 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       onPaste={handlePaste}
       aria-disabled={!editable}
     >
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/50">
+          <span>Loading...</span>
+        </div>
+      )}
       {image ? (
         <div className="relative object-contain">
-          <img src={image} alt="Question" className="w-full h-full object-contain" />
+          <img
+            src={image}
+            alt="Question"
+            className="w-full h-full object-contain"
+          />
           {editable && (
             <button
               onClick={onRemove}
@@ -87,16 +135,18 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           <input
             id="file-upload"
             type="file"
-            accept="image/*"
             onChange={handleFileChange}
+            accept={acceptedFileTypes.join(",")}
             disabled={!editable}
+            aria-label="Upload image"
             className="hidden"
             aria-disabled={!editable}
           />
           <p className="text-gray-500 mt-2">Upload an image or paste one</p>
+          {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
       ) : (
-        <div className="flex items-center justify-center h-full text-gray-500">
+        <div className="flex items-c</label>enter justify-center h-full text-gray-500">
           No image uploaded.
         </div>
       )}

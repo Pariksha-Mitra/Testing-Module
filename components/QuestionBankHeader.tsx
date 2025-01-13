@@ -1,8 +1,12 @@
-import React, { useContext, useCallback } from "react";
-import Image from "next/image";
-import Dropdown from "@/components/Dropdown/Dropdown";
-import { SelectionContext } from "@/context/SelectionContext";
+import Dropdown from '@/components/Dropdown/Dropdown';
+import Image from 'next/image';
+import React, { useCallback, useContext, useMemo } from 'react';
+import { SelectionContext } from '@/context/SelectionContext';
 
+/**
+ * Header component for Question Bank page containing selection dropdowns
+ * @returns React component with selection controls
+ */
 export default function QuestionBankHeader() {
   const context = useContext(SelectionContext);
   
@@ -27,8 +31,8 @@ export default function QuestionBankHeader() {
   );
 
   // Example: You can adjust these arrays to your real data
-  const classOptions = ["५", "६", "७", "८", "९", "१०"];
-  const subjectOptions = ["विषय १", "विषय २", "विषय ३"];
+  const classOptions = useMemo(() => ["५", "६", "७", "८", "९", "१०"], []);
+  const subjectOptions = useMemo(() => ["विषय १", "विषय २", "विषय ३"], []);
   const lessonOptions = ["धडा १", "धडा २", "धडा ३"];
   const homeworkOptions = ["स्वाध्याय १", "स्वाध्याय २"];
 

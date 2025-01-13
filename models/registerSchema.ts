@@ -1,6 +1,7 @@
-import { z } from "zod";
-import { ROLE } from "../utils/types";
+import { ROLE } from '../utils/types';
+import { z } from 'zod';
 
+// Define the schema using zod
 export const registerSchema = z.object({
   firstName: z.string().min(1, {
     message: "First name is required!",
@@ -10,8 +11,8 @@ export const registerSchema = z.object({
   dateOfBirth: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid date format!",
   }),
-  slug: z.string({ message: "Slug is required!" }),
-  role: z.enum([ROLE.Teacher, ROLE.Student], {
+  slug: z.string().min(1, { message: "Slug is required!" }),
+  role: z.nativeEnum(ROLE, {
     message: "Role must be either 'teacher' or 'student'",
   }),
   schoolId: z.string().min(1, {
@@ -26,4 +27,5 @@ export const registerSchema = z.object({
   invitationId: z.string().optional(),
 });
 
+// Define the TypeScript type for the schema
 export type RegisterSchemaTypes = z.infer<typeof registerSchema>;
