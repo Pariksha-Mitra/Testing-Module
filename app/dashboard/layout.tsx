@@ -8,9 +8,15 @@ const DashboardLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <div className="relative flex bg-gradient-to-b from-yellow-200 to-blue-300 min-h-screen">
+    <div
+      className="relative flex h-screen"
+      style={{
+        background:
+          "linear-gradient(to bottom, #FBFFB7 0%, #FFFFFF 56%, #65D4FF 100%)",
+      }}
+    >
       <Sidebar />
-      <div className="flex-1 p-6 ml-24">
+      <div className="flex-1 p-6 lg:ml-24 overflow-y-auto">
         <Header />
         {children}
       </div>
