@@ -15,6 +15,7 @@ export default {
       fontFamily: {
         rozhaOne: ['var(--font-rozha-one)', 'serif'],
         laila: ['var(--font-laila)', 'serif'],
+        arya: ['var(--font-arya)', 'serif'],
       },
     },
   },
