@@ -1,14 +1,18 @@
 "use client";
-
+import { useSession } from "next-auth/react";
 import React from "react";
 import SidebarItem from "./SidebarItem";
 
 export default function Sidebar() {
+  const { data: session } = useSession();
+  console.log(session?.user.role);
+  // TODO: Display SidebarItem based on user role
   return (
-    <div className="fixed top-0 left-0 h-screen w-24 backdrop-blur-md bg-gradient-to-b from-yellow-50 to-blue-200 border-r border-black flex flex-col">
+    <div className="fixed top-0 left-0 h-screen w-24 backdrop-blur-md bg-gradient-to-b from-yellow-50 to-blue-200  border-r border-black flex flex-col">
+      {/*  */}
       {/* Top Section */}
       <div className="flex flex-col items-center p-4">
-        <div className="w-16 h-16 bg-red-500 rounded-full mb-4"></div>
+        <div className="w-16 h-16 bg-[#FF7878] rounded-full mb-4"></div>
       </div>
 
       {/* Middle Section (Scrollable) */}
@@ -20,23 +24,41 @@ export default function Sidebar() {
       <div className="flex flex-col items-center p-4">
         <SidebarItem
           href="/dashboard"
-          ariaLabel="Home"
+          ariaLabel="डैशबोर्ड"
           icon={
             <svg
-              fill="currentColor"
+              version="1.0"
               xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6"
-              viewBox="0 0 24 24"
+              width="25.000000pt"
+              height="25.000000pt"
+              viewBox="0 0 110.000000 110.000000"
+              preserveAspectRatio="xMidYMid meet"
             >
-              {/* Replace with your Home SVG path */}
-              <path d="M12 3l-12 9h4v9h6v-7h4v7h6v-9h4l-12-9z" />
+              <g
+                transform="translate(0.000000,110.000000) scale(0.100000,-0.100000)"
+                fill="currentColor"
+                stroke="none"
+              >
+                <path
+                  d="M268 863 c-132 -131 -246 -251 -255 -267 -30 -57 7 -129 74 -142 l32
+-6 3 -189 3 -189 33 -32 c32 -33 32 -33 149 -36 103 -3 118 -2 130 14 9 13 13
+59 13 159 0 172 2 175 103 175 104 0 107 -6 107 -189 0 -127 2 -150 16 -155
+31 -12 204 -6 239 8 58 25 65 52 65 256 0 175 1 180 21 180 54 0 98 47 99 105
+0 39 -7 46 -253 292 l-252 253 -44 0 -44 0 -239 -237z m535 -61 c130 -131 237
+-241 237 -244 0 -25 -16 -38 -47 -38 -74 0 -73 3 -73 -220 0 -167 -2 -201 -16
+-214 -12 -12 -36 -16 -100 -16 l-84 0 0 125 c0 188 -22 215 -170 215 -145 0
+-170 -32 -170 -219 l0 -122 -87 3 c-116 4 -113 -3 -113 245 0 216 7 198 -75
+205 -24 2 -31 8 -33 28 -2 21 36 64 231 258 128 127 240 232 248 232 8 0 121
+-107 252 -238z"
+                />
+              </g>
             </svg>
           }
         />
 
         <SidebarItem
           href="/question-bank"
-          ariaLabel="Question Bank"
+          ariaLabel="प्रश्न संच"
           icon={
             <svg
               fill="currentColor"
@@ -73,7 +95,7 @@ export default function Sidebar() {
 
         <SidebarItem
           href="/create-test"
-          ariaLabel="Create Test"
+          ariaLabel="चाचणी तयार करा"
           icon={
             <svg
               width="30"
@@ -88,35 +110,70 @@ export default function Sidebar() {
         />
 
         <SidebarItem
-          href="/profile"
-          ariaLabel="Profile"
+          href="/result"
+          ariaLabel="निकाल"
           icon={
             <svg
-              fill="currentColor"
+              className="w-12 h-12"
               version="1.0"
               xmlns="http://www.w3.org/2000/svg"
-              width="30.000000pt"
-              height="30.000000pt"
-              viewBox="0 0 182.000000 182.000000"
+              width="512.000000pt"
+              height="512.000000pt"
+              viewBox="0 0 512.000000 512.000000"
               preserveAspectRatio="xMidYMid meet"
             >
               <g
-                transform="translate(0.000000,182.000000) scale(0.100000,-0.100000)"
+                transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+                fill="currentColor"
                 stroke="none"
               >
                 <path
-                  d="M829 1486 c-86 -31 -144 -88 -175 -173 -47 -132 39 -296 177 -337 66
--20 92 -20 160 0 116 34 200 164 186 287 -20 163 -198 277 -348 223z m146 -57
-c23 -7 57 -28 81 -53 85 -84 84 -206 -2 -292 -81 -82 -207 -82 -288 0 -84 83
--87 198 -8 285 56 63 131 84 217 60z"
+                  d="M2433 4960 c-164 -30 -305 -127 -385 -267 l-29 -52 -442 -3 -442 -3
+-68 -27 c-171 -69 -296 -214 -333 -387 -21 -101 -20 -3534 1 -3636 41 -192
+191 -350 380 -400 52 -13 229 -15 1405 -15 1484 0 1399 -3 1524 63 75 40 162
+124 204 198 18 32 41 92 52 135 20 76 20 114 20 1833 0 1469 -3 1767 -14 1822
+-37 173 -162 318 -333 387 l-68 27 -442 3 -442 3 -32 57 c-104 184 -347 299
+-556 262z m190 -253 c54 -18 125 -73 150 -114 12 -21 31 -62 42 -92 32 -89 58
+-101 223 -101 l134 0 -4 -92 c-6 -139 -54 -218 -163 -269 l-60 -29 -426 0
+-426 0 -61 31 c-109 54 -154 128 -160 267 l-4 92 134 0 c166 0 191 11 223 102
+63 178 231 264 398 205z m-993 -387 c0 -104 14 -169 57 -259 42 -89 131 -182
+219 -228 112 -59 144 -63 610 -63 239 0 445 4 475 10 87 16 194 75 263 144
+106 106 156 231 156 394 l0 82 215 0 c191 0 220 -2 269 -20 65 -25 130 -86
+160 -150 l21 -45 0 -1781 0 -1780 -30 -59 c-34 -66 -101 -125 -165 -144 -27
+-8 -408 -11 -1368 -11 l-1330 0 -63 33 c-40 20 -75 48 -96 75 -67 89 -63 -37
+-61 1907 l3 1760 23 46 c31 64 96 125 157 149 44 17 77 19 268 19 l217 1 0
+-80z"
                 />
                 <path
-                  d="M731 884 c-139 -50 -236 -165 -263 -312 -18 -99 -52 -92 442 -92 494
-0 460 -7 442 92 -25 132 -104 236 -222 292 -62 30 -71 31 -210 33 -112 2 -155
--1 -189 -13z m356 -66 c88 -32 165 -114 192 -202 12 -38 21 -70 21 -72 0 -2
--175 -4 -390 -4 -214 0 -390 2 -390 4 0 2 9 33 20 68 30 98 108 178 209 214
-22 8 85 13 158 14 102 0 132 -4 180 -22z"
+                  d="M3145 2770 c-11 -5 -200 -185 -420 -399 l-400 -391 -135 133 c-286
+281 -293 287 -339 287 -56 0 -95 -22 -115 -64 -20 -43 -20 -64 2 -103 9 -17
+132 -144 273 -282 276 -268 290 -278 356 -249 49 21 930 885 944 925 15 47 3
+87 -37 123 -36 31 -86 39 -129 20z"
                 />
+              </g>
+            </svg>
+          }
+        />
+
+        <SidebarItem
+          href="/profile"
+          ariaLabel="प्रोफाइल"
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+              version="1.2"
+              baseProfile="tiny"
+              height={"40px"}
+              width={"40px"}
+              x="0px"
+              y="0px"
+              viewBox="0 0 100 100"
+              xmlSpace="preserve"
+            >
+              <g fill="currentColor">
+                <path d="M70,30c0-11.028-8.972-20-20-20s-20,8.972-20,20s8.972,20,20,20S70,41.028,70,30z M35,30c0-8.271,6.729-15,15-15   s15,6.729,15,15s-6.729,15-15,15S35,38.271,35,30z" />
+                <path d="M10,80v7.5c0,1.381,1.119,2.5,2.5,2.5h75c1.381,0,2.5-1.119,2.5-2.5V80c0-14.019-17.57-25-40-25S10,65.981,10,80z M50,60   c18.972,0,35,9.159,35,20v5H15v-5C15,69.159,31.028,60,50,60z" />
               </g>
             </svg>
           }
