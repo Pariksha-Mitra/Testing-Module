@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Chapter,Subject, Standard, Exercise, Question } from "@/models/questionsSchema";
+import { Chapter, Subject, Exercise, Question } from "@/models/questionsSchema";
 import { connectDb } from "@/utils/db";
 
 /**
@@ -29,7 +29,7 @@ export async function GET() {
 
         const chapters = await Chapter.find();
         return NextResponse.json({ chapters }, { status: 200 });
-        
+
     } catch {
         return NextResponse.json({ error: "Failed to retrieve the chapter information" }, { status: 400 });
     }
@@ -80,10 +80,8 @@ export async function POST(req: Request) {
     try {
         await connectDb();
 
-        // Parse the request body
         const { title, description, subjectId } = await req.json();
 
-        // Validate required fields
         if (!title || !subjectId) {
             return NextResponse.json(
                 { error: "Title and Standard ID are required" },
@@ -91,7 +89,6 @@ export async function POST(req: Request) {
             );
         }
 
-        // Check if the provided Standard exists
         const subjectdExists = await Subject.findById(subjectId);
         if (!subjectdExists) {
             return NextResponse.json(
@@ -100,17 +97,14 @@ export async function POST(req: Request) {
             );
         }
 
-        // Create a new Chapter document
         const newChapter = new Chapter({
             title,
             description,
             fk_subject_id: subjectId,
         });
 
-        // Save the Chapter to the database
         const savedChapter = await newChapter.save();
 
-        // Return a success response
         return NextResponse.json(
             {
                 message: "Chapter created successfully",
@@ -123,13 +117,15 @@ export async function POST(req: Request) {
             },
             { status: 201 }
         );
+
     } catch (error) {
-        console.error("Error creating chapter:", error);
+        console.error("Error in handling chapter:", error);
         return NextResponse.json(
-            { error: "Failed to create chapter" },
+            { error: "Internal Server error" },
             { status: 500 }
         );
     }
+
 }
 
 /**
