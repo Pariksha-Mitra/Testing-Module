@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Subject, Standard } from "@/models/questionsSchema";
 import { connectDb } from "@/utils/db";
 
@@ -33,6 +33,7 @@ export async function GET() {
         return NextResponse.json({ error: "Failed to retrieve the subject information" }, { status: 400 });
     }
 }
+
 
 /**
  * @swagger
@@ -75,44 +76,40 @@ export async function GET() {
  *       500:
  *         description: Failed to create subject.
  */
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     try {
         await connectDb();
 
-        // Parse the request body
-        const { subjectName, description, standardId } = await req.json();
+        const body = await req.json();
 
-        // Validate required fields
+        const { subjectName, description, standardId } = body;
+
         if (!subjectName || !standardId) {
             return NextResponse.json(
-                { error: "Subject name and Standard ID are required" },
+                { error: 'Subject name and Standard ID are required' },
                 { status: 400 }
             );
         }
 
-        // Check if the provided Standard exists
         const standardExists = await Standard.findById(standardId);
         if (!standardExists) {
             return NextResponse.json(
-                { error: "The provided Standard ID does not exist" },
+                { error: 'The provided Standard ID does not exist' },
                 { status: 404 }
             );
         }
 
-        // Create a new Subject document
         const newSubject = new Subject({
             subjectName,
             description,
             fk_standard_id: standardId,
         });
 
-        // Save the Subject to the database
         const savedSubject = await newSubject.save();
 
-        // Return a success response
         return NextResponse.json(
             {
-                message: "Subject created successfully",
+                message: 'Subject created successfully',
                 subject: {
                     _id: savedSubject._id,
                     subjectName: savedSubject.subjectName,
@@ -123,9 +120,9 @@ export async function POST(req: Request) {
             { status: 201 }
         );
     } catch (error) {
-        console.error("Error creating subject:", error);
+        console.error('Error handling GET request ', error);
         return NextResponse.json(
-            { error: "Failed to create subject" },
+            { error: 'Internal Server Error' },
             { status: 500 }
         );
     }
