@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { Subject, Standard } from "@/models/questionsSchema";
-import { connectDb } from "@/utils/db";
+import { connectDb } from '@/utils/db';
+import { NextResponse } from 'next/server';
+import { Standard, Subject } from '@/models/questionsSchema';
 
 /**
  * @swagger
@@ -16,24 +16,38 @@ import { connectDb } from "@/utils/db";
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
  *                 subjects:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Subject'
- *       400:
+ *       500:
  *         description: Failed to retrieve subject information.
  */
 export async function GET() {
-    try {
-        await connectDb();
+  try {
+    await connectDb();
+    const subjects = await Subject.find();
 
-        const subjects = await Subject.find();
-        return NextResponse.json({ subjects }, { status: 200 });
-    } catch {
-        return NextResponse.json({ error: "Failed to retrieve the subject information" }, { status: 400 });
-    }
+    return NextResponse.json(
+      {
+        success: true,
+        subjects,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error retrieving subjects, GET Req error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to retrieve the subject information",
+      },
+      { status: 500 }
+    ); // Change to 500 for server errors
+  }
 }
-
 
 /**
  * @swagger
@@ -76,56 +90,60 @@ export async function GET() {
  *       500:
  *         description: Failed to create subject.
  */
-export async function POST(req: NextRequest) {
-    try {
-        await connectDb();
+export async function POST(req: Request) {
+  try {
+    await connectDb();
 
-        const body = await req.json();
+    // Parse the request body
+    const { subjectName, description, standardId } = await req.json();
 
-        const { subjectName, description, standardId } = body;
-
-        if (!subjectName || !standardId) {
-            return NextResponse.json(
-                { error: 'Subject name and Standard ID are required' },
-                { status: 400 }
-            );
-        }
-
-        const standardExists = await Standard.findById(standardId);
-        if (!standardExists) {
-            return NextResponse.json(
-                { error: 'The provided Standard ID does not exist' },
-                { status: 404 }
-            );
-        }
-
-        const newSubject = new Subject({
-            subjectName,
-            description,
-            fk_standard_id: standardId,
-        });
-
-        const savedSubject = await newSubject.save();
-
-        return NextResponse.json(
-            {
-                message: 'Subject created successfully',
-                subject: {
-                    _id: savedSubject._id,
-                    subjectName: savedSubject.subjectName,
-                    description: savedSubject.description,
-                    fk_standard_id: savedSubject.fk_standard_id,
-                },
-            },
-            { status: 201 }
-        );
-    } catch (error) {
-        console.error('Error handling GET request ', error);
-        return NextResponse.json(
-            { error: 'Internal Server Error' },
-            { status: 500 }
-        );
+    // Validate required fields
+    if (!subjectName || !standardId) {
+      return NextResponse.json(
+        { error: "Subject name and Standard ID are required" },
+        { status: 400 }
+      );
     }
+
+    // Check if the provided Standard exists
+    const standardExists = await Standard.findById(standardId);
+    if (!standardExists) {
+      return NextResponse.json(
+        { error: "The provided Standard ID does not exist" },
+        { status: 404 }
+      );
+    }
+
+    // Create a new Subject document
+    const newSubject = new Subject({
+      subjectName,
+      description,
+      fk_standard_id: standardId,
+    });
+
+    // Save the Subject to the database
+    const savedSubject = await newSubject.save();
+
+    // Return a success response
+    return NextResponse.json(
+      {
+        message: "Subject created successfully",
+        subject: {
+          _id: savedSubject._id,
+          subjectName: savedSubject.subjectName,
+          description: savedSubject.description,
+          fk_standard_id: savedSubject.fk_standard_id,
+        },
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error creating subject, POST req error :", error);
+    return NextResponse.json(
+      { error: "Failed to create subject" },
+      { status: 500 }
+    );
+  }
 }
 
 /**
@@ -161,44 +179,41 @@ export async function POST(req: NextRequest) {
  *         description: Failed to delete subject.
  */
 export async function DELETE(req: Request) {
-    try {
-        await connectDb();
+  try {
+    await connectDb();
 
-        // Extract subject ID from query parameters
-        const { searchParams } = new URL(req.url);
-        const subjectId = searchParams.get("id");
+    // Extract subject ID from query parameters
+    const { searchParams } = new URL(req.url);
+    const subjectId = searchParams.get("id");
 
-        if (!subjectId) {
-            return NextResponse.json(
-                { error: "Subject ID is required" },
-                { status: 400 }
-            );
-        }
-
-        // Check if the subject exists
-        const subject = await Subject.findById(subjectId);
-        if (!subject) {
-            return NextResponse.json(
-                { error: "Subject not found" },
-                { status: 404 }
-            );
-        }
-
-        // Delete the subject
-        await Subject.findByIdAndDelete(subjectId);
-
-        return NextResponse.json(
-            {
-                message: "Subject deleted successfully",
-                subjectId,
-            },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("Error deleting subject:", error);
-        return NextResponse.json(
-            { error: "Failed to delete subject" },
-            { status: 500 }
-        );
+    if (!subjectId) {
+      return NextResponse.json(
+        { error: "Subject ID is required" },
+        { status: 400 }
+      );
     }
+
+    // Check if the subject exists
+    const subject = await Subject.findById(subjectId);
+    if (!subject) {
+      return NextResponse.json({ error: "Subject not found" }, { status: 404 });
+    }
+
+    // Delete the subject
+    await Subject.findByIdAndDelete(subjectId);
+
+    return NextResponse.json(
+      {
+        message: "Subject deleted successfully",
+        subjectId,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting subject, DELETE req error :", error);
+    return NextResponse.json(
+      { error: "Failed to delete subject" },
+      { status: 500 }
+    );
+  }
 }

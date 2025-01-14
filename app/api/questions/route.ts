@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { Question } from "@/models/questionsSchema";
-import { connectDb } from "@/utils/db";
+import { connectDb } from '@/utils/db';
+import { NextResponse } from 'next/server';
+import { Question } from '@/models/questionsSchema';
 
 /**
  * @swagger
@@ -18,45 +18,14 @@ import { connectDb } from "@/utils/db";
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
  *                 questions:
  *                   type: array
  *                   items:
- *                     type: object
- *                     properties:
- *                       _id:
- *                         type: string
- *                       questionText:
- *                         type: string
- *                       questionType:
- *                         type: string
- *                       answerFormat:
- *                         type: string
- *                       options:
- *                         type: array
- *                         items:
- *                           type: string
- *                       numericalAnswer:
- *                         type: number
- *                       exerciseTitle:
- *                         type: string
- *                       exerciseDescription:
- *                         type: string
- *                       exerciseId:
- *                         type: string
- *                       chapterTitle:
- *                         type: string
- *                       chapterDescription:
- *                         type: string
- *                       chapterId:
- *                         type: string
- *                       standardName:
- *                         type: string
- *                       standardDescription:
- *                         type: string
- *                       standardId:
- *                         type: string
+ *                     $ref: '#/components/schemas/Question'
  *       500:
- *         description: Failed to fetch questions.
+ *         description: Failed to fetch questions
  */
 export async function GET() {
   try {
@@ -108,7 +77,7 @@ export async function GET() {
 
     return NextResponse.json({ questions: flattenedQuestions });
   } catch (error){
-    console.error("Error in handling GET question:", error);
+    console.log("error while handling GET req in question",error);
 
     return NextResponse.json({ error: "Failed to fetch questions" }, { status: 500 });
   }
@@ -238,7 +207,8 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error in handling POST req question : ", error);
+    console.log("error while handling POST req in question",error);
+
     return NextResponse.json(
       { error: "Failed to add question" },
       { status: 500 }
@@ -296,7 +266,7 @@ export async function DELETE(req: Request) {
       { success: true, message: "Question deleted successfully" }, { status: 200 }
     );
   } catch (error) {
-    console.error("Error in handling DELETE req question:", error);
+    console.log("error while handling DELETE req in question",error);
     return NextResponse.json(
       { success: false, error: "Failed to delete question" }, { status: 500 }
     );

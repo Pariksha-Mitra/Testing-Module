@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 
 type School = {
   id: unknown;
@@ -36,7 +36,7 @@ export default function useFetchSchools() {
       if (error instanceof Error) {
         console.log(error.message);
       } else {
-        console.log("Unknown error occured!");
+        console.log("Unknown error occurred!");
       }
     } finally {
       setIsLoading(false);

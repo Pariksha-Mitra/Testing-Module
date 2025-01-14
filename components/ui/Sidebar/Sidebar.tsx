@@ -1,14 +1,27 @@
-"use client";
+"use client"
+import React from 'react';
+import SidebarItem from './SidebarItem';
 
-import React from "react";
-import SidebarItem from "./SidebarItem";
 
-export default function Sidebar() {
+interface SidebarProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+export default function Sidebar({ className }: SidebarProps) {
   return (
-    <div className="fixed top-0 left-0 h-screen w-24 backdrop-blur-md bg-gradient-to-b from-yellow-50 to-blue-200 border-r border-black flex flex-col">
+    <div 
+      className={`fixed top-0 left-0 h-screen w-24 backdrop-blur-md bg-gradient-to-b from-yellow-50 to-blue-200 border-r border-black flex flex-col ${className}`}
+      role="navigation"
+      aria-label="Main Sidebar"
+    >
       {/* Top Section */}
       <div className="flex flex-col items-center p-4">
-        <div className="w-16 h-16 bg-red-500 rounded-full mb-4"></div>
+        <div 
+          className="w-16 h-16 bg-red-500 rounded-full mb-4"
+          role="img"
+          aria-label="User avatar"
+        />
       </div>
 
       {/* Middle Section (Scrollable) */}

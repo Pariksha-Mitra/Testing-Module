@@ -1,6 +1,18 @@
-import { NextResponse } from "next/server";
-import { Chapter, Subject, Exercise, Question } from "@/models/questionsSchema";
-import { connectDb } from "@/utils/db";
+import {
+    Chapter,
+    Exercise,
+    Question,
+    Subject
+    } from '@/models/questionsSchema';
+import { connectDb } from '@/utils/db';
+import { NextResponse } from 'next/server';
+
+// Add type for create chapter request
+interface CreateChapterRequest {
+  title: string;
+  description?: string;
+  subjectId: string;
+}
 
 /**
  * @swagger
@@ -24,15 +36,17 @@ import { connectDb } from "@/utils/db";
  *         description: Failed to retrieve chapter information.
  */
 export async function GET() {
-    try {
-        await connectDb();
+  try {
+    await connectDb();
 
-        const chapters = await Chapter.find();
-        return NextResponse.json({ chapters }, { status: 200 });
-
-    } catch {
-        return NextResponse.json({ error: "Failed to retrieve the chapter information" }, { status: 400 });
-    }
+    const chapters = await Chapter.find();
+    return NextResponse.json({ chapters }, { status: 200 });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to retrieve the chapter information" },
+      { status: 400 }
+    );
+  }
 }
 
 /**
@@ -77,55 +91,60 @@ export async function GET() {
  *         description: Failed to create chapter.
  */
 export async function POST(req: Request) {
-    try {
-        await connectDb();
+  try {
+    await connectDb();
 
-        const { title, description, subjectId } = await req.json();
+    // Parse the request body
+    const { title, description, subjectId } =
+      (await req.json()) as CreateChapterRequest;
 
-        if (!title || !subjectId) {
-            return NextResponse.json(
-                { error: "Title and Standard ID are required" },
-                { status: 400 }
-            );
-        }
-
-        const subjectdExists = await Subject.findById(subjectId);
-        if (!subjectdExists) {
-            return NextResponse.json(
-                { error: "The provided Subject ID does not exist" },
-                { status: 404 }
-            );
-        }
-
-        const newChapter = new Chapter({
-            title,
-            description,
-            fk_subject_id: subjectId,
-        });
-
-        const savedChapter = await newChapter.save();
-
-        return NextResponse.json(
-            {
-                message: "Chapter created successfully",
-                chapter: {
-                    _id: savedChapter._id,
-                    title: savedChapter.title,
-                    description: savedChapter.description,
-                    fk_subject_id: savedChapter.subject,
-                },
-            },
-            { status: 201 }
-        );
-
-    } catch (error) {
-        console.error("Error in handling chapter:", error);
-        return NextResponse.json(
-            { error: "Internal Server error" },
-            { status: 500 }
-        );
+    // Validate required fields
+    if (!title || !subjectId) {
+      return NextResponse.json(
+        { success: false, error: "Title and Subject ID are required" },
+        { status: 400 }
+      );
     }
 
+    // Check if the provided Standard exists
+    const subjectIdExists = await Subject.findById(subjectId);
+    if (!subjectIdExists) {
+      return NextResponse.json(
+        { error: "The provided Subject ID does not exist" },
+        { status: 404 }
+      );
+    }
+
+    // Create a new Chapter document
+    const newChapter = new Chapter({
+      title,
+      description,
+      fk_subject_id: subjectId,
+    });
+
+    // Save the Chapter to the database
+    const savedChapter = await newChapter.save();
+
+    // Return a success response
+    return NextResponse.json(
+      {
+        message: "Chapter created successfully",
+        chapter: {
+          _id: savedChapter._id,
+          title: savedChapter.title,
+          description: savedChapter.description,
+          fk_subject_id: savedChapter.subject,
+        },
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error creating chapter:", error);
+    return NextResponse.json(
+      { error: "Failed to create chapter" },
+      { status: 500 }
+    );
+  }
 }
 
 /**
@@ -165,55 +184,52 @@ export async function POST(req: Request) {
  *         description: Failed to delete chapter and related data.
  */
 export async function DELETE(req: Request) {
-    try {
-        await connectDb();
+  try {
+    await connectDb();
 
-        // Extract chapter ID from query parameters
-        const { searchParams } = new URL(req.url);
-        const chapterId = searchParams.get("id");
+    // Extract chapter ID from query parameters
+    const { searchParams } = new URL(req.url);
+    const chapterId = searchParams.get("id");
 
-        if (!chapterId) {
-            return NextResponse.json(
-                { error: "Chapter ID is required" },
-                { status: 400 }
-            );
-        }
-
-        // Check if the chapter exists
-        const chapter = await Chapter.findById(chapterId);
-        if (!chapter) {
-            return NextResponse.json(
-                { error: "Chapter not found" },
-                { status: 404 }
-            );
-        }
-
-        // Find and delete related exercises
-        const exercisesToDelete = await Exercise.find({ chapter: chapterId });
-        const exerciseIds = exercisesToDelete.map((exercise) => exercise._id);
-
-        // Find and delete related questions for the exercises
-        await Question.deleteMany({ exercise: { $in: exerciseIds } });
-
-        // Delete the exercises
-        await Exercise.deleteMany({ _id: { $in: exerciseIds } });
-
-        // Finally, delete the chapter
-        await Chapter.findByIdAndDelete(chapterId);
-
-        return NextResponse.json(
-            {
-                message: "Chapter and related data deleted successfully",
-                chapterId,
-                deletedExercises: exerciseIds,
-            },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("Error deleting chapter and related data:", error);
-        return NextResponse.json(
-            { error: "Failed to delete chapter and related data" },
-            { status: 500 }
-        );
+    if (!chapterId) {
+      return NextResponse.json(
+        { error: "Chapter ID is required" },
+        { status: 400 }
+      );
     }
+
+    // Check if the chapter exists
+    const chapter = await Chapter.findById(chapterId);
+    if (!chapter) {
+      return NextResponse.json({ error: "Chapter not found" }, { status: 404 });
+    }
+
+    // Find and delete related exercises
+    const exercisesToDelete = await Exercise.find({ chapter: chapterId });
+    const exerciseIds = exercisesToDelete.map((exercise) => exercise._id);
+
+    // Find and delete related questions for the exercises
+    await Question.deleteMany({ exercise: { $in: exerciseIds } });
+
+    // Delete the exercises
+    await Exercise.deleteMany({ _id: { $in: exerciseIds } });
+
+    // Finally, delete the chapter
+    await Chapter.findByIdAndDelete(chapterId);
+
+    return NextResponse.json(
+      {
+        message: "Chapter and related data deleted successfully",
+        chapterId,
+        deletedExercises: exerciseIds,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting chapter and related data:", error);
+    return NextResponse.json(
+      { error: "Failed to delete chapter and related data" },
+      { status: 500 }
+    );
+  }
 }

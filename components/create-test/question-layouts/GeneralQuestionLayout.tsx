@@ -1,9 +1,9 @@
-"use client";
-import React, { ChangeEvent } from "react";
-import MCQ from "@/components/create-test/MCQ";
-import MatchThePairs from "@/components/create-test/match-the-pairs/MatchThePairs";
-import TrueFalseComponent from "@/components/create-test/TrueFalse";
-import { QuestionType } from "@/utils/types";
+"use client"
+import MatchThePairs from '@/components/create-test/match-the-pairs/MatchThePairs';
+import MCQ from '@/components/create-test/MCQ';
+import React, { ChangeEvent } from 'react';
+import TrueFalseComponent from '@/components/create-test/TrueFalse';
+import { QuestionType } from '@/utils/types';
 
 /**
  * General Question Layout (MCQ, True/False, Match The Pairs, Subjective Answer, etc.)
@@ -17,6 +17,7 @@ interface GeneralQuestionLayoutProps {
   onQuestionTextChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onDescriptionChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   editable: boolean; // Added editable prop
+  className?: string; // Add optional className prop
 }
 
 export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
@@ -27,12 +28,18 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
   onQuestionTextChange,
   onDescriptionChange,
   editable, // Destructure editable
+  className = '', // Default value
 }) => (
   <div
-    className={`flex flex-col md:flex-row px-3 py-3 mt-6 w-full border border-black space-y-3 md:space-y-0 md:space-x-3 ${
-      !editable ? "pointer-events-none opacity-50" : ""
-    }`}
-    aria-disabled={!editable} // Accessibility attribute
+    className={`
+      flex flex-col md:flex-row 
+      px-3 py-3 mt-6 w-full 
+      border border-black 
+      ${!editable ? 'opacity-50 pointer-events-none' : ''}
+      ${className}
+    `}
+    role="region"
+    aria-label={`Question ${questionIndex + 1}`}
   >
     {/* First Column: Q{questionIndex + 1} */}
     <div className="w-full md:w-[3%] p-3 mr-2 text-lg">

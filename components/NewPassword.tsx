@@ -1,9 +1,9 @@
-"use client";
-import React, { useState } from "react";
-import AuthHeader from "@/components/ui/AuthHeader";
-import { useToast } from "@/components/ui/ToastProvider";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
+"use client"
+import AuthHeader from '@/components/ui/AuthHeader';
+import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useToast } from '@/components/ui/ToastProvider';
 
 const NewPassword = () => {
   const { data: session } = useSession();
@@ -15,10 +15,14 @@ const NewPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const { showToast } = useToast();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     if (password !== confirmPassword) {
       showToast("Passwords do not match!", "error");
+      setIsLoading(false);
       return;
     }
     try {
@@ -41,8 +45,9 @@ const NewPassword = () => {
       } else {
         showToast("An unknown error occurred", "error");
       }
+    } finally {
+      setIsLoading(false);
     }
-
   };
 
   return (
@@ -82,8 +87,12 @@ const NewPassword = () => {
               </div>
             </div>
             <div className="flex justify-center mt-8">
-              <button className="py-2 px-12 bg-pink-400 text-white text-2xl font-medium rounded-2xl shadow-md">
-                Reset Password
+              <button 
+                className="py-2 px-12 bg-pink-400 text-white text-2xl font-medium rounded-2xl shadow-md
+                  disabled:opacity-50" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Resetting..." : "Reset Password"}
               </button>
             </div>
           </form>

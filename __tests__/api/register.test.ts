@@ -1,8 +1,8 @@
-import { POST } from "@/app/api/register/route";
-import SchoolModel from "@/models/schoolModel";
-import UserModel from "@/models/user.model";
-import { ROLE } from "@/utils/types";
-import bcrypt from "bcryptjs";
+import bcrypt from 'bcryptjs';
+import SchoolModel from '@/models/schoolSchema';
+import UserModel from '@/models/user.model';
+import { POST } from '@/app/api/register/route';
+import { ROLE } from '@/utils/types';
 
 jest.mock("@/utils/db", () => ({
   connectDb: jest.fn(),
@@ -20,7 +20,7 @@ jest.mock("@/models/user.model", () => ({
   },
 }));
 
-jest.mock("@/models/schoolModel", () => ({
+jest.mock("@/models/schoolSchema", () => ({
   __esModule: true,
   default: {
     findById: jest.fn(),

@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { Standard } from "@/models/questionsSchema";
-import { connectDb } from "@/utils/db";
+import { connectDb } from '@/utils/db';
+import { NextResponse } from 'next/server';
+import { Standard } from '@/models/questionsSchema';
 
 // Define the type for context
 interface Context {
@@ -117,9 +117,12 @@ export async function GET(req: Request, context: Context) {
     }
 
     // Return the standard data
-    return NextResponse.json({ success: true, standard }, { status: 200 });
+    return NextResponse.json({ 
+      success: true, 
+      standard 
+    }, { status: 200 });
   } catch (error) {
-    console.error("Error in handling GET req standard dynamic routing:", error);
+    console.error("Error in GET req in  standard, dynamic route:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch standard data" },
       { status: 500 }

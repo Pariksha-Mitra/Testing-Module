@@ -1,6 +1,6 @@
-import { NextResponse, NextRequest } from "next/server";
-import { Question, Exercise } from "@/models/questionsSchema";
-import { connectDb } from "@/utils/db";
+import { connectDb } from '@/utils/db';
+import { Exercise, Question } from '@/models/questionsSchema';
+import { NextResponse } from 'next/server';
 
 /**
  * @swagger
@@ -108,43 +108,47 @@ import { connectDb } from "@/utils/db";
  *           type: "string"
  */
 
-
 export async function GET() {
   try {
     await connectDb();
-
-    const exercises = await Exercise.find();
-    return NextResponse.json({ exercises }, { status: 200 });
-
-  } catch {
-    return NextResponse.json({ error: "Failed to retrive the chapter information" }, { status: 400 });
+    const exercises = await Exercise.find().populate("fk_chapter_id");
+    return NextResponse.json({ success: true, exercises }, { status: 200 });
+  } catch (error) {
+    console.error("Error retrieving exercises:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to retrieve exercises" },
+      { status: 500 }
+    );
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     await connectDb();
-      const { title, description, chapterId } = await req.json();
 
-      if (!title || !description || !chapterId) {
-        return NextResponse.json(
-          { error: "Title, description, and chapterId are required" },
-          { status: 400 }
-        );
-      }
+    const { title, description, chapterId } = await req.json();
 
-      const newExercise = new Exercise({
-        title,
-        description,
-        fk_chapter_id: chapterId,
-      });
-      const savedExercise = await newExercise.save();
-
+    if (!title || !description || !chapterId) {
       return NextResponse.json(
-        { message: "Exercise created successfully", exercise: savedExercise },
-        { status: 201 }
+        {
+          success: false,
+          error: "Title, description, and chapterId are required",
+        },
+        { status: 400 }
       );
-    
+    }
+
+    const newExercise = new Exercise({
+      title,
+      description,
+      fk_chapter_id: chapterId,
+    });
+
+    const savedExercise = await newExercise.save();
+    return NextResponse.json(
+      { success: true, exercise: savedExercise },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating exercise:", error);
     return NextResponse.json(
@@ -196,5 +200,3 @@ export async function DELETE(req: Request) {
     );
   }
 }
-
-

@@ -1,8 +1,9 @@
-"use client";
-import React, { useCallback, useMemo } from "react";
-import Dropdown from "@/components/Dropdown/Dropdown";
-import Image from "next/image";
-import { useQuestions } from "@/context/QuestionsContext";
+"use client"
+import Dropdown from '@/components/Dropdown/Dropdown';
+import Image from 'next/image';
+import React, { useCallback, useMemo } from 'react';
+import { QuestionType } from '@/utils/types';
+import { useQuestions } from '@/context/QuestionsContext';
 
 export default function TestHeader() {
   const {
@@ -40,7 +41,7 @@ export default function TestHeader() {
       const fetchedQuestions = [
         {
           id: 1,
-          type: "MCQ" as const,
+          type: QuestionType.MCQ,
           content: {
             questionText: "",
             options: ["Option 1", "Option 2", "Option 3", "Option 4"],
@@ -62,7 +63,7 @@ export default function TestHeader() {
   const handleAddQuestion = useCallback(() => {
     const newQuestion = {
       id: questions.length + 1,
-      type: "MCQ" as const, // Default to MCQ or any default type
+      type: QuestionType.MCQ, // Default to MCQ or any default type
       content: {
         questionText: "",
         description: "",
@@ -161,7 +162,9 @@ export default function TestHeader() {
               <div
                 key={question.id}
                 className={`flex pt-1 laila-semibold items-center justify-center ${
-                  selectedQuestionIndex === index ? "bg-green-400" : "bg-[#a6b1ff]"
+                  selectedQuestionIndex === index
+                    ? "bg-green-400"
+                    : "bg-[#a6b1ff]"
                 } w-10 h-10 text-white rounded-full font-bold cursor-pointer`}
                 onClick={() => handleSelectQuestion(index)}
               >

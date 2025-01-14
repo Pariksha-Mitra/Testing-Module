@@ -1,11 +1,10 @@
-import bcrypt from "bcryptjs";
-
-import NextAuth, { AuthOptions, Session, SessionStrategy } from "next-auth";
-import { JWT } from "next-auth/jwt";
-import CredentialsProvider from "next-auth/providers/credentials";
-import userModel from "../models/user.model";
-import { connectDb } from "./db";
-import { ROLE } from "./types";
+import bcrypt from 'bcryptjs';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import NextAuth, { AuthOptions, Session, SessionStrategy } from 'next-auth';
+import userModel from '../models/user.model';
+import { connectDb } from './db';
+import { JWT } from 'next-auth/jwt';
+import { ROLE } from './types';
 
 type CredentialsType = {
   username: string;

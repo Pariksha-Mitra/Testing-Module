@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { Question } from "@/models/questionsSchema";
-import { connectDb } from "@/utils/db";
+import { connectDb } from '@/utils/db';
+import { NextResponse } from 'next/server';
+import { Question } from '@/models/questionsSchema';
 
 // Define the type for context
 interface Context {
@@ -87,7 +87,6 @@ interface Context {
  *                   type: string
  */
 
-
 export async function GET(req: Request, context: Context) {
   try {
     // Connect to the database
@@ -99,24 +98,24 @@ export async function GET(req: Request, context: Context) {
 
     // Fetch the single question by its ID and populate the related documents
     const singleQuestion = await Question.findById(questionId)
-    .populate({
-      path: "fk_exercise_id",
-      populate: {
-        path: "fk_chapter_id",
-        populate:{
-          path: "fk_subject_id",
+      .populate({
+        path: "fk_exercise_id",
+        populate: {
+          path: "fk_chapter_id",
           populate: {
-            path: "fk_standard_id",
+            path: "fk_subject_id",
+            populate: {
+              path: "fk_standard_id",
+            },
           },
-        }
-      },
-    })
+        },
+      })
       .exec();
 
     // If the question doesn't exist, return an error
     if (!singleQuestion) {
       return NextResponse.json(
-        { error: "Question not found" },
+        { success: false, error: "Question not found" },
         { status: 404 }
       );
     }
@@ -134,23 +133,31 @@ export async function GET(req: Request, context: Context) {
       exerciseDescription: singleQuestion.fk_exercise_id?.description,
       exerciseId: singleQuestion.fk_exercise_id?._id, // Added exercise ID
       chapterTitle: singleQuestion.fk_exercise_id?.fk_chapter_id?.title,
-      chapterDescription: singleQuestion.fk_exercise_id?.fk_chapter_id?.description,
+      chapterDescription:
+        singleQuestion.fk_exercise_id?.fk_chapter_id?.description,
       chapterId: singleQuestion.fk_exercise_id?.fk_chapter_id?._id, // Added chapter ID
       subjectName: singleQuestion.fk_subject_id?.subjectName, // Updated to use fk_subject_id
       subjectDescription: singleQuestion.fk_subject_id?.description, // Updated to use fk_subject_id
       subjectId: singleQuestion.fk_subject_id?._id, // Updated to use fk_subject_id
-      standardName: singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?.standardName,
-      standardDescription: singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?.description,
-      standardId: singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?._id, // Added standard ID
+      standardName:
+        singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id
+          ?.standardName,
+      standardDescription:
+        singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id
+          ?.description,
+      standardId:
+        singleQuestion.fk_exercise_id?.fk_chapter_id?.fk_standard_id?._id, // Added standard ID
     };
-    
 
     // Return the flattened data
-    return NextResponse.json({ singleQuestion: flattenedQuestion }, { status: 200 });
+    return NextResponse.json(
+      { success: true, singleQuestion: flattenedQuestion },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error retrieving single question:", error);
     return NextResponse.json(
-      { error: "Failed to retrieve the single question" },
+      { success: false, error: "Failed to retrieve the single question" },
       { status: 500 }
     );
   }

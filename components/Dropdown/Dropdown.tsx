@@ -1,4 +1,8 @@
-"use client";
+"use client"
+import AddOptionModal from './AddOptionModal';
+import clsx from 'clsx';
+import { DropdownProps } from '@/utils/types';
+import '@/styles/scrollbar.css';
 import React, {
   FC,
   useState,
@@ -7,10 +11,6 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import clsx from "clsx";
-import AddOptionModal from "./AddOptionModal";
-import { DropdownProps } from "@/utils/types";
-import "@/styles/scrollbar.css";
 
 const Dropdown: FC<DropdownProps> = ({
   items,
@@ -46,7 +46,7 @@ const Dropdown: FC<DropdownProps> = ({
   const [showModal, setShowModal] = useState(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLSelectElement>(null);
 
   // Keep selected in sync with controlled props or defaultValue changes
   useEffect(() => {
@@ -60,7 +60,8 @@ const Dropdown: FC<DropdownProps> = ({
   // Precompute the final list of items we will render
   const finalOptions = useMemo(() => {
     const safeText =
-      typeof allowAddOptionText === "string" || typeof allowAddOptionText === "number"
+      typeof allowAddOptionText === "string" ||
+      typeof allowAddOptionText === "number"
         ? allowAddOptionText
         : JSON.stringify(allowAddOptionText);
 
@@ -173,15 +174,19 @@ const Dropdown: FC<DropdownProps> = ({
       const isAddOptionText = allowAddOption && index === 0;
 
       return (
-        <li
+        <option
           key={`${option}-${index}`}
-          role="option"
-          aria-selected={isSelected}
+          value={option.toString()}
           onClick={() => handleOptionClick(option, index)}
+          onKeyDown={(e) =>
+            e.key === "Enter" && handleOptionClick(option, index)
+          }
           onMouseEnter={() => setHighlightedIndex(index)}
           className={clsx(
             "cursor-pointer text-lg",
-            isSelected ? "bg-blue-100" : isHighlighted ? "bg-blue-50" : "bg-white",
+            isSelected && "bg-blue-100",
+            !isSelected && isHighlighted && "bg-blue-50",
+            !isSelected && !isHighlighted && "bg-white",
             "hover:bg-blue-50",
             index !== finalOptions.length - 1 && "border-b border-gray-200",
             "px-4 py-2",
@@ -189,13 +194,25 @@ const Dropdown: FC<DropdownProps> = ({
           )}
         >
           {option}
-        </li>
+        </option>
       );
     });
-  }, [finalOptions, selected, highlightedIndex, handleOptionClick, allowAddOption]);
+  }, [
+    finalOptions,
+    selected,
+    highlightedIndex,
+    handleOptionClick,
+    allowAddOption,
+  ]);
 
   return (
-    <div className={clsx("laila-regular relative w-full", className, containerClass)}>
+    <div
+      className={clsx(
+        "laila-regular relative w-full",
+        className,
+        containerClass
+      )}
+    >
       {/* Dropdown button */}
       <button
         ref={buttonRef}
@@ -215,36 +232,42 @@ const Dropdown: FC<DropdownProps> = ({
       >
         <span className="mr-2 flex-grow text-xl">{label}</span>
         <div className="w-[80%] h-9 bg-white text-lg rounded-lg flex items-center justify-center text-black mr-2 overflow-hidden whitespace-nowrap text-ellipsis">
-          {selected !== null ? selected : "-"}
+          {selected ?? "-"}
         </div>
 
-        <svg className={clsx(
-          "w-4 h-4 transform transition-transform duration-200",
-          isOpen ? "rotate-0" : "rotate-180"
-        )} xmlns="http://www.w3.org/2000/svg" version="1.0" width="1280.000000pt" height="1153.000000pt" viewBox="0 0 1280.000000 1153.000000" preserveAspectRatio="xMidYMid meet">
-
-
-          <g transform="translate(0.000000,1153.000000) scale(0.100000,-0.100000)" fill="#ffffff" stroke="none">
+        <svg
+          className={clsx(
+            "w-4 h-4 transform transition-transform duration-200",
+            isOpen ? "rotate-0" : "rotate-180"
+          )}
+          xmlns="http://www.w3.org/2000/svg"
+          version="1.0"
+          width="1280.000000pt"
+          height="1153.000000pt"
+          viewBox="0 0 1280.000000 1153.000000"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <g
+            transform="translate(0.000000,1153.000000) scale(0.100000,-0.100000)"
+            fill="#ffffff"
+            stroke="none"
+          >
             <path d="M6300 11519 c-423 -46 -838 -228 -1114 -490 -118 -111 -201 -217 -289 -364 -216 -364 -4708 -8206 -4742 -8280 -208 -444 -205 -916 9 -1361 226 -470 672 -835 1179 -965 225 -57 -205 -53 5032 -56 3271 -3 4831 0 4898 7 494 52 915 308 1198 729 156 231 256 484 306 776 21 124 24 452 5 570 -28 172 -78 338 -160 535 -202 484 -448 929 -992 1795 -507 806 -375 581 -2120 3630 -821 1436 -1520 2655 -1553 2710 -86 146 -145 221 -260 331 -231 222 -515 359 -873 420 -109 18 -409 26 -524 13z" />
           </g>
         </svg>
-
-
-
-
       </button>
 
       {/* Dropdown menu */}
       {isOpen && (
-        <ul
+        <select
           ref={listRef}
-          role="listbox"
+          size={5}
           id={id ? `${id}-listbox` : "dropdown-listbox"}
           className="absolute thin-scrollbar left-0 mt-1 w-full bg-white text-black text-center rounded-[20px] shadow-lg z-10 max-h-52 overflow-y-auto"
           onKeyDown={handleKeyDown}
         >
           {renderedOptions}
-        </ul>
+        </select>
       )}
 
       {/* Separated Modal Component */}

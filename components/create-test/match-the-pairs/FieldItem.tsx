@@ -1,7 +1,7 @@
-import React from "react";
-import { MatchThePairs_FieldItemProps } from "@/utils/types";
+import React, { KeyboardEvent } from 'react';
+import { PairItemFieldProps } from '@/utils/types';
 
-const FieldItemComponent: React.FC<MatchThePairs_FieldItemProps> = ({
+const FieldItemComponent: React.FC<PairItemFieldProps> = ({
   label,
   isRight,
   value,
@@ -10,23 +10,33 @@ const FieldItemComponent: React.FC<MatchThePairs_FieldItemProps> = ({
   isActive,
   onSelect,
 }) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelect();
+    }
+  };
+
   return (
-    <div className="flex gap-6 mt-2.5 first:mt-5 whitespace-nowrap">
+    <div
+      className="flex gap-6 mt-2.5 first:mt-5 whitespace-nowrap"
+      role="region"
+      aria-label={`Field item ${label}`}
+    >
       {isRight && (
         <div
-          className={`flex shrink-0 my-auto w-4 h-4 rounded-full shadow-sm bg-zinc-300 cursor-pointer ${
-            isActive ? "bg-blue-500" : ""
-          }`}
+          className={`
+            flex shrink-0 my-auto w-4 h-4 rounded-full shadow-sm
+            transition-colors duration-200 ease-in-out
+            ${isActive ? "bg-blue-500" : "bg-zinc-300"}
+            hover:bg-blue-400 cursor-pointer
+          `}
           role="radio"
           tabIndex={0}
           aria-checked={isActive}
           aria-label={`Select ${label}`}
           onClick={onSelect}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              onSelect();
-            }
-          }}
+          onKeyDown={handleKeyDown}
         />
       )}
       <div className="flex flex-auto gap-5 py-1 pr-9 pl-3.5 bg-white rounded-3xl border border-black border-solid max-md:pr-5">
@@ -42,19 +52,18 @@ const FieldItemComponent: React.FC<MatchThePairs_FieldItemProps> = ({
       </div>
       {!isRight && (
         <div
-          className={`flex shrink-0 my-auto w-4 h-4 rounded-full shadow-sm bg-zinc-300 cursor-pointer ${
-            isActive ? "bg-blue-500" : ""
-          }`}
+          className={`
+            flex shrink-0 my-auto w-4 h-4 rounded-full shadow-sm
+            transition-colors duration-200 ease-in-out
+            ${isActive ? "bg-blue-500" : "bg-zinc-300"}
+            hover:bg-blue-400 cursor-pointer
+          `}
           role="radio"
           tabIndex={0}
           aria-checked={isActive}
           aria-label={`Select ${label}`}
           onClick={onSelect}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              onSelect();
-            }
-          }}
+          onKeyDown={handleKeyDown}
         />
       )}
     </div>

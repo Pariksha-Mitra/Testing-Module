@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { Chapter } from "@/models/questionsSchema";
-import {connectDb} from "@/utils/db";
+import { Chapter } from '@/models/questionsSchema';
+import { connectDb } from '@/utils/db';
+import { NextResponse } from 'next/server';
 
 /**
  * @swagger
@@ -34,35 +34,45 @@ import {connectDb} from "@/utils/db";
  *           description: "Failed to retrieve the chapter due to a server error."
  */
 
-interface RouteContext {
+// Define type for context params
+interface ChapterContext {
   params: {
-    ChapterId: string;
+    chapterId: string; // Match URL parameter case
   };
 }
 
-export async function GET(req: Request, context: RouteContext) {
+export async function GET(request: Request, context: ChapterContext) {
   try {
     await connectDb();
 
-    if (!context?.params?.ChapterId) {
-      return NextResponse.json({ error: "Invalid ChapterId" }, { status: 400 });
+    const { chapterId } = context.params; // Match URL parameter case
+
+    if (!chapterId) {
+      return NextResponse.json(
+        { success: false, error: "Chapter ID is required" },
+        { status: 400 }
+      );
     }
 
-    const { ChapterId } = context.params;
-    const singleChapter = await Chapter.findById(ChapterId);
+    const singleChapter = await Chapter.findById(chapterId).populate(
+      "fk_subject_id"
+    ); // Add population if needed
 
     if (!singleChapter) {
       return NextResponse.json(
-        { error: "Chapter not found" },
+        { success: false, error: "Chapter not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ singleChapter }, { status: 200 });
-  } catch (error) {
-    console.error("Error retrieving single chapter:", error);
     return NextResponse.json(
-      { error: "Failed to retrieve the single chapter" },
+      { success: true, chapter: singleChapter },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error retrieving chapter:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to retrieve chapter" },
       { status: 500 }
     );
   }

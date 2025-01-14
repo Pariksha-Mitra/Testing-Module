@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
-import { Subject } from "@/models/questionsSchema"; // Replace with your Subject model
-import { connectDb } from "@/utils/db";
+import { connectDb } from '@/utils/db';
+import { NextResponse } from 'next/server';
+import { Subject } from '@/models/questionsSchema';
+// Replace with your Subject model
 
 /**
  * @swagger
@@ -34,28 +35,38 @@ import { connectDb } from "@/utils/db";
  *           description: "Failed to retrieve the subject due to a server error."
  */
 
-export async function GET(req: Request, { params }: { params: { subjectId: string } }) {
+export async function GET(
+  req: Request,
+  { params }: { params: { subjectId: string } }
+) {
   try {
     await connectDb();
-    const Params = await params;
-    
-    if (!Params || !Params.subjectId) {
-        return NextResponse.json({ error: "Invalid SubjectId" }, { status: 400 });
+
+    if (!params?.subjectId) {
+      return NextResponse.json(
+        { success: false, error: "Invalid SubjectId" },
+        { status: 400 }
+      );
     }
-    
-    const { subjectId } = Params;
-    console.log("idddd = ",subjectId)
-    const singleSubject = await Subject.findById({_id: subjectId});
+
+    const { subjectId } = params;
+    const singleSubject = await Subject.findById(subjectId);
 
     if (!singleSubject) {
-      return NextResponse.json({ error: "Subject not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Subject not found" },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ singleSubject }, { status: 200 });
+    return NextResponse.json(
+      { success: true, subject: singleSubject },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error retrieving single subject:", error);
     return NextResponse.json(
-      { error: "Failed to retrieve the single subject" },
+      { success: false, error: "Failed to retrieve the single subject" },
       { status: 500 }
     );
   }

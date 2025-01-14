@@ -1,6 +1,6 @@
-import SchoolModel from "@/models/schoolModel";
-import { connectDb } from "@/utils/db";
-import { NextRequest, NextResponse } from "next/server";
+import SchoolModel from '@/models/schoolSchema';
+import { connectDb } from '@/utils/db';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * @swagger
@@ -28,48 +28,44 @@ import { NextRequest, NextResponse } from "next/server";
  *         description: Internal server error
  */
 
-
 export async function DELETE(req: NextRequest) {
-    try {
-      await connectDb();
-  
-      const { id } = await req.json();
-  
-      if (!id) {
-        return NextResponse.json({ message: "ID is required" }, { status: 400 });
-      }
-  
-      const deletedSchool = await SchoolModel.findByIdAndDelete(id);
-  
-      if (!deletedSchool) {
-        return NextResponse.json(
-          { message: "School not found" },
-          { status: 404 }
-        );
-      }
-  
-      return NextResponse.json({
-        message: "School Deleted",
-        success: true,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        return NextResponse.json(
-          {
-            message: error.message,
-            error: {},
-          },
-          { status: 500 }
-        );
-      }
-  
+  try {
+    await connectDb();
+
+    const { id } = await req.json();
+
+    if (!id) {
       return NextResponse.json(
-        {
-          message: "Unknown error occurred",
-          error: error,
-        },
-        { status: 500 }
+        { success: false, message: "ID is required" },
+        { status: 400 }
       );
     }
+
+    const deletedSchool = await SchoolModel.findByIdAndDelete(id);
+
+    if (!deletedSchool) {
+      return NextResponse.json(
+        { success: false, message: "School not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "School deleted successfully",
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting school:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      },
+      { status: 500 }
+    );
   }
-  
+}

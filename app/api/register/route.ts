@@ -1,11 +1,22 @@
-import { registerSchema } from "@/models/registerSchema";
-import userModel from "@/models/user.model";
-import { ROLE } from "@/utils/types";
-import { connectDb } from "@/utils/db";
-import bcrypt from "bcrypt";
-import { NextResponse } from "next/server";
-import SchoolModel from "@/models/schoolModel";
-import { ApiError, handleApiError } from "@/utils/api-error";
+import bcrypt from 'bcrypt';
+import SchoolModel from '@/models/schoolSchema';
+import userModel from '@/models/user.model';
+import { ApiError, handleApiError } from '@/utils/api-error';
+import { connectDb } from '@/utils/db';
+import { NextResponse } from 'next/server';
+import { registerSchema } from '@/models/registerSchema';
+import { ROLE } from '@/utils/types';
+
+interface RegisterRequestBody {
+  firstName: string;
+  middleName?: string;
+  surname: string;
+  dateOfBirth: string;
+  role: ROLE;
+  schoolId: string;
+  email?: string;
+  invitationId?: string;
+}
 
 /**
  * @swagger
@@ -145,7 +156,7 @@ export async function POST(req: Request) {
       schoolId,
       email,
       invitationId,
-    } = await req.json();
+    }: RegisterRequestBody = await req.json();
 
     const validSchoolId = await SchoolModel.findById(schoolId);
 

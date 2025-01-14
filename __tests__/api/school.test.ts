@@ -1,17 +1,17 @@
-import { POST } from "@/app/api/school/addSchool/route";
-import { DELETE } from "@/app/api/school/deleteSchool/route";
-import { GET } from "@/app/api/school/listSchool/route";
-import { PUT } from "@/app/api/school/updateSchool/route";
-import SchoolModel from "@/models/schoolModel";
-import { schoolSchema } from "@/models/schoolSchema";
-import { connectDb } from "@/utils/db";
-import { NextRequest } from "next/server";
+import SchoolModel from '@/models/schoolSchema';
+import { connectDb } from '@/utils/db';
+import { DELETE } from '@/app/api/school/deleteSchool/route';
+import { GET } from '@/app/api/school/listSchool/route';
+import { NextRequest } from 'next/server';
+import { POST } from '@/app/api/school/addSchool/route';
+import { PUT } from '@/app/api/school/updateSchool/route';
+import { schoolSchema } from '@/models/schoolSchema';
 
 jest.mock("@/utils/db", () => ({
   connectDb: jest.fn(),
 }));
 
-jest.mock("@/models/schoolModel", () => ({
+jest.mock("@/models/schoolSchema", () => ({
   __esModule: true,
   default: {
     create: jest.fn(),
@@ -19,7 +19,7 @@ jest.mock("@/models/schoolModel", () => ({
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
     findByIdAndDelete: jest.fn(),
-    syncIndexes : jest.fn(),
+    syncIndexes: jest.fn(),
   },
 }));
 
