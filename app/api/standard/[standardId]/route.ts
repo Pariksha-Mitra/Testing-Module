@@ -119,7 +119,7 @@ export async function GET(req: Request, context: Context) {
     // Return the standard data
     return NextResponse.json({ success: true, standard }, { status: 200 });
   } catch (error) {
-    console.error(error);
+    console.error("Error in handling GET req standard dynamic routing:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch standard data" },
       { status: 500 }
