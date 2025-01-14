@@ -28,6 +28,7 @@ const Login: React.FC = () => {
         redirect: false,
         username,
         password,
+        role
       });
 
       if (res?.error) {

@@ -1,14 +1,15 @@
-import bcrypt from 'bcryptjs';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import NextAuth, { AuthOptions, Session, SessionStrategy } from 'next-auth';
-import userModel from '../models/user.model';
-import { connectDb } from './db';
-import { JWT } from 'next-auth/jwt';
-import { ROLE } from './types';
+import bcrypt from "bcryptjs";
+import CredentialsProvider from "next-auth/providers/credentials";
+import NextAuth, { AuthOptions, Session, SessionStrategy } from "next-auth";
+import userModel from "../models/user.model";
+import { connectDb } from "./db";
+import { JWT } from "next-auth/jwt";
+import { ROLE } from "./types";
 
 type CredentialsType = {
   username: string;
   password: string;
+  role: string;
 };
 
 export const authOptions: AuthOptions = {
@@ -17,6 +18,7 @@ export const authOptions: AuthOptions = {
       credentials: {
         username: { type: "text", placeholder: "username" },
         password: { type: "password", placeholder: "password" },
+        role: { type: "text", placeholder: "role" },
       },
       authorize: async (credentials: CredentialsType | undefined) => {
         if (!credentials) {
@@ -37,6 +39,10 @@ export const authOptions: AuthOptions = {
             .lean();
 
           if (!user) return null;
+
+          if(user.role != credentials.role) {
+            throw new Error("Roles did not match")
+          }
 
           const isValid = await bcrypt.compare(
             credentials.password,
