@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import {Standard} from "@/models/questionsSchema";
-import {connectDb} from "@/utils/db"
+import { Standard } from "@/models/questionsSchema";
+import { connectDb } from "@/utils/db"
 import { Chapter } from "@/models/questionsSchema";
 import { Exercise } from "@/models/questionsSchema";
 import { Question } from "@/models/questionsSchema";
@@ -154,14 +154,16 @@ import { Question } from "@/models/questionsSchema";
 
 
 export async function GET() {
-    try {
-        await connectDb();
-        console.log("hello");
-        const classes = await Standard.find();
-        return NextResponse.json({classes}, {status:200}) 
-    } catch {
-        return NextResponse.json({error:"Failed to retrive the Classes Information"},{status: 400});
-    }
+  try {
+    await connectDb();
+    console.log("hello");
+    const classes = await Standard.find();
+    return NextResponse.json({ classes }, { status: 200 })
+  } catch (error) {
+    console.error("Error in handling GET req standard :", error);
+
+    return NextResponse.json({ error: "Failed to retrive the Classes Information" }, { status: 400 });
+  }
 }
 
 
@@ -171,15 +173,15 @@ export async function POST(req: Request) {
     const { standardName, description } = await req.json();
 
     if (!standardName) {
-      return NextResponse.json({ error: "Standard name is required" },{ status: 400 });
+      return NextResponse.json({ error: "Standard name is required" }, { status: 400 });
     }
-    const newStandard = new Standard({standardName,description,});
+    const newStandard = new Standard({ standardName, description, });
     const savedStandard = await newStandard.save();
 
-    return NextResponse.json({message: "Standard created successfully", standard: savedStandard },{status: 201 });
+    return NextResponse.json({ message: "Standard created successfully", standard: savedStandard }, { status: 201 });
   } catch (error) {
-    console.log("Error creating standard:", error);
-    return NextResponse.json({error: "Failed to create standard" },{status: 500 });
+    console.log("Error creating standard :", error);
+    return NextResponse.json({ error: "Failed to create standard" }, { status: 500 });
   }
 }
 
@@ -189,9 +191,9 @@ export async function DELETE(req: Request) {
     // Connect to the database
     await connectDb();
 
-    const {searchParams} = new URL(req.url);
+    const { searchParams } = new URL(req.url);
     const standardId = searchParams.get("id");
-    
+
     if (!standardId) {
       return NextResponse.json({ error: "Id not Found" }, { status: 404 });
     }
