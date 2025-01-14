@@ -40,7 +40,7 @@ export const authOptions: AuthOptions = {
 
           if (!user) return null;
 
-          if(user.role != credentials.role) {
+          if(user.role !== credentials.role) {
             throw new Error("Roles did not match")
           }
 
