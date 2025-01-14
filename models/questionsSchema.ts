@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 // Existing Enums
 const QuestionTypeEnum = ["MCQ", "True/False", "Numerical"];
-const AnswerFormatEnum = ["MCQ", "True/False", "Numerical"];
 
 // Standard Schema
 const standardSchema = new mongoose.Schema(
