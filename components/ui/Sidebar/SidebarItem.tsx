@@ -15,7 +15,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ href, ariaLabel, icon }) => {
         <div
           className={`w-14 h-14 ${
             isActive ? "bg-[#6378fd]" : "bg-white"
-          } rounded-xl border border-black shadow mb-11 flex items-center justify-center
+          } rounded-xl border border-black shadow mb-14 flex items-center justify-center
           hover:bg-opacity-80 transition cursor-pointer text-${
             isActive ? "white" : "black"
           }`}

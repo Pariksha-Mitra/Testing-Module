@@ -1,12 +1,9 @@
 "use client";
-import { useSession } from "next-auth/react";
 import React from "react";
 import SidebarItem from "./SidebarItem";
 
 export default function Sidebar() {
-  const { data: session } = useSession();
-  console.log(session?.user.role);
-  // TODO: Display SidebarItem based on user role
+  // TODO: Display SidebarItem based on user role 
   return (
     <div className="fixed top-0 left-0 h-screen w-24 backdrop-blur-md bg-gradient-to-b from-yellow-50 to-blue-200  border-r border-black flex flex-col">
       {/*  */}
@@ -15,13 +12,8 @@ export default function Sidebar() {
         <div className="w-16 h-16 bg-[#FF7878] rounded-full mb-4"></div>
       </div>
 
-      {/* Middle Section (Scrollable) */}
-      <div className="flex flex-col items-center flex-grow overflow-y-auto px-2">
-        {/* Add your middle section items here */}
-      </div>
-
-      {/* Bottom Section */}
-      <div className="flex flex-col items-center p-4">
+      {/* SidebarItem Section */}
+      <div className="flex flex-col items-center mt-28 p-4">
         <SidebarItem
           href="/dashboard"
           ariaLabel="डैशबोर्ड"
