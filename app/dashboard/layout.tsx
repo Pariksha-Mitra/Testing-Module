@@ -2,15 +2,12 @@ import Header from '@/components/Header';
 import React from 'react';
 import Sidebar from '@/components/ui/Sidebar/Sidebar';
 
-interface DashboardLayoutProps {
+const DashboardLayout: React.FC<{
   children: React.ReactNode;
-}
-
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+}> = ({ children }) => {
   if (!children) {
     throw new Error('DashboardLayout requires children');
   }
-
   return (
     <div
       className="relative flex h-screen"
@@ -20,7 +17,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       }}
     >
       <Sidebar />
-      <div className="flex-1 p-6 lg:ml-24 overflow-y-auto">
+      <div className="flex-1 p-6 ml-24 overflow-y-auto">
         <Header />
         {children}
       </div>

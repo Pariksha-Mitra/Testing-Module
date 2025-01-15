@@ -1,9 +1,9 @@
 "use client";
-import "@/styles/scrollbar.css";
 import DonutChart from "@/components/dashboard/student/DonutChart";
 import Image from "next/image";
 import { NewsItemProps, ROLE } from "@/utils/types";
 import { NewsList } from "@/components/dashboard/student/current-news/newsList";
+import "@/styles/scrollbar.css";
 
 const Page = () => {
   const role = ROLE.Student;
@@ -18,128 +18,118 @@ const Page = () => {
   const total = data.reduce((sum, seg) => sum + seg.value, 0);
 
   const news: NewsItemProps[] = [
-    { id: "1", isNew: true, title: "Title" },
-    { id: "2", isNew: true, title: "Title" },
-    { id: "3", isNew: false, title: "Title" },
-    { id: "4", isNew: false, title: "Title" },
-    { id: "5", isNew: false, title: "Title" },
-    { id: "6", isNew: false, title: "Title" },
-    { id: "7", isNew: false, title: "Title" },
-    { id: "8", isNew: false, title: "Title" },
-    { id: "9", isNew: false, title: "Title" },
+    { id: "1", isNew: true, title: "Title 1" },
+    { id: "2", isNew: true, title: "Title 2" },
+    { id: "3", isNew: false, title: "Title 3" },
+    { id: "4", isNew: false, title: "Title 4" },
+    { id: "5", isNew: false, title: "Title 5" },
+    { id: "6", isNew: false, title: "Title 6" },
+    { id: "7", isNew: false, title: "Title 7" },
+    { id: "8", isNew: false, title: "Title 8" },
+    { id: "9", isNew: false, title: "Title 9" },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-2 gap-4 mt-4 w-full h-[79%]">
+    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-6 mt-4 w-full h-full">
       {role === ROLE.Student ? (
         <>
-          <div className="bg-[#7CD9FE] rounded-[20px] shadow-lg border border-black  ">
-            <div className="mt-2 self-center text-4xl text-center text-black arya-bold">
+          {/* News Section */}
+          <div className="bg-[#7CD9FE] rounded-[20px] shadow-lg border border-black p-6 flex flex-col ">
+            <h2 className="text-4xl text-center text-black font-bold mb-4 arya-bold">
               सध्याच्या गोष्टी
-            </div>
+            </h2>
             <NewsList items={news} />
           </div>
 
-          <div className="bg-[#FC708A] rounded-2xl shadow-lg border border-black w-full max-w-[800px] mx-auto  ">
-            {/* Pink header */}
-            <div className="mt-2 text-4xl pb-2  text-center text-black arya-bold ">
+          {/* Analysis Section */}
+          <div className="bg-[#FC708A] rounded-2xl shadow-lg border border-black p-6 flex flex-col">
+            <h2 className="text-4xl text-center text-black font-bold mb-4 arya-bold">
               विश्लेषण
-            </div>
-
-            {/* White body */}
-            <div className="bg-white border border-black rounded-2xl mx-4 mb-4 h-[77%] just">
-              <div className="flex items-center justify-center ">
-                <DonutChart segments={data} total={total} centerValue={75} />
-              </div>
+            </h2>
+            <div className="flex-grow bg-white border border-black rounded-2xl p-4 flex items-center justify-center overflow-hidden">
+              <DonutChart segments={data} total={total} centerValue={75} />
             </div>
           </div>
 
-          <div className="relative bg-[#CBD32E] flex flex-col items-center rounded-[20px] shadow-lg border border-black ">
+          {/* Games Section */}
+          <div className="relative bg-[#CBD32E] flex min-h-[300px] flex-col items-center justify-center rounded-[20px] shadow-lg border border-black p-6 h-full">
             {/* Top-Right Image */}
-            <img
+            <Image
               src="/top-right.png"
               alt="Top Right"
-              className="absolute top-[-4px] right-[-8px] w-40 h-40 z-0"
+              width={160}
+              height={160}
+              className="absolute top-0 right-0 w-20 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 max-w-full h-auto overflow-hidden"
             />
 
             {/* Bottom-Left Image */}
-            <img
+            <Image
               src="/bottom-left.png"
               alt="Bottom Left"
-              className="absolute bottom-[-13px] left-[-8px] w-40 h-40 z-0"
+              width={160}
+              height={160}
+              className="absolute bottom-0 left-0 w-20 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 max-w-full h-auto overflow-hidden"
             />
 
-            {/* Heading */}
-            <div className="mt-3 text-4xl pb-2 text-center text-black arya-bold">
+            <h2 className="text-4xl absolute top-6 z-10 text-center text-black font-bold  arya-bold">
               गेम्स
-            </div>
+            </h2>
 
-            {/* Subheading */}
-            <div className="mt-6 text-4xl pb-2 justify-center font-bold text-center text-white arya-bold w-[240px] text-wrap">
-              गेम खेळून तुमचे ज्ञान सुधारा
-            </div>
+            <p className="z-10 text-4xl text-center text-white mt-5 arya-bold ">
+              गेम खेळून तुमचे
+              <p className="z-10 text-4xl text-center text-white mt-1 arya-bold ">
+                ज्ञान सुधारा
+              </p>
+            </p>
 
-            {/* Button */}
-            <button
-              className="absolute bottom-2 cursor-pointer px-10 py-2 w-[95%] rounded-[16px] bg-white text-[#727809] text-2xl arya-bold
-           border-[1.5px] border-[#727809] border-solid shadow-lg hover:bg-[#727809] hover:text-white hover:border-white "
-              tabIndex={0}
-              role="button"
-            >
+            <button className="z-10 arya-bold absolute bottom-3 md:w-[50%] px-16 py-2 rounded-[16px] bg-white text-[#727809] text-lg md:text-2xl font-bold border border-[#727809] shadow-lg hover:bg-[#727809] hover:text-white hover:border-white transition">
               आता खेळा!
             </button>
           </div>
 
-          <div className="relative bg-[#F7D827] flex flex-col items-center rounded-[20px] shadow-lg border border-black ">
-            <div className="mt-2 text-4xl pb-2 text-center text-black arya-bold">
+          {/* Tests Section */}
+          <div className="bg-[#F7D827] flex flex-col rounded-[20px] shadow-lg border border-black p-6 ">
+            <h2 className="text-4xl text-center text-black font-bold mb-4 arya-bold">
               चाचण्या
-            </div>
+            </h2>
 
-            <div className="flex flex-row align-middle gap-6 h-full w-full justify-center">
-              {/* सराव चाचणी */}
-              <div className="bg-white bg-opacity-90 shrink-0 w-[45%] h-[97%] rounded-[20px] text-center flex flex-col items-center">
-                <div className="text-3xl text-center text-black rozha-one-regular mt-2">
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Practice Test */}
+              <div className="bg-white bg-opacity-90 rounded-[20px] flex flex-col items-center p-4 flex-1 ">
+                <h3 className="text-3xl md:text-4xl text-center text-black  rozha-one-regular">
                   सराव चाचणी
-                </div>
+                </h3>
                 <Image
                   src="/paper.svg"
-                  alt="paper"
+                  alt="Paper"
                   width={80}
                   height={80}
                   className="my-1"
                 />
-                <div className="text-xl text-center text-black arya-regular px-5">
+                <p className="text-lg md:text-xl text-center text-black px-3 flex-grow arya-regular">
                   तुमच्या पाठ्यपुस्तकातील धड्यांमधील प्रश्नांचा सराव करा
-                </div>
-                <button
-                  className="absolute bottom-4 cursor-pointer px-10 w-[43%] rounded-[12px] bg-white text-[#E5B800] text-xl arya-bold border-[1.5px] border-[#E5B800] border-solid shadow-lg  hover:bg-[#E5B800] hover:text-white hover:border-white"
-                  tabIndex={0}
-                  role="button"
-                >
+                </p>
+                <button className="mt-2 arya-bold px-10 w-[95%] py-2 rounded-[12px] bg-white text-[#E5B800] text-xl font-bold border border-[#E5B800] shadow-lg hover:bg-[#E5B800] hover:text-white hover:border-white transition">
                   सोडवा
                 </button>
               </div>
 
-              {/* वर्ग चाचणी */}
-              <div className="bg-white bg-opacity-90 shrink-0 w-[45%] h-[97%] rounded-[20px] text-center flex flex-col items-center">
-                <div className="text-3xl text-center text-black rozha-one-regular mt-2">
+              {/* Class Test */}
+              <div className="bg-white bg-opacity-90 rounded-[20px] flex flex-col items-center p-4 flex-1 min-h-0 ">
+                <h3 className="text-3xl md:text-4xl text-center text-black  rozha-one-regular">
                   वर्ग चाचणी
-                </div>
+                </h3>
                 <Image
                   src="/test-paper.png"
-                  alt="test-paper"
+                  alt="Test Paper"
                   width={80}
                   height={80}
                   className="my-1"
                 />
-                <div className="text-xl text-center text-black arya-regular px-5">
+                <p className="text-lg md:text-xl text-center text-black px-3 flex-grow arya-regular">
                   तुमच्या शिक्षकांनी तयार केलेली वर्ग चाचणी सोडवा
-                </div>
-                <button
-                  className="absolute bottom-4 cursor-pointer px-10 w-[43%] rounded-[12px] bg-white text-[#E5B800] text-xl arya-bold border-[1.5px] border-[#E5B800] border-solid shadow-lg  hover:bg-[#E5B800] hover:text-white hover:border-white"
-                  tabIndex={0}
-                  role="button"
-                >
+                </p>
+                <button className="mt-2 w-[95%] arya-bold px-10 py-2 rounded-[12px] bg-white text-[#E5B800] text-xl font-bold border border-[#E5B800] shadow-lg hover:bg-[#E5B800] hover:text-white hover:border-white transition">
                   सोडवा
                 </button>
               </div>
@@ -148,10 +138,11 @@ const Page = () => {
         </>
       ) : (
         <>
-          <div className="bg-[#FFFFFF] rounded-[20px] shadow-lg border border-black  "></div>
-          <div className="bg-[#FFFFFF] rounded-[20px] shadow-lg border border-black  "></div>
-          <div className="bg-[#FFFFFF] rounded-[20px] shadow-lg border border-black  "></div>
-          <div className="bg-[#FFFFFF] rounded-[20px] shadow-lg border border-black  "></div>
+          {/* Placeholder Sections for Non-Student Roles */}
+          <div className="bg-white rounded-[20px] shadow-lg border border-black p-6"></div>
+          <div className="bg-white rounded-[20px] shadow-lg border border-black p-6"></div>
+          <div className="bg-white rounded-[20px] shadow-lg border border-black p-6"></div>
+          <div className="bg-white rounded-[20px] shadow-lg border border-black p-6"></div>
         </>
       )}
     </div>

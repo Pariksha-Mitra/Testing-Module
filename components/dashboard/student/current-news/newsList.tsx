@@ -16,7 +16,7 @@ export const NewsList: React.FC<NewsListProps> = ({ items, onItemClick }) => {
   }, [onItemClick]);
 
   return (
-    <div className="flex flex-col items-start w-full pl-5 pr-5 overflow-y-auto max-h-[80%] no-scrollbar z-10">
+    <div className="flex flex-col items-start w-full pl-5 pr-5 overflow-y-auto max-h-[80%] no-scrollbar ">
       {items.map((item) => (
         <NewsItem
           key={item.id}
