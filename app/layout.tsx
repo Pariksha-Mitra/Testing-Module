@@ -42,9 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${rozhaOne.variable} ${laila.variable} ${arya.variable} antialiased`}
-        cz-shortcut-listen="true"
-      >
+        className={`${rozhaOne.variable} ${laila.variable} ${arya.variable} antialiased`}>
         <AuthProvider>
           <ToastProvider>{children}</ToastProvider>
         </AuthProvider>
