@@ -74,34 +74,34 @@ const Login: React.FC = () => {
   }
   return (
     sessionStatus !== "authenticated" && (
-      <>
-        <AuthHeader />
-        <div className="w-full min-h-screen py-10 bg-gradient-to-b from-yellow-50 via-white to-blue-300">
-          <div className="w-full h-full flex justify-center items-center flex-col">
+        <div className="flex flex-col w-full h-screen  bg-gradient-to-b from-yellow-50 via-white to-blue-300">
+          <div className='relative h-[25%]'>
+          <AuthHeader />
+          </div>
+          
+          <div className="mt-10 w-full flex justify-center items-center flex-col">
             {isLoading ? (
               <div>Loading...</div>
             ) : (
               <>
                 <form
                   onSubmit={handleSubmit}
-                  className="bg-white bg-opacity-60 border border-black shadow-lg rounded-2xl p-8 w-11/12 max-w-4xl"
+                  className="bg-white bg-opacity-60 border border-black shadow-lg rounded-2xl p-8 w-11/12 max-w-4xl laila-bold"
                 >
-                  <div className="flex items-center gap-2 justify-center">
+                  <div className="flex items-center gap-7 justify-center">
                     <button
                       type="button"
                       onClick={() => setRole(ROLE.Student)}
-                      className={`linear duration-300 py-2 border border-black shadow-md rounded-3xl px-6 ${
-                        role === ROLE.Student ? "bg-red-400 text-white" : ""
-                      }`}
+                      className={`linear duration-300 py-3 border border-black shadow-md rounded-3xl px-6 ${role === ROLE.Student ? "bg-red-400 text-white" : ""
+                        }`}
                     >
                       विद्यार्थी
                     </button>
                     <button
                       type="button"
                       onClick={() => setRole(ROLE.Teacher)}
-                      className={`linear duration-300 py-2 border border-black shadow-md rounded-3xl px-6 ${
-                        role === ROLE.Teacher ? "bg-red-400 text-white" : ""
-                      } `}
+                      className={`linear duration-300 py-3 border border-black shadow-md rounded-3xl px-6 ${role === ROLE.Teacher ? "bg-red-400 text-white" : ""
+                        } `}
                     >
                       शिक्षक
                     </button>
@@ -186,7 +186,7 @@ const Login: React.FC = () => {
             )}
           </div>
         </div>
-      </>
+     
     )
   );
 };
