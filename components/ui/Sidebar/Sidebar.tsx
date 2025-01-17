@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import SidebarItem from "./SidebarItem";
-import DashboardIcon from "@/assets/sidebar-icons/dashboard.svg";
-import QuestionBankIcon from "@/assets/sidebar-icons/question-bank.svg";
-import CreateTestIcon from "@/assets/sidebar-icons/create-test.svg";
-import ResultIcon from "@/assets/sidebar-icons/result.svg";
-import ProfileIcon from "@/assets/sidebar-icons/profile.svg";
+import DashboardIcon from "@/public/sidebar-icons/dashboard.svg";
+import QuestionBankIcon from "@/public/sidebar-icons/question-bank.svg";
+import CreateTestIcon from "@/public/sidebar-icons/create-test.svg";
+import ResultIcon from "@/public/sidebar-icons/result.svg";
+import ProfileIcon from "@/public/sidebar-icons/profile.svg";
 
 export default function Sidebar() {
   // TODO: Display SidebarItem based on user role
