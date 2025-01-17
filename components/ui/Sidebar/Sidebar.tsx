@@ -1,12 +1,16 @@
 "use client";
 import React from "react";
 import SidebarItem from "./SidebarItem";
+import DashboardIcon from "@/assets/sidebar-icons/dashboard.svg";
+import QuestionBankIcon from "@/assets/sidebar-icons/question-bank.svg";
+import CreateTestIcon from "@/assets/sidebar-icons/create-test.svg";
+import ResultIcon from "@/assets/sidebar-icons/result.svg";
+import ProfileIcon from "@/assets/sidebar-icons/profile.svg";
 
 export default function Sidebar() {
-  // TODO: Display SidebarItem based on user role 
+  // TODO: Display SidebarItem based on user role
   return (
     <div className="fixed top-0 left-0 h-screen w-24 backdrop-blur-md bg-gradient-to-b from-yellow-50 to-blue-200  border-r border-black flex flex-col">
-      {/*  */}
       {/* Top Section */}
       <div className="flex flex-col items-center p-4">
         <div className="w-16 h-16 bg-[#FF7878] rounded-full mb-4"></div>
@@ -17,158 +21,27 @@ export default function Sidebar() {
         <SidebarItem
           href="/dashboard"
           ariaLabel="डैशबोर्ड"
-          icon={
-            <svg
-              version="1.0"
-              xmlns="http://www.w3.org/2000/svg"
-              width="25.000000pt"
-              height="25.000000pt"
-              viewBox="0 0 110.000000 110.000000"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <g
-                transform="translate(0.000000,110.000000) scale(0.100000,-0.100000)"
-                fill="currentColor"
-                stroke="none"
-              >
-                <path
-                  d="M268 863 c-132 -131 -246 -251 -255 -267 -30 -57 7 -129 74 -142 l32
--6 3 -189 3 -189 33 -32 c32 -33 32 -33 149 -36 103 -3 118 -2 130 14 9 13 13
-59 13 159 0 172 2 175 103 175 104 0 107 -6 107 -189 0 -127 2 -150 16 -155
-31 -12 204 -6 239 8 58 25 65 52 65 256 0 175 1 180 21 180 54 0 98 47 99 105
-0 39 -7 46 -253 292 l-252 253 -44 0 -44 0 -239 -237z m535 -61 c130 -131 237
--241 237 -244 0 -25 -16 -38 -47 -38 -74 0 -73 3 -73 -220 0 -167 -2 -201 -16
--214 -12 -12 -36 -16 -100 -16 l-84 0 0 125 c0 188 -22 215 -170 215 -145 0
--170 -32 -170 -219 l0 -122 -87 3 c-116 4 -113 -3 -113 245 0 216 7 198 -75
-205 -24 2 -31 8 -33 28 -2 21 36 64 231 258 128 127 240 232 248 232 8 0 121
--107 252 -238z"
-                />
-              </g>
-            </svg>
-          }
+          icon={<DashboardIcon />}
         />
 
         <SidebarItem
           href="/question-bank"
           ariaLabel="प्रश्न संच"
-          icon={
-            <svg
-              fill="currentColor"
-              version="1.0"
-              xmlns="http://www.w3.org/2000/svg"
-              width="30.000000pt"
-              height="30.000000pt"
-              viewBox="0 0 106.000000 106.000000"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <g
-                transform="translate(0.000000,106.000000) scale(0.100000,-0.100000)"
-                stroke="none"
-              >
-                <path
-                  d="M144 901 c-41 -10 -54 -19 -54 -36 0 -9 -14 -15 -42 -17 l-43 -3 0
-  -345 c0 -395 -11 -360 99 -320 94 34 210 45 318 30 113 -15 103 -15 216 0 108
-  15 224 4 318 -30 110 -40 99 -75 99 320 l0 345 -42 3 c-29 2 -43 8 -43 17 0
-  29 -43 40 -160 40 -105 0 -120 -2 -175 -28 -33 -16 -70 -37 -82 -49 l-22 -20
-  -33 26 c-66 50 -126 69 -228 72 -52 2 -109 0 -126 -5z m247 -56 c25 -9 62 -29
-  82 -46 l37 -30 0 -256 c0 -239 -1 -255 -17 -248 -115 48 -117 49 -240 49
-  l-123 1 0 272 0 272 38 4 c61 8 174 -1 223 -18z m487 19 l52 -7 0 -267 0 -268
-  -122 -4 c-119 -5 -134 -8 -240 -53 -17 -7 -18 9 -18 248 l0 255 33 28 c70 59
-  172 82 295 68z m-786 -321 l3 -268 100 3 c55 2 120 -1 145 -6 42 -8 40 -8 -50
-  -15 -52 -3 -128 -16 -167 -27 -40 -11 -75 -20 -78 -20 -8 0 -6 586 2 593 3 4
-  15 7 25 7 17 0 18 -17 20 -267z m928 -33 c0 -165 -2 -300 -5 -300 -3 0 -38 9
-  -78 20 -39 11 -115 24 -167 27 -84 6 -90 8 -55 15 22 4 87 7 145 5 l105 -2 3
-  268 2 267 25 0 25 0 0 -300z"
-                />
-              </g>
-            </svg>
-          }
+          icon={<QuestionBankIcon />}
         />
 
         <SidebarItem
           href="/create-test"
           ariaLabel="चाचणी तयार करा"
-          icon={
-            <svg
-              width="30"
-              height="30"
-              viewBox="0 0 44 44"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M19.098 43.3068V0.147724H24.9276V43.3068H19.098ZM0.416193 24.625V18.8295H43.6094V24.625H0.416193Z" />
-            </svg>
-          }
+          icon={<CreateTestIcon />}
         />
 
-        <SidebarItem
-          href="/result"
-          ariaLabel="निकाल"
-          icon={
-            <svg
-              className="w-12 h-12"
-              version="1.0"
-              xmlns="http://www.w3.org/2000/svg"
-              width="512.000000pt"
-              height="512.000000pt"
-              viewBox="0 0 512.000000 512.000000"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <g
-                transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
-                fill="currentColor"
-                stroke="none"
-              >
-                <path
-                  d="M2433 4960 c-164 -30 -305 -127 -385 -267 l-29 -52 -442 -3 -442 -3
--68 -27 c-171 -69 -296 -214 -333 -387 -21 -101 -20 -3534 1 -3636 41 -192
-191 -350 380 -400 52 -13 229 -15 1405 -15 1484 0 1399 -3 1524 63 75 40 162
-124 204 198 18 32 41 92 52 135 20 76 20 114 20 1833 0 1469 -3 1767 -14 1822
--37 173 -162 318 -333 387 l-68 27 -442 3 -442 3 -32 57 c-104 184 -347 299
--556 262z m190 -253 c54 -18 125 -73 150 -114 12 -21 31 -62 42 -92 32 -89 58
--101 223 -101 l134 0 -4 -92 c-6 -139 -54 -218 -163 -269 l-60 -29 -426 0
--426 0 -61 31 c-109 54 -154 128 -160 267 l-4 92 134 0 c166 0 191 11 223 102
-63 178 231 264 398 205z m-993 -387 c0 -104 14 -169 57 -259 42 -89 131 -182
-219 -228 112 -59 144 -63 610 -63 239 0 445 4 475 10 87 16 194 75 263 144
-106 106 156 231 156 394 l0 82 215 0 c191 0 220 -2 269 -20 65 -25 130 -86
-160 -150 l21 -45 0 -1781 0 -1780 -30 -59 c-34 -66 -101 -125 -165 -144 -27
--8 -408 -11 -1368 -11 l-1330 0 -63 33 c-40 20 -75 48 -96 75 -67 89 -63 -37
--61 1907 l3 1760 23 46 c31 64 96 125 157 149 44 17 77 19 268 19 l217 1 0
--80z"
-                />
-                <path
-                  d="M3145 2770 c-11 -5 -200 -185 -420 -399 l-400 -391 -135 133 c-286
-281 -293 287 -339 287 -56 0 -95 -22 -115 -64 -20 -43 -20 -64 2 -103 9 -17
-132 -144 273 -282 276 -268 290 -278 356 -249 49 21 930 885 944 925 15 47 3
-87 -37 123 -36 31 -86 39 -129 20z"
-                />
-              </g>
-            </svg>
-          }
-        />
+        <SidebarItem href="/result" ariaLabel="निकाल" icon={<ResultIcon />} />
 
         <SidebarItem
           href="/profile"
           ariaLabel="प्रोफाइल"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              xmlnsXlink="http://www.w3.org/1999/xlink"
-              version="1.2"
-              baseProfile="tiny"
-              height={"40px"}
-              width={"40px"}
-              x="0px"
-              y="0px"
-              viewBox="0 0 100 100"
-              xmlSpace="preserve"
-            >
-              <g fill="currentColor">
-                <path d="M70,30c0-11.028-8.972-20-20-20s-20,8.972-20,20s8.972,20,20,20S70,41.028,70,30z M35,30c0-8.271,6.729-15,15-15   s15,6.729,15,15s-6.729,15-15,15S35,38.271,35,30z" />
-                <path d="M10,80v7.5c0,1.381,1.119,2.5,2.5,2.5h75c1.381,0,2.5-1.119,2.5-2.5V80c0-14.019-17.57-25-40-25S10,65.981,10,80z M50,60   c18.972,0,35,9.159,35,20v5H15v-5C15,69.159,31.028,60,50,60z" />
-              </g>
-            </svg>
-          }
+          icon={<ProfileIcon />}
         />
       </div>
     </div>

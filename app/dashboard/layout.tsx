@@ -17,7 +17,7 @@ const DashboardLayout: React.FC<{
       }}
     >
       <Sidebar />
-      <div className="flex-1 p-6 ml-24 overflow-y-auto">
+      <div className="flex-1 px-5 py-5 ml-24 overflow-y-auto">
         <Header />
         {children}
       </div>

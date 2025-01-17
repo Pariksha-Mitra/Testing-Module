@@ -15,6 +15,7 @@ const NewsItem: React.FC<NewsItemProps> = React.memo(({
           alt="New"
           width={28} 
           height={28} 
+          priority
           className="absolute top-[-8px] left-[-9px]"
         />
       )}
@@ -28,7 +29,7 @@ const NewsItem: React.FC<NewsItemProps> = React.memo(({
         type="button"
         onClick={onClick}
         aria-label={title}
-        className="relative flex p-2 shrink-0 mt-[9px] max-w-full bg-white rounded-lg shadow-md h-9 w-full cursor-pointer hover:bg-[#ffda33] focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="relative laila-regular flex p-2 shrink-0 mt-[9px] max-w-full bg-white rounded-lg shadow-md h-9 w-full cursor-pointer hover:bg-[#ffda33] focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
         {content}
       </button>
@@ -38,7 +39,7 @@ const NewsItem: React.FC<NewsItemProps> = React.memo(({
   return (
     <div
       aria-label={title}
-      className="relative flex p-2 shrink-0 mt-[10px] max-w-full bg-white rounded-lg shadow-md h-9 w-full"
+      className="relative flex p-2 shrink-0 mt-[10px] max-w-full bg-white rounded-lg shadow-md h-9 w-full laila-regular"
     >
       {content}
     </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { NewsItem } from "@/components/dashboard/student/current-news/newsItem";
+import { NewsItem } from "@/components/dashboard/student/sections/current-news/newsItem";
 import { NewsItemProps } from "@/utils/types";
 import "@/styles/scrollbar.css";
 

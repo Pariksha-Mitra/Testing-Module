@@ -1,11 +1,17 @@
 "use client";
-import DonutChart from "@/components/dashboard/student/DonutChart";
-import Image from "next/image";
-import { NewsItemProps, ROLE } from "@/utils/types";
-import { NewsList } from "@/components/dashboard/student/current-news/newsList";
-import "@/styles/scrollbar.css";
 
-const Page = () => {
+import React from "react";
+import "@/styles/scrollbar.css";
+import { ROLE, NewsItemProps } from "@/utils/types";
+import Section from "@/components/dashboard/common/Section";
+import NewsContent from "@/components/dashboard/student/sections/NewsContent";
+import AnalysisContent from "@/components/dashboard/student/sections/AnalysisContent";
+import GamesContent from "@/components/dashboard/student/sections/GamesContent";
+import TestsContent from "@/components/dashboard/student/sections/TestsContent";
+import PlaceholderContent from "@/components/dashboard/common/PlaceholderContent";
+
+
+const Page: React.FC = () => {
   const role = ROLE.Student;
 
   const data = [
@@ -30,119 +36,52 @@ const Page = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-6 mt-4 w-full h-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-4 mt-4 w-full md:h-[81%]">
       {role === ROLE.Student ? (
         <>
           {/* News Section */}
-          <div className="bg-[#7CD9FE] rounded-[20px] shadow-lg border border-black p-6 flex flex-col ">
-            <h2 className="text-4xl text-center text-black font-bold mb-4 arya-bold">
-              सध्याच्या गोष्टी
-            </h2>
-            <NewsList items={news} />
-          </div>
+          <Section title="सध्याच्या गोष्टी" backgroundColor="bg-[#7CD9FE]">
+            <NewsContent news={news} />
+          </Section>
 
           {/* Analysis Section */}
-          <div className="bg-[#FC708A] rounded-2xl shadow-lg border border-black p-6 flex flex-col">
-            <h2 className="text-4xl text-center text-black font-bold mb-4 arya-bold">
-              विश्लेषण
-            </h2>
-            <div className="flex-grow bg-white border border-black rounded-2xl p-4 flex items-center justify-center overflow-hidden">
-              <DonutChart segments={data} total={total} centerValue={75} />
-            </div>
-          </div>
+          <Section
+            title="विश्लेषण"
+            backgroundColor="bg-[#FC708A]"
+            rounded="rounded-2xl"
+          >
+            <AnalysisContent data={data} total={total} />
+          </Section>
 
           {/* Games Section */}
-          <div className="relative bg-[#CBD32E] flex min-h-[300px] flex-col items-center justify-center rounded-[20px] shadow-lg border border-black p-6 h-full">
-            {/* Top-Right Image */}
-            <Image
-              src="/top-right.png"
-              alt="Top Right"
-              width={160}
-              height={160}
-              className="absolute top-0 right-0 w-20 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 max-w-full h-auto overflow-hidden"
-            />
-
-            {/* Bottom-Left Image */}
-            <Image
-              src="/bottom-left.png"
-              alt="Bottom Left"
-              width={160}
-              height={160}
-              className="absolute bottom-0 left-0 w-20 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 max-w-full h-auto overflow-hidden"
-            />
-
-            <h2 className="text-4xl absolute top-6 z-10 text-center text-black font-bold  arya-bold">
-              गेम्स
-            </h2>
-
-            <p className="z-10 text-4xl text-center text-white mt-5 arya-bold ">
-              गेम खेळून तुमचे
-              <p className="z-10 text-4xl text-center text-white mt-1 arya-bold ">
-                ज्ञान सुधारा
-              </p>
-            </p>
-
-            <button className="z-10 arya-bold absolute bottom-3 md:w-[50%] px-16 py-2 rounded-[16px] bg-white text-[#727809] text-lg md:text-2xl font-bold border border-[#727809] shadow-lg hover:bg-[#727809] hover:text-white hover:border-white transition">
-              आता खेळा!
-            </button>
-          </div>
+          <Section
+            title="गेम्स"
+            backgroundColor="bg-[#CBD32E]"
+            className="relative min-h-[300px]"
+          >
+            <GamesContent />
+          </Section>
 
           {/* Tests Section */}
-          <div className="bg-[#F7D827] flex flex-col rounded-[20px] shadow-lg border border-black p-6 ">
-            <h2 className="text-4xl text-center text-black font-bold mb-4 arya-bold">
-              चाचण्या
-            </h2>
-
-            <div className="flex flex-col md:flex-row gap-6">
-              {/* Practice Test */}
-              <div className="bg-white bg-opacity-90 rounded-[20px] flex flex-col items-center p-4 flex-1 ">
-                <h3 className="text-3xl md:text-4xl text-center text-black  rozha-one-regular">
-                  सराव चाचणी
-                </h3>
-                <Image
-                  src="/paper.svg"
-                  alt="Paper"
-                  width={80}
-                  height={80}
-                  className="my-1"
-                />
-                <p className="text-lg md:text-xl text-center text-black px-3 flex-grow arya-regular">
-                  तुमच्या पाठ्यपुस्तकातील धड्यांमधील प्रश्नांचा सराव करा
-                </p>
-                <button className="mt-2 arya-bold px-10 w-[95%] py-2 rounded-[12px] bg-white text-[#E5B800] text-xl font-bold border border-[#E5B800] shadow-lg hover:bg-[#E5B800] hover:text-white hover:border-white transition">
-                  सोडवा
-                </button>
-              </div>
-
-              {/* Class Test */}
-              <div className="bg-white bg-opacity-90 rounded-[20px] flex flex-col items-center p-4 flex-1 min-h-0 ">
-                <h3 className="text-3xl md:text-4xl text-center text-black  rozha-one-regular">
-                  वर्ग चाचणी
-                </h3>
-                <Image
-                  src="/test-paper.png"
-                  alt="Test Paper"
-                  width={80}
-                  height={80}
-                  className="my-1"
-                />
-                <p className="text-lg md:text-xl text-center text-black px-3 flex-grow arya-regular">
-                  तुमच्या शिक्षकांनी तयार केलेली वर्ग चाचणी सोडवा
-                </p>
-                <button className="mt-2 w-[95%] arya-bold px-10 py-2 rounded-[12px] bg-white text-[#E5B800] text-xl font-bold border border-[#E5B800] shadow-lg hover:bg-[#E5B800] hover:text-white hover:border-white transition">
-                  सोडवा
-                </button>
-              </div>
-            </div>
-          </div>
+          <Section title="चाचण्या" backgroundColor="bg-[#F7D827]" className="container mx-auto px-4">
+            <TestsContent />
+          </Section>
         </>
       ) : (
         <>
           {/* Placeholder Sections for Non-Student Roles */}
-          <div className="bg-white rounded-[20px] shadow-lg border border-black p-6"></div>
-          <div className="bg-white rounded-[20px] shadow-lg border border-black p-6"></div>
-          <div className="bg-white rounded-[20px] shadow-lg border border-black p-6"></div>
-          <div className="bg-white rounded-[20px] shadow-lg border border-black p-6"></div>
+          <Section title="" backgroundColor="bg-white">
+            <PlaceholderContent />
+          </Section>
+          <Section title="" backgroundColor="bg-white">
+            <PlaceholderContent />
+          </Section>
+          <Section title="" backgroundColor="bg-white">
+            <PlaceholderContent />
+          </Section>
+          <Section title="" backgroundColor="bg-white">
+            <PlaceholderContent />
+          </Section>
         </>
       )}
     </div>
