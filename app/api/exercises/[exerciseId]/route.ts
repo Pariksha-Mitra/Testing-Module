@@ -1,6 +1,12 @@
+<<<<<<< HEAD
+import { NextResponse } from "next/server";
+import { Exercise } from "@/models/questionsSchema";
+import {connectDb} from "@/utils/db";
+=======
 import { connectDb } from '@/utils/db';
 import { Exercise } from '@/models/questionsSchema';
 import { NextResponse } from 'next/server';
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
 
 /**
  * @swagger
@@ -51,6 +57,18 @@ import { NextResponse } from 'next/server';
  *           type: "string"
  */
 
+<<<<<<< HEAD
+
+export async function GET(req: Request, context: { params: { exerciseId: string } }) {
+  try {
+    await connectDb();
+    const { exerciseId } = context.params;
+    const singleExercise = await Exercise.findById(exerciseId);
+
+    if (!singleExercise) {
+      return NextResponse.json(
+        { error: "Exercise not found" },
+=======
 // Define interface for context
 interface ExerciseContext {
   params: {
@@ -78,10 +96,22 @@ export async function GET(req: Request, context: ExerciseContext) {
     if (!singleExercise) {
       return NextResponse.json(
         { success: false, error: "Exercise not found" },
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
         { status: 404 }
       );
     }
 
+<<<<<<< HEAD
+    return NextResponse.json({ singleExercise }, { status: 200 });
+  } catch (error) {
+    console.error("Error retrieving single exercise:", error);
+    return NextResponse.json(
+      { error: "Failed to retrieve the single exercise" },
+      { status: 500 }
+    );
+  }
+}
+=======
     return NextResponse.json(
       { success: true, singleExercise },
       { status: 200 }
@@ -94,3 +124,4 @@ export async function GET(req: Request, context: ExerciseContext) {
     );
   }
 }
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e

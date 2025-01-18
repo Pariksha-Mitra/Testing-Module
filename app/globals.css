@@ -51,3 +51,15 @@
   font-weight: 700;
   font-style: normal;
 }
+
+.arya-regular {
+  font-family: "Arya", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.arya-bold {
+  font-family: "Arya", serif;
+  font-weight: 700;
+  font-style: normal;
+}

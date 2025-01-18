@@ -38,7 +38,7 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error retrieving subjects:", error);
+    console.error("Error retrieving subjects, GET Req error:", error);
     return NextResponse.json(
       {
         success: false,
@@ -138,7 +138,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating subject:", error);
+    console.error("Error creating subject, POST req error :", error);
     return NextResponse.json(
       { error: "Failed to create subject" },
       { status: 500 }
@@ -210,7 +210,7 @@ export async function DELETE(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting subject:", error);
+    console.error("Error deleting subject, DELETE req error :", error);
     return NextResponse.json(
       { error: "Failed to delete subject" },
       { status: 500 }
