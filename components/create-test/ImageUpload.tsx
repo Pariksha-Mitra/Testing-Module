@@ -1,5 +1,6 @@
 "use client";
-import React, { ChangeEvent, useCallback, useState, DragEvent } from 'react';
+import React, { ChangeEvent, useCallback, useState, DragEvent } from "react";
+import Image from "next/image";
 
 interface ImageUploadProps {
   uniqueKey: string; // New prop for unique identification
@@ -26,7 +27,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
 
-  const handleFileRead = (file: File) => {
+  const handleFileRead = useCallback((file: File) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       console.log(`File read successfully for ${uniqueKey}:`, reader.result);
@@ -39,24 +40,29 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       setIsLoading(false);
     };
     reader.readAsDataURL(file);
-  };
+  }, [uniqueKey, onImageChange]);
 
-  const handleFileValidation = (file: File) => {
-    if (file.size > maxSizeInMB * 1024 * 1024) {
-      setError(`File size must be less than ${maxSizeInMB}MB.`);
-      setIsLoading(false);
-      return;
-    }
+  const handleFileValidation = useCallback(
+    (file: File) => {
+      if (file.size > maxSizeInMB * 1024 * 1024) {
+        setError(`File size must be less than ${maxSizeInMB}MB.`);
+        setIsLoading(false);
+        return;
+      }
 
-    if (!acceptedFileTypes.includes(file.type)) {
-      setError("Unsupported file type. Please upload a JPEG, PNG, or GIF image.");
-      setIsLoading(false);
-      return;
-    }
+      if (!acceptedFileTypes.includes(file.type)) {
+        setError(
+          "Unsupported file type. Please upload a JPEG, PNG, or GIF image."
+        );
+        setIsLoading(false);
+        return;
+      }
 
-    setError(null);
-    handleFileRead(file);
-  };
+      setError(null);
+      handleFileRead(file);
+    },
+    [maxSizeInMB, acceptedFileTypes, handleFileRead]
+  );
 
   const handleFileChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +74,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         handleFileValidation(file);
       }
     },
-    [editable, uniqueKey]
+    [editable, uniqueKey, handleFileValidation]
   );
 
   const handleDrop = useCallback(
@@ -83,7 +89,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         handleFileValidation(file);
       }
     },
-    [editable, uniqueKey]
+    [editable, uniqueKey, handleFileValidation]
   );
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -100,76 +106,83 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     setIsDragActive(false);
   };
 
+  let content;
+  if (image) {
+    content = (
+      <div className="relative object-contain">
+        <Image
+          src={image}
+          alt="Uploaded"
+          layout="responsive"
+          width={500}
+          height={500}
+          onError={() => setError("Failed to load image.")}
+        />
+        {editable && (
+          <button
+            onClick={onRemove}
+            className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-sm rounded z-10 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+          >
+            Remove
+          </button>
+        )}
+      </div>
+    );
+  } else if (editable) {
+    content = (
+      <div className="flex flex-col items-center justify-center h-full w-full border-2 border-dashed border-gray-300 p-4">
+        <label
+          htmlFor={`file-upload-${uniqueKey}`}
+          className="bg-[#6378fd] text-white px-4 py-2 rounded cursor-pointer hover:bg-[#546aff]"
+        >
+          Choose File
+        </label>
+        <input
+          id={`file-upload-${uniqueKey}`}
+          type="file"
+          onChange={handleFileChange}
+          accept={acceptedFileTypes.join(",")}
+          className="hidden"
+        />
+        <p className="text-gray-500 mt-2">
+          Drag and drop an image or click to upload
+        </p>
+        {error && (
+          <p className="text-red-500 mt-2" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  } else {
+    content = (
+      <div className="flex items-center justify-center h-full text-gray-500">
+        No image uploaded.
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={`relative p-2 ${className} ${isDragActive ? 'border-4 border-blue-300' : ''}`}
+    <section
+      className={`relative p-2 ${className} ${isDragActive ? "border-4 border-blue-300" : ""
+        }`}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
-      aria-disabled={!editable}
       aria-label="Image upload area"
-      role="region"
+
     >
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/50" aria-live="polite">
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-white/50"
+          aria-live="polite"
+        >
           <span>Loading...</span>
         </div>
       )}
-      {image ? (
-        <div className="relative object-contain">
-          <img
-            src={image}
-            alt="Uploaded"
-            className="w-full h-full object-contain"
-            onError={() => setError("Failed to load image.")}
-          />
-          {editable && (
-            <button
-              onClick={() => {
-                console.log(`Remove button clicked for ${uniqueKey}`);
-                onRemove();
-              }}
-              className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-sm rounded z-10 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-              disabled={!editable}
-              aria-disabled={!editable}
-              aria-label="Remove uploaded image"
-            >
-              Remove
-            </button>
-          )}
-        </div>
-      ) : editable ? (
-        <div className="flex flex-col items-center justify-center h-full w-full border-2 border-dashed border-gray-300 p-4">
-          <label
-            htmlFor={`file-upload-${uniqueKey}`} // Use uniqueKey for ID
-            className="bg-[#6378fd] text-white px-4 py-2 rounded cursor-pointer hover:bg-[#546aff]"
-            aria-label="Choose file to upload"
-          >
-            Choose File
-          </label>
-          <input
-            id={`file-upload-${uniqueKey}`} // Use uniqueKey for ID
-            type="file"
-            onChange={handleFileChange}
-            accept={acceptedFileTypes.join(",")}
-            disabled={!editable}
-            aria-label="Upload image"
-            className="hidden"
-          />
-          <p className="text-gray-500 mt-2">Drag and drop an image or click to upload</p>
-          {error && (
-            <p className="text-red-500 mt-2" role="alert">
-              {error}
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="flex items-center justify-center h-full text-gray-500">
-          No image uploaded.
-        </div>
-      )}
-    </div>
+      {content}
+    </section>
   );
 };
 
