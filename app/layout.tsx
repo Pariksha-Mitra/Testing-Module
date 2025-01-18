@@ -1,6 +1,7 @@
 import AuthProvider from '@/utils/AuthProvider';
 import { Laila, Rozha_One } from 'next/font/google';
 import { ToastProvider } from '@/components/ui/ToastProvider';
+import { QuestionsProvider } from '@/context/QuestionsContext';
 import './globals.css';
 import type { Metadata } from "next";
 
@@ -38,7 +39,8 @@ export default function RootLayout({
         className={`${rozhaOne.variable} ${laila.variable} antialiased min-h-screen`}
       >
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <QuestionsProvider>{children}</QuestionsProvider></ToastProvider>
         </AuthProvider>
       </body>
     </html>
