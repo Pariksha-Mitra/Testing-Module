@@ -1,5 +1,6 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { ROLE } from "./utils/types";
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
@@ -29,6 +30,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  if((token?.role === ROLE.Student && url.pathname === "/create-test")
+  || (token?.role === ROLE.Student && url.pathname === "/question-bank")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   return NextResponse.next();
 }
 
@@ -41,5 +47,7 @@ export const config = {
     "/new-password",
     "/api-docs",
     "/api/swagger",
+    "/create-test",
+    "/question-bank"
   ],
 };
