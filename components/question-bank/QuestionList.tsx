@@ -9,22 +9,28 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   onQuestionSelect,
   onDeleteQuestion,
 }) => {
-  // Example of added logic that doesn't affect the UI:
+  // Log the current number of questions (for debugging)
   React.useEffect(() => {
     console.log("Current number of questions:", questions.length);
   }, [questions]);
 
   const handleAddQuestion = () => {
     console.log("Add question clicked");
-    // Any extra logic you want here that won't affect the UI
+    // Implement your add question logic here
   };
 
-  if (!questions) {
-    return <div>No questions available</div>;
-  }
+
 
   return (
-    <div className="flex flex-col gap-3 text-2xl mr-3 p-2">
+    <div
+      className="
+        flex flex-col gap-3 
+        w-full 
+        mx-auto 
+        p-2
+        md:p-4
+      "
+    >
       {/* Special card for adding a question */}
       <Link href={"/create-test"}>
         <QuestionCard
@@ -52,7 +58,7 @@ export const QuestionList: React.FC<QuestionListProps> = ({
         <QuestionCard
           key={question.id}
           id={question.id}
-          questionNumber={question.questionNumber}
+          questionNumber={`Q.${index + 1}`} // Add "Q." prefix
           description={question.description}
           isSelected={selectedQuestionIndex === index}
           onClick={() => onQuestionSelect(index)}
