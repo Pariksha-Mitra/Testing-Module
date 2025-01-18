@@ -18,7 +18,7 @@ export default function Header() {
           </h1>
           <p className="text-xl md:text-2xl laila-light mt-1">
             {isLoading ? (
-              <Skeleton   sx={{ bgcolor: '#8fa4ff' }} variant="text" width={300} height={30} animation="wave"/>
+              <Skeleton   sx={{ bgcolor: '#8fa4ff' }} variant="text" width={200} height={30} animation="wave"/>
             ) : (
               `${session?.user.username}, DETAILS`
             )}
