@@ -332,3 +332,11 @@ export interface QuestionListProps {
   onQuestionSelect: (index: number) => void;
   onDeleteQuestion: (index: number) => void;
 }
+
+
+export interface NewsItemProps  {
+  id: string; 
+  isNew: boolean;
+  title: string;
+  onClick?: () => void;
+}

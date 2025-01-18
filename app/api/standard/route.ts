@@ -153,7 +153,9 @@ export async function GET() {
     console.log("hello");
     const classes = await Standard.find();
     return NextResponse.json({ classes }, { status: 200 });
-  } catch {
+  } catch (error){
+    console.log("error while handling GET req in standardId dynamic route",error);
+
     return NextResponse.json(
       { error: "Failed to retrive the Classes Information" },
       { status: 400 }
@@ -180,7 +182,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.log("Error creating standard:", error);
+    console.log("Error creating standard in POST req:", error);
     return NextResponse.json(
       { error: "Failed to create standard" },
       { status: 500 }

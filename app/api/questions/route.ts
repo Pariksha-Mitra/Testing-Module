@@ -76,7 +76,9 @@ export async function GET() {
     });
 
     return NextResponse.json({ questions: flattenedQuestions });
-  } catch {
+  } catch (error){
+    console.log("error while handling GET req in question",error);
+
     return NextResponse.json({ error: "Failed to fetch questions" }, { status: 500 });
   }
 }
@@ -205,7 +207,8 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error(error);
+    console.log("error while handling POST req in question",error);
+
     return NextResponse.json(
       { error: "Failed to add question" },
       { status: 500 }
@@ -262,7 +265,8 @@ export async function DELETE(req: Request) {
     return NextResponse.json(
       { success: true, message: "Question deleted successfully" }, { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    console.log("error while handling DELETE req in question",error);
     return NextResponse.json(
       { success: false, error: "Failed to delete question" }, { status: 500 }
     );

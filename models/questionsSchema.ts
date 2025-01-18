@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+import mongoose from "mongoose";
+
+// Existing Enums
+const QuestionTypeEnum = ["MCQ", "True/False", "Numerical"];
+
+// Standard Schema
+const standardSchema = new mongoose.Schema(
+=======
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
 // Enums for clarity
@@ -54,12 +63,17 @@ interface IQuestion extends Document {
 
 // Standard Schema
 const standardSchema: Schema = new mongoose.Schema(
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
   {
     standardName: {
       type: Number,
       required: true,
+<<<<<<< HEAD
+      unique: true, 
+=======
       unique: true,
       index: true,
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
     },
     description: {
       type: String,
@@ -70,13 +84,20 @@ const standardSchema: Schema = new mongoose.Schema(
 );
 
 // Subject Schema
+<<<<<<< HEAD
+const subjectSchema = new mongoose.Schema(
+=======
 const subjectSchema: Schema = new mongoose.Schema(
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
   {
     fk_standard_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Standard",
       required: true,
+<<<<<<< HEAD
+=======
       index: true,
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
     },
     subjectName: {
       type: String,
@@ -92,13 +113,20 @@ const subjectSchema: Schema = new mongoose.Schema(
 );
 
 // Chapter Schema
+<<<<<<< HEAD
+const chapterSchema = new mongoose.Schema(
+=======
 const chapterSchema: Schema = new mongoose.Schema(
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
   {
     fk_subject_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subject",
       required: true,
+<<<<<<< HEAD
+=======
       index: true,
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
     },
     title: {
       type: String,
@@ -114,13 +142,20 @@ const chapterSchema: Schema = new mongoose.Schema(
 );
 
 // Exercise Schema
+<<<<<<< HEAD
+const exerciseSchema = new mongoose.Schema(
+=======
 const exerciseSchema: Schema = new mongoose.Schema(
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
   {
     fk_chapter_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chapter",
       required: true,
+<<<<<<< HEAD
+=======
       index: true,
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
     },
     title: {
       type: String,
@@ -136,31 +171,47 @@ const exerciseSchema: Schema = new mongoose.Schema(
 );
 
 // Question Schema
+<<<<<<< HEAD
+const questionSchema = new mongoose.Schema(
+=======
 const questionSchema: Schema = new mongoose.Schema(
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
   {
     fk_standard_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Standard",
       required: true,
+<<<<<<< HEAD
+=======
       index: true,
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
     },
     fk_subject_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subject",
       required: true,
+<<<<<<< HEAD
+=======
       index: true,
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
     },
     fk_chapter_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chapter",
       required: true,
+<<<<<<< HEAD
+=======
       index: true,
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
     },
     fk_exercise_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Exercise",
       required: true,
+<<<<<<< HEAD
+=======
       index: true,
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
     },
     questionText: {
       type: String,
@@ -171,11 +222,25 @@ const questionSchema: Schema = new mongoose.Schema(
     questionType: {
       type: String,
       required: true,
+<<<<<<< HEAD
+      enum: QuestionTypeEnum,
+=======
       enum: Object.values(QuestionTypeEnum),
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
     },
     answerFormat: {
       type: String,
       required: true,
+<<<<<<< HEAD
+      enum: ["SingleChoice", "MultipleChoice", "Text", "Number", "MCQ"], // Added "MCQ"
+    },
+    options: {
+      type: [String],
+      default: [], // Ensures options is an empty array by default
+      validate: {
+        validator: function (value) {
+          return this.questionType === "MCQ" ? value && value.length > 0 : true;
+=======
       enum: Object.values(AnswerFormatEnum),
     },
     options: {
@@ -186,26 +251,48 @@ const questionSchema: Schema = new mongoose.Schema(
           return this.questionType === QuestionTypeEnum.MCQ
             ? value && value.length > 0
             : true;
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
         },
         message: "Options must contain at least one item for MCQ.",
       },
     },
     correctAnswer: {
+<<<<<<< HEAD
+      type: String, // Could be an index of `options` or the actual answer text
+      required: function () {
+        return this.questionType === "MCQ";
+=======
       type: String,
       required: function (this: IQuestion) {
         return this.questionType === QuestionTypeEnum.MCQ;
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
       },
     },
     numericalAnswer: {
       type: Number,
+<<<<<<< HEAD
+      required: function () {
+        return this.questionType === "Numerical";
+=======
       required: function (this: IQuestion) {
         return this.questionType === QuestionTypeEnum.NUMERICAL;
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
       },
     },
   },
   { timestamps: true }
 );
 
+<<<<<<< HEAD
+
+
+// Model exports
+export const Standard = mongoose.models.Standard || mongoose.model("Standard", standardSchema);
+export const Subject = mongoose.models.Subject || mongoose.model("Subject", subjectSchema);
+export const Chapter = mongoose.models.Chapter || mongoose.model("Chapter", chapterSchema);
+export const Exercise = mongoose.models.Exercise || mongoose.model("Exercise", exerciseSchema);
+export const Question = mongoose.models.Question || mongoose.model("Question", questionSchema);
+=======
 // Model exports
 export const Standard: Model<IStandard> =
   mongoose.models.Standard ||
@@ -220,3 +307,4 @@ export const Exercise: Model<IExercise> =
 export const Question: Model<IQuestion> =
   mongoose.models.Question ||
   mongoose.model<IQuestion>("Question", questionSchema);
+>>>>>>> 27dc760d1966fbfd9c1061c7f9944a401d916c6e
