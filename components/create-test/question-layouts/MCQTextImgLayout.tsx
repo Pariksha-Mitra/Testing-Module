@@ -2,15 +2,20 @@
 import ImgMCQ from '@/components/create-test/ImgMCQ';
 import React, { ChangeEvent } from 'react';
 
-
 interface MCQTextImgLayoutProps {
   questionIndex: number;
   questionText: string;
   questionDescription: string;
   onQuestionTextChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onDescriptionChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
-  editable: boolean; // Added editable prop
-  className?: string; // Add optional className prop
+  editable: boolean;
+  className?: string;
+  
+  // New Props for ImgMCQ
+  imageOptions: (string | null)[];
+  selectedOption: number | null;
+  onOptionSelect: (index: number) => void;
+  onOptionChange: (index: number, value: string | null) => void;
 }
 
 export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
@@ -19,8 +24,14 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
   questionDescription,
   onQuestionTextChange,
   onDescriptionChange,
-  editable, // Destructure editable
-  className = '', // Default value
+  editable,
+  className = '',
+  
+  // Destructure new props
+  imageOptions,
+  selectedOption,
+  onOptionSelect,
+  onOptionChange,
 }) => (
   <div
     className={`
@@ -31,7 +42,7 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
       ${!editable ? "pointer-events-none opacity-50" : ""}
       ${className}
     `}
-    aria-disabled={!editable} // Accessibility attribute
+    aria-disabled={!editable}
     role="group"
     aria-label={`Question ${questionIndex + 1}`}
   >
@@ -50,8 +61,8 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
           placeholder="Question text here"
           value={questionText}
           onChange={onQuestionTextChange}
-          disabled={!editable} // Disable when not editable
-          aria-disabled={!editable} // Accessibility attribute
+          disabled={!editable}
+          aria-disabled={!editable}
         />
         <textarea
           style={{ resize: "none" }}
@@ -59,14 +70,21 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
           placeholder="Enter question description here"
           value={questionDescription}
           onChange={onDescriptionChange}
-          disabled={!editable} // Disable when not editable
-          aria-disabled={!editable} // Accessibility attribute
+          disabled={!editable}
+          aria-disabled={!editable}
         />
       </div>
 
       {/* Right side: ImgMCQ */}
       <div className="flex flex-col w-full md:w-1/2 space-y-3">
-        <ImgMCQ editable={editable} /> {/* Pass editable prop */}
+      <ImgMCQ
+          questionIndex={questionIndex} // Pass questionIndex prop
+          editable={editable}
+          imageOptions={imageOptions}
+          selectedOption={selectedOption}
+          onOptionSelect={onOptionSelect}
+          onOptionChange={onOptionChange}
+        />
       </div>
     </div>
   </div>
