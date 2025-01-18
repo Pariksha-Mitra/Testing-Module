@@ -97,6 +97,13 @@ const Page: React.FC = () => {
   const handleQuestionTypeChange = useCallback(
     async (value: string | number, dropdownId: string) => {
       if (dropdownId === "dropdown-2") {
+        if (isEditing) {
+          const confirmChange = window.confirm(
+            "You have unsaved changes. Are you sure you want to change the question type? All unsaved changes will be lost."
+          );
+          if (!confirmChange) return; // Exit if the user cancels
+        }
+
         setIsLoading(true);
         try {
           setQuestions((prevQuestions) => {
@@ -116,6 +123,7 @@ const Page: React.FC = () => {
             console.log(`Changing question type to`, value); // Debugging
             return updatedQuestions;
           });
+          setIsEditing(false); // Reset editing state after type change
         } catch (error) {
           console.error("Error changing question type:", error);
           // Optionally, set an error state to display to the user
@@ -124,7 +132,7 @@ const Page: React.FC = () => {
         }
       }
     },
-    [selectedQuestionIndex, setQuestions, setIsLoading]
+    [isEditing, selectedQuestionIndex, setQuestions, setIsLoading, setIsEditing]
   );
 
   // Dropdown Items
@@ -190,14 +198,12 @@ const Page: React.FC = () => {
     [selectedQuestionIndex, updateQuestionField]
   );
 
-  
-
   const handleOptionChange = useCallback(
     (index: number, value: string | null) => {
       setQuestions((prevQuestions) => {
         const updatedQuestions = [...prevQuestions];
         const currentQ = updatedQuestions[selectedQuestionIndex];
-  
+
         // If it's a plain MCQ, update `content.options`.
         // If it's an image-based MCQ, update `content.imageOptions`.
         if (currentQ.type === "MCQ") {
@@ -212,12 +218,12 @@ const Page: React.FC = () => {
           updatedImageOptions[index] = value;
           currentQ.content.imageOptions = updatedImageOptions;
         }
-  
+
         updatedQuestions[selectedQuestionIndex] = {
           ...currentQ,
           content: { ...currentQ.content },
         };
-  
+
         return updatedQuestions;
       });
     },
@@ -268,16 +274,23 @@ const Page: React.FC = () => {
           setIsEditing(false);
           // Optionally, perform save operations here
         } else if (buttonLabel === "DELETE") {
-          const confirmDelete = window.confirm("Are you sure you want to delete this question?");
+          const confirmDelete = window.confirm(
+            "Are you sure you want to delete this question?"
+          );
           if (!confirmDelete) return;
 
           setQuestions((prevQuestions) => {
-            const updatedQuestions = prevQuestions.filter(
-              (_, idx) => idx !== selectedQuestionIndex
-            );
+            const updatedQuestions = prevQuestions
+              .filter((_, idx) => idx !== selectedQuestionIndex)
+              .map((q, index) => ({
+                ...q,
+                id: index + 1, // Reassign IDs sequentially
+              }));
+
             console.log("Deleting question at index:", selectedQuestionIndex); // Debugging
             return updatedQuestions;
           });
+
           setSelectedQuestionIndex((prev) =>
             prev > 0 ? prev - 1 : 0
           );
