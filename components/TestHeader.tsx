@@ -165,21 +165,30 @@ export default function TestHeader() {
         <div className="flex flex-col p-4 rounded-lg shadow bg-[#6378fd] w-full md:w-1/2 ">
           <div className="grid grid-cols-7 gap-4 p-4">
             {questions.map((question, index) => (
-              <div
+              <button
                 key={question.id}
-                className={`flex pt-1 laila-semibold items-center justify-center ${
-                  selectedQuestionIndex === index
-                    ? "bg-green-400"
-                    : "bg-[#a6b1ff]"
-                } w-10 h-10 text-white rounded-full font-bold cursor-pointer`}
+                className={`flex pt-1 laila-semibold items-center justify-center ${selectedQuestionIndex === index ? "bg-green-400" : "bg-[#a6b1ff]"
+                  } w-10 h-10 text-white rounded-full font-bold`}
                 onClick={() => handleSelectQuestion(index)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleSelectQuestion(index);
+                  }
+                }}
               >
                 {question.id}
-              </div>
+              </button>
             ))}
-            <div
-              className="flex items-center justify-center bg-[#a6b1ff] w-10 h-10 rounded-full cursor-pointer"
+            <button
+              className="flex items-center justify-center bg-[#a6b1ff] w-10 h-10 rounded-full"
               onClick={handleAddQuestion}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleAddQuestion();
+                }
+              }}
             >
               <svg
                 width="15"
@@ -190,7 +199,9 @@ export default function TestHeader() {
               >
                 <path d="M19.098 43.3068V0.147724H24.9276V43.3068H19.098ZM0.416193 24.625V18.8295H43.6094V24.625H0.416193Z" />
               </svg>
-            </div>
+            </button>
+
+
             {Array.from({ length: 21 - questions.length - 1 }, (_, i) => (
               <div
                 key={`placeholder-${i}`}
