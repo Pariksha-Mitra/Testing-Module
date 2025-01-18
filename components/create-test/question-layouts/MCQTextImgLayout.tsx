@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import ImgMCQ from '@/components/create-test/ImgMCQ';
 import React, { ChangeEvent } from 'react';
 
@@ -10,7 +10,7 @@ interface MCQTextImgLayoutProps {
   onDescriptionChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   editable: boolean;
   className?: string;
-  
+
   // New Props for ImgMCQ
   imageOptions: (string | null)[];
   selectedOption: number | null;
@@ -26,26 +26,27 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
   onDescriptionChange,
   editable,
   className = '',
-  
+
   // Destructure new props
   imageOptions,
   selectedOption,
   onOptionSelect,
   onOptionChange,
 }) => (
-  <div
+  <fieldset
     className={`
       flex flex-col md:flex-row 
       px-3 py-3 mt-6 w-full 
       border border-black 
       space-y-3 md:space-y-0 md:space-x-3
-      ${!editable ? "pointer-events-none opacity-50" : ""}
+      ${!editable ? 'pointer-events-none opacity-50' : ''}
       ${className}
     `}
+    disabled={!editable}
     aria-disabled={!editable}
-    role="group"
-    aria-label={`Question ${questionIndex + 1}`}
   >
+    <legend className="sr-only">Question {questionIndex + 1}</legend>
+
     {/* First Column: Q{questionIndex + 1} */}
     <div className="w-full md:w-[3%] p-3 mr-2 text-lg">
       Q{questionIndex + 1}
@@ -56,7 +57,7 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
       {/* Left side: Question text & description */}
       <div className="flex flex-col w-full md:w-1/2 space-y-1">
         <textarea
-          style={{ resize: "none" }}
+          style={{ resize: 'none' }}
           className="w-full p-2 h-[240px] border border-black"
           placeholder="Question text here"
           value={questionText}
@@ -65,7 +66,7 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
           aria-disabled={!editable}
         />
         <textarea
-          style={{ resize: "none" }}
+          style={{ resize: 'none' }}
           className="w-full p-2 border mt-3 h-[240px] border-black"
           placeholder="Enter question description here"
           value={questionDescription}
@@ -77,7 +78,7 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
 
       {/* Right side: ImgMCQ */}
       <div className="flex flex-col w-full md:w-1/2 space-y-3">
-      <ImgMCQ
+        <ImgMCQ
           questionIndex={questionIndex} // Pass questionIndex prop
           editable={editable}
           imageOptions={imageOptions}
@@ -87,7 +88,7 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
         />
       </div>
     </div>
-  </div>
+  </fieldset>
 );
 
 export default MCQTextImgLayout;

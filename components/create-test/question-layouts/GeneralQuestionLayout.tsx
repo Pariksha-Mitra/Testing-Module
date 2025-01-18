@@ -2,7 +2,7 @@
 
 "use client"
 import MatchThePairs from '@/components/create-test/match-the-pairs/MatchThePairs';
-import Mcq from '@/components/create-test/Mcq';
+import Mcq from '@/components/create-test/MCQ';
 import React, { ChangeEvent } from 'react';
 import TrueFalseComponent from '@/components/create-test/TrueFalse';
 import { QuestionType } from '@/utils/types';

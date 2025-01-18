@@ -1,6 +1,6 @@
 "use client";
 import ImageUpload from '@/components/create-test/ImageUpload';
-import Mcq from '@/components/create-test/Mcq';
+import Mcq from '@/components/create-test/MCQ';
 import React, { ChangeEvent } from 'react';
 
 interface MCQImgTextLayoutProps {
