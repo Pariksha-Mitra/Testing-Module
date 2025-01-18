@@ -1,7 +1,6 @@
-
 "use client";
 import ImageUpload from '@/components/create-test/ImageUpload';
-import React, { KeyboardEvent } from 'react';
+import React from 'react';
 
 interface ImgMCQProps {
   questionIndex: number;
@@ -39,40 +38,36 @@ const ImgMCQ: React.FC<ImgMCQProps> = ({
     onOptionChange(index, null);
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>, index: number) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleOptionSelectInternal(index);
-    }
-  };
-
   return (
     <div className={`space-y-6 p-4 ${className}`}>
       <div
-        role="radiogroup"
-        aria-label={`Image options for question ${questionIndex + 1}`}
         className="img-mcq-container"
+        aria-label={`Image options for question ${questionIndex + 1}`}
       >
         <div className="grid grid-cols-2 gap-6">
           {imageOptions.map((imageSrc, index) => (
-            <div
+            <label
               key={`question-${questionIndex}-option-${index}`} // Ensure global uniqueness
-              role="radio"
-              aria-checked={selectedOption === index}
-              tabIndex={editable ? 0 : -1}
               className={`relative flex flex-col items-center justify-center h-[220px] p-4 bg-white rounded-2xl border shadow-md transition-all duration-300 ease-in-out
                 ${
                   selectedOption === index
                     ? "bg-green-100 border-green-500 scale-105"
                     : "bg-white border-gray-300 scale-100"
                 }
-                focus:outline-none focus:ring-2 focus:ring-green-500
+                focus-within:ring-2 focus-within:ring-green-500
                 ${editable ? "cursor-pointer" : "cursor-not-allowed"}
               `}
-              onClick={() => handleOptionSelectInternal(index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              aria-label={`Option ${index + 1}${selectedOption === index ? ', selected' : ''}`}
             >
+              <input
+                type="radio"
+                name={`question-${questionIndex}`}
+                value={index}
+                checked={selectedOption === index}
+                onChange={() => handleOptionSelectInternal(index)}
+                disabled={!editable}
+                className="sr-only"
+                aria-label={`Option ${index + 1}${selectedOption === index ? ', selected' : ''}`}
+              />
               <span
                 className={`absolute top-2 left-2 h-6 w-6 rounded-full shadow-sm border-2 transition-colors
                   ${
@@ -93,10 +88,10 @@ const ImgMCQ: React.FC<ImgMCQProps> = ({
                   className="overflow-auto"
                 />
                 {!imageSrc && editable && (
-                  <span className="text-sm text-gray-500 ">No image uploaded</span>
+                  <span className="text-sm text-gray-500">No image uploaded</span>
                 )}
               </div>
-            </div>
+            </label>
           ))}
         </div>
       </div>
