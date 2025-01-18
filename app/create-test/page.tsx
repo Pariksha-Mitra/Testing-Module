@@ -43,7 +43,6 @@ const Page: React.FC = () => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isEditing) {
         e.preventDefault();
-        e.returnValue = ''; // Required to trigger the confirmation dialog
       }
     };
 
