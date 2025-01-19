@@ -4,7 +4,7 @@ import { connectDb } from "@/utils/db";
 
 /**
  * @swagger
- * /api/exercises/get-chapter:
+ * /api/chapters/get-chapter:
  *   post:
  *     summary: Fetch chapters related to a specific subject
  *     description: Retrieve a list of chapters associated with a given subject ID from the database.
