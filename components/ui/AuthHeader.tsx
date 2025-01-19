@@ -3,14 +3,15 @@ import React from 'react';
 
 const AuthHeader = () => {
   return (
-    <Image 
-      src="/auth-header.png"
-      alt="Authentication Header"
-      width={500} // Set appropriate width
-      height={200} // Set appropriate height
-      priority // For above-the-fold images
-      className="w-full" // Make responsive
-    />
+    <div className="w-full flex justify-center">
+      <Image 
+        src="/auth-header.png"
+        alt="Authentication Header"
+        fill
+        priority
+       
+      />
+    </div>
   );
 };
 

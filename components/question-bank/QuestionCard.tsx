@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { QuestionProps } from '@/utils/types';
 
 export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> = ({
@@ -9,65 +9,99 @@ export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> 
   onDelete,
   icon,
 }) => {
-  // We'll treat an empty description as the “Add question” state
   const showAddQuestion = !description;
 
+  // Handler to manage keyboard interactions for the main card
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault(); // Prevent scrolling when space is pressed
+      onClick();
+    }
+  };
+
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          onClick();
-        }
-      }}
+      onKeyDown={handleKeyDown}
       aria-pressed={isSelected}
-      aria-label={showAddQuestion ? "Add new question" : `Question ${questionNumber}`}
-      className={` 
-        rozha-one-regular flex flex-wrap gap-5 justify-between items-center pr-6 w-full bg-white rounded-3xl border border-solid shadow-lg border-zinc-400 max-md:pr-5 max-md:max-w-full
-        ${
-          isSelected
-            ? "border-emerald-400 bg-emerald-50"
-            : "border-zinc-300 bg-white"
+      aria-label={showAddQuestion ? 'Add new question' : `Question ${questionNumber}`}
+      className={`
+        rozha-one-regular 
+        flex flex-col md:flex-row 
+        gap-3 md:gap-5 
+        justify-between 
+        items-center
+        w-full 
+        bg-white 
+        rounded-3xl 
+        border border-solid 
+        shadow-lg 
+        px-4 py-3 
+        ${isSelected
+          ? 'border-emerald-400 bg-emerald-50'
+          : 'border-zinc-300 bg-white'
         }
+        transition-colors
+        cursor-pointer
+        focus:outline-none
+        focus:ring-2 focus:ring-emerald-400
       `}
     >
       {/* Left badge or icon */}
       <div
-        className="self-stretch flex justify-center items-center px-2 py-[19px] text-white text-center whitespace-nowrap bg-emerald-300 rounded-3xl shadow-lg"
-        style={{ minWidth: "90px" }}
+        className="
+          flex 
+          justify-center 
+          items-center 
+          text-white 
+          text-center 
+          whitespace-nowrap 
+          bg-emerald-300 
+          rounded-3xl 
+          shadow-lg
+          px-4 py-2 
+          md:py-[19px]
+        "
+        style={{ minWidth: '80px' }}
       >
         {icon ? (
-          // If `icon` is provided, render it
-          <div className="flex justify-center items-center h-[32px]">
+          <div className="flex justify-center items-center h-[32px] w-[32px]">
             {icon}
           </div>
         ) : (
-          // Otherwise, render question number
-          questionNumber
+          <span className="text-lg md:text-xl">{questionNumber}</span>
         )}
       </div>
 
-      {/* Main content area (flex-1 so it expands) */}
-      <div className="flex-1 flex items-center justify-between px-4 py-3">
-        {/* If there's no description, show "Add question" text */}
-        <div className="overflow-hidden rozha-one-regular text-3xl ">
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col md:flex-row items-center justify-between">
+        <div className="overflow-hidden">
           {showAddQuestion ? (
-            <p className="text-[#2836ff] text-xl">Add question</p>
+            <p className="text-[#2836ff] text-lg md:text-xl">Add question</p>
           ) : (
-            <p className=" text-xl truncate">{description}</p>
+            <p className="text-sm text-wrap md:text-xl truncate">{description}</p>
           )}
         </div>
 
-        {/* Delete icon (if onDelete is passed and we’re not in 'Add question' mode) */}
         {onDelete && !showAddQuestion && (
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
             }}
-            className="text-red-400 hover:text-red-600 transition-colors ml-4"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation();
+                onDelete();
+              }
+            }}
+            className="text-red-400 hover:text-red-600 transition-colors mt-2 md:mt-0 ml-0 md:ml-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-400 rounded"
             aria-label="Delete question"
           >
+            {/* Delete icon */}
             <svg
               className="w-8 h-8"
               xmlns="http://www.w3.org/2000/svg"
@@ -99,6 +133,6 @@ export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> 
           </button>
         )}
       </div>
-    </button>
+    </div>
   );
 };

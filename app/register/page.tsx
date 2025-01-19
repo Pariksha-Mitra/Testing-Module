@@ -102,14 +102,17 @@ const Register = () => {
 
   return (
     <>
-      <AuthHeader />
-      <div className="w-full min-h-screen py-10 bg-gradient-to-b from-yellow-50 via-white to-blue-300">
-        <div className="w-full h-full flex flex-col justify-center items-center">
+      
+      <div className="flex flex-col w-full h-screen  bg-gradient-to-b from-yellow-50 via-white to-blue-300 overflow-auto">
+      <div className='relative h-[25%]'>
+          <AuthHeader />
+          </div>
+        <div className="mt-10 w-full flex justify-center items-center flex-col">
           <form
             onSubmit={handleSubmit}
             className="bg-white bg-opacity-60 border border-black shadow-lg rounded-2xl p-8 w-11/12 max-w-4xl"
           >
-            <h2 className="text-4xl font-bold text-center mb-8">नोंदणी करा</h2>
+            <h2 className="text-4xl font-bold text-center mb-8 laila-semibold">नोंदणी करा</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Form Fields */}
               <div className="flex flex-col">

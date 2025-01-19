@@ -1,28 +1,26 @@
-
-
+import AuthProvider from '@/utils/AuthProvider';
+import { Laila, Rozha_One, Arya } from 'next/font/google';
+import { ToastProvider } from '@/components/ui/ToastProvider';
+import { QuestionsProvider } from '@/context/QuestionsContext';
+import './globals.css';
 import type { Metadata } from "next";
-import { Rozha_One, Laila, Arya } from "next/font/google";
-import "./globals.css";
-import AuthProvider from "@/utils/AuthProvider";
-import { ToastProvider } from "@/components/ui/ToastProvider";
-
 // Extract font configurations
 const rozhaOne = Rozha_One({
   weight: "400",
-  subsets: ["latin","devanagari"],
+  subsets: ["latin", "devanagari"],
   variable: "--font-rozha-one",
   display: "swap", // Add display swap for better performance
 });
 
 const laila = Laila({
   weight: ["300", "400", "500", "600", "700"],
-  subsets: ["latin","devanagari"],
+  subsets: ["latin", "devanagari"],
   variable: "--font-laila",
 });
 
 const arya = Arya({
-  weight: ["400","700"],
-  subsets: ["latin","devanagari"],
+  weight: ["400", "700"],
+  subsets: ["latin", "devanagari"],
   variable: "--font-arya",
 });
 
@@ -44,7 +42,8 @@ export default function RootLayout({
       <body
         className={`${rozhaOne.variable} ${laila.variable} ${arya.variable} antialiased`}>
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <QuestionsProvider>{children}</QuestionsProvider></ToastProvider>
         </AuthProvider>
       </body>
     </html>
