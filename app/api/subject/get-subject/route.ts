@@ -4,7 +4,7 @@ import { connectDb } from "@/utils/db";
 
 /**
  * @swagger
- * /api/exercises/get-subject:
+ * /api/subject/get-subject:
  *   post:
  *     summary: Fetch subjects related to a specific standard
  *     description: Retrieve a list of subjects associated with a given standard ID from the database.
