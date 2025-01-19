@@ -162,7 +162,7 @@ export async function POST(req: Request) {
       !questionType ||
       !answerFormat ||
       (questionType === "MCQ" && !correctAnswer) ||
-      (questionType === "Numerical" && numericalAnswer == null)
+      (questionType === "NUMERICAL" && numericalAnswer == null)
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -177,7 +177,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const validAnswerFormats = ["SingleChoice", "MultipleChoice", "Text", "Number", "MCQ"];
+    const validAnswerFormats = ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TEXT", "NUMBER", "MCQ"];
     if (!validAnswerFormats.includes(answerFormat)) {
       return NextResponse.json(
         { error: `Invalid answerFormat. Expected one of: ${validAnswerFormats.join(", ")}` },
