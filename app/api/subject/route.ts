@@ -4,10 +4,12 @@ import { Standard, Subject } from '@/models/questionsSchema';
 
 /**
  * @swagger
- * /api/subjects:
+ * /api/subject:
  *   get:
  *     summary: Get all subjects
  *     description: Fetches a list of all subjects from the database.
+ *     tags:
+ *       - Subjects
  *     responses:
  *       200:
  *         description: Successfully retrieved subjects.
@@ -51,10 +53,12 @@ export async function GET() {
 
 /**
  * @swagger
- * /api/subjects:
+ * /api/subject:
  *   post:
  *     summary: Create a new subject
  *     description: Creates a new subject in the database associated with a specific standard.
+ *     tags:
+ *       - Subjects
  *     requestBody:
  *       required: true
  *       content:
@@ -148,10 +152,12 @@ export async function POST(req: Request) {
 
 /**
  * @swagger
- * /api/subjects:
+ * /api/subject:
  *   delete:
  *     summary: Delete a subject by ID
  *     description: Deletes a subject from the database.
+ *     tags:
+ *       - Subjects
  *     parameters:
  *       - in: query
  *         name: id
