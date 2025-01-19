@@ -4,7 +4,7 @@ import { connectDb } from "@/utils/db";
 
 /**
  * @swagger
- * /api/exercises/get-question:
+ * /api/questions/get-question:
  *   post:
  *     summary: Fetch questions related to a specific exercise
  *     description: Retrieve a list of questions associated with a given exercise ID from the database.
