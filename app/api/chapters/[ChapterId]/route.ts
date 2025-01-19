@@ -7,10 +7,10 @@ import { NextResponse } from 'next/server';
  * paths:
  *   /api/chapters/{chapterId}:
  *     get:
- *       tags:
- *         - Chapters
  *       summary: "Get a single chapter by ID"
  *       description: "Retrieve a single chapter from the database by its ID."
+ *       tags:
+ *         - Chapters
  *       parameters:
  *         - name: "chapterId"
  *           in: "path"
