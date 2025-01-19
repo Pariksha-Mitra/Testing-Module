@@ -20,6 +20,8 @@ interface CreateChapterRequest {
  *   get:
  *     summary: Get all chapters
  *     description: Fetches a list of all chapters from the database.
+ *     tags:
+ *       - Chapters
  *     responses:
  *       200:
  *         description: Successfully retrieved chapters.
@@ -55,6 +57,8 @@ export async function GET() {
  *   post:
  *     summary: Create a new chapter
  *     description: Creates a new chapter in the database associated with a specific subject.
+ *     tags:
+ *        - Chapters
  *     requestBody:
  *       required: true
  *       content:
@@ -133,7 +137,7 @@ export async function POST(req: Request) {
           _id: savedChapter._id,
           title: savedChapter.title,
           description: savedChapter.description,
-          fk_subject_id: savedChapter.subject,
+          fk_subject_id: savedChapter.fk_subject_id,
         },
       },
       { status: 201 }
@@ -153,6 +157,8 @@ export async function POST(req: Request) {
  *   delete:
  *     summary: Delete a chapter by ID
  *     description: Deletes a chapter along with related exercises and questions from the database.
+ *     tags:
+ *       - Chapters
  *     parameters:
  *       - in: query
  *         name: id
