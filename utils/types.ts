@@ -334,3 +334,34 @@ export interface QuestionListProps {
   onQuestionSelect: (index: number) => void;
   onDeleteQuestion: (index: number) => void;
 }
+
+/**
+ * Represents a game in the games portal
+ * @interface Game
+ */
+export interface Game {
+  id: number;
+  title: string;
+  description: string;
+  thumbnail?: string;
+  link: string;
+}
+
+/**
+ * Represents a game card in the games portal
+ * @interface GameCardProps
+ */
+export interface GameCardProps {
+  gradient: string;
+  text?: string;
+}
+
+/**
+ * Represents the props for the SubjectInput component
+ * @interface SubjectInputProps
+ */
+export interface SubjectInputProps {
+  label: string;
+  width: string;
+  iconSrc: string;
+}

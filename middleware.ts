@@ -41,5 +41,6 @@ export const config = {
     "/new-password",
     "/api-docs",
     "/api/swagger",
+    "/games",
   ],
 };

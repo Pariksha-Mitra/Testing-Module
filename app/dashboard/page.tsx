@@ -1,12 +1,15 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 
 interface DashboardCard {
   color: string;
   title: string;
   ariaLabel: string;
+  onClick?: () => void;
 }
 
 const Dashboard: React.FC = () => {
+  const router = useRouter();
   const dashboardCards: DashboardCard[] = [
     {
       color: "bg-[#7CD9FE]",
@@ -22,6 +25,7 @@ const Dashboard: React.FC = () => {
       color: "bg-[#6AD9A1]",
       title: "Card 3",
       ariaLabel: "Dashboard statistics 3",
+      onClick: () => router.push('/games'),
     },
     {
       color: "bg-[#FFC756]",
@@ -37,6 +41,7 @@ const Dashboard: React.FC = () => {
           key={index}
           aria-label={card.ariaLabel}
           className={`${card.color} rounded-lg h-64 shadow hover:shadow-lg transition-all duration-300 p-4`}
+          onClick={card.onClick}
         >
           <h2 className="text-xl font-semibold text-white">{card.title}</h2>
         </section>
