@@ -1,6 +1,6 @@
 import { connectDb } from '@/utils/db';
 import { NextResponse } from 'next/server';
-import { Question } from '@/models/questionsSchema';
+import { Chapter, Exercise, Question, Standard, Subject } from "@/models/questionsSchema";
 
 /**
  * @swagger
@@ -36,21 +36,21 @@ export async function GET() {
         path: "fk_exercise_id",
         populate: {
           path: "fk_chapter_id",
-          populate:{
+          populate: {
             path: "fk_subject_id",
             populate: {
               path: "fk_standard_id",
             },
-          }
+          },
         },
       })
       .exec();
 
-    const flattenedQuestions = questions.map((question) => {
-      const exercise = question.fk_exercise_id || {};
-      const chapter = exercise.fk_chapter_id || {};
-      const subject =  chapter.fk_subject_id || {};
-      const standard = subject.fk_standard_id || {};
+    const flattenedQuestions = questions.map(async (question) => {
+      const exercise = (await Exercise.findById(question.fk_exercise_id));
+      const chapter = (await Chapter.findById(question.fk_chapter_id));
+      const subject = await Subject.findById(question.fk_subject_id);
+      const standard = (await Standard.findById(question.fk_standard_id));
 
       return {
         _id: question._id,
@@ -60,24 +60,29 @@ export async function GET() {
         options: question.options,
         correctAnswer: question.correctAnswer,
         numericalAnswer: question.numericalAnswer,
-        exerciseTitle: exercise.title,
-        exerciseDescription: exercise.description,
-        exerciseId: exercise._id,
-        chapterTitle: chapter.title,
-        chapterDescription: chapter.description,
-        chapterId: chapter._id,
-        subjectName: subject.subjectName,
-        subjectDescription: subject.description,
-        subjectId: subject._id,
-        standardName: standard.standardName,
-        standardDescription: standard.description,
-        standardId: standard._id,
+        exerciseTitle: exercise?.title,
+        exerciseDescription: exercise?.description,
+        exerciseId: exercise?._id,
+        chapterTitle: chapter?.title,
+        chapterDescription: chapter?.description,
+        chapterId: chapter?._id,
+        subjectName: subject?.subjectName,
+        subjectDescription: subject?.description,
+        subjectId: subject?._id,
+        standardName: standard?.standardName,
+        standardDescription: standard?.description,
+        standardId: standard?._id,
       };
     });
 
     return NextResponse.json({ questions: flattenedQuestions });
-  } catch {
-    return NextResponse.json({ error: "Failed to fetch questions" }, { status: 500 });
+  } catch (error) {
+    console.log("error while handling GET req in question", error);
+
+    return NextResponse.json(
+      { error: "Failed to fetch questions" },
+      { status: 500 }
+    );
   }
 }
 
@@ -160,7 +165,7 @@ export async function POST(req: Request) {
       !questionType ||
       !answerFormat ||
       (questionType === "MCQ" && !correctAnswer) ||
-      (questionType === "Numerical" && numericalAnswer == null)
+      (questionType === "NUMERICAL" && numericalAnswer == null)
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -175,7 +180,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const validAnswerFormats = ["SingleChoice", "MultipleChoice", "Text", "Number", "MCQ"];
+    const validAnswerFormats = ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TEXT", "NUMBER", "MCQ"];
     if (!validAnswerFormats.includes(answerFormat)) {
       return NextResponse.json(
         { error: `Invalid answerFormat. Expected one of: ${validAnswerFormats.join(", ")}` },
@@ -205,7 +210,8 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error(error);
+    console.log("error while handling POST req in question",error);
+
     return NextResponse.json(
       { error: "Failed to add question" },
       { status: 500 }
@@ -262,7 +268,8 @@ export async function DELETE(req: Request) {
     return NextResponse.json(
       { success: true, message: "Question deleted successfully" }, { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    console.log("error while handling DELETE req in question",error);
     return NextResponse.json(
       { success: false, error: "Failed to delete question" }, { status: 500 }
     );

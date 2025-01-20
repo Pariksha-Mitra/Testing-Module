@@ -1,25 +1,12 @@
+"use client";
+
 import React, {
   createContext,
   ReactNode,
   useContext,
   useState
-  } from 'react';
+} from 'react';
 import { Question, QuestionsContextProps, QuestionType } from '@/utils/types';
-
-// Constants for default values
-const DEFAULT_CONTEXT: QuestionsContextProps = {
-  questions: [],
-  selectedQuestionIndex: 0,
-  setSelectedQuestionIndex: () => {},
-  selection: {
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  },
-  setSelection: () => {},
-  setQuestions: () => {},
-};
 
 /**
  * Context for managing questions throughout the application
@@ -57,7 +44,6 @@ export const QuestionsProvider: React.FC<ProviderProps> = ({ children }) => {
     homework: "स्वाध्याय १",
   });
 
-  // Initialize with one default question
   const [questions, setQuestions] = useState<Question[]>([
     {
       id: 1,
@@ -65,25 +51,33 @@ export const QuestionsProvider: React.FC<ProviderProps> = ({ children }) => {
       content: {
         questionText: "",
         description: "",
-        options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+        options: ["", "", "", ""],
         correctAnswerIndex: null,
+        image: null,
+        imageOptions: [null, null, null, null],
       },
     },
   ]);
 
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
+  const [isEditing, setIsEditing] = useState(false); // Add this state
+
+  const value = React.useMemo(
+    () => ({
+      selection,
+      setSelection,
+      questions,
+      setQuestions,
+      selectedQuestionIndex,
+      setSelectedQuestionIndex,
+      isEditing, // Provide this state in the context
+      setIsEditing, // Provide the setter in the context
+    }),
+    [selection, questions, selectedQuestionIndex, isEditing]
+  );
 
   return (
-    <QuestionsContext.Provider
-      value={{
-        selection,
-        setSelection,
-        questions,
-        setQuestions,
-        selectedQuestionIndex,
-        setSelectedQuestionIndex,
-      }}
-    >
+    <QuestionsContext.Provider value={value}>
       {children}
     </QuestionsContext.Provider>
   );

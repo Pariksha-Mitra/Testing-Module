@@ -1,30 +1,24 @@
 "use client"
 import React, { ChangeEvent } from 'react';
-import { useQuestions } from '@/context/QuestionsContext';
 
-// Expand the interface to include all necessary props
-interface MCQProps {
+// Define the interface with all necessary props as required
+interface McqProps {
   editable: boolean;
-  options?: string[];
-  selectedOption?: number | null;
-  onOptionSelect?: (index: number) => void;
-  onOptionChange?: (index: number, value: string) => void;
+  options: string[];
+  selectedOption: number | null;
+  onOptionSelect: (index: number) => void;
+  onOptionChange: (index: number, value: string) => void;
 }
 
-
-
-
-
-// 1. Extract button styles into a constant
+// Extract button styles into a constant
 const optionButtonStyles = (isSelected: boolean) => `
   flex flex-wrap gap-5 justify-between items-center 
   px-6 py-2.5 max-w-full text-center 
   rounded-3xl border border-solid shadow-lg w-full 
   max-md:pl-5 max-md:mr-2.5
-  ${
-    isSelected
-      ? "bg-green-200 border-green-500 border-2"
-      : "bg-white border-black"
+  ${isSelected
+    ? "bg-green-200 border-green-500 border-2"
+    : "bg-white border-black"
   }
 `;
 
@@ -37,33 +31,32 @@ interface MCQOptionProps {
   onChange: (index: number, value: string) => void;
 }
 
-const MCQOption = ({
+const MCQOption: React.FC<MCQOptionProps> = ({
   option,
   index,
   selected,
   editable,
   onSelect,
   onChange,
-}: MCQOptionProps) => (
-  <div className="flex items-center space-x-3">
+}) => (
+  <div className="flex items-center space-x-3 mt-3">
     <label
       className={optionButtonStyles(selected)}
       aria-label={`Option ${index + 1}: ${option}`}
     >
       <input
         type="radio"
-        name="mcq-options"
+        name={`mcq-options-${index}`} // Ensure unique name per option
         checked={selected}
         onChange={() => onSelect(index)}
         disabled={!editable}
         className="hidden"
       />
       <span
-        className={`h-6 w-6 rounded-full shadow-sm border-2 ${
-          selected
+        className={`h-6 w-6 rounded-full shadow-sm border-2 ${selected
             ? "bg-green-300 border-green-500"
             : "border-gray-300 bg-zinc-300"
-        }`}
+          }`}
       ></span>
       <span className="flex-1">
         <input
@@ -81,51 +74,18 @@ const MCQOption = ({
   </div>
 );
 
-const MCQ: React.FC<MCQProps> = ({ editable }) => {
-  // Add error boundaries
-  const { questions, setQuestions, selectedQuestionIndex } = useQuestions();
+
+const Mcq: React.FC<McqProps> = ({
+  editable,
+  options,
+  selectedOption,
+  onOptionSelect,
+  onOptionChange,
+}) => {
   try {
-    // Early return with proper loading state
-    if (!questions || questions.length === 0) {
-      return <div>Loading questions...</div>;
+    if (!options || options.length === 0) {
+      return <div>No options available.</div>;
     }
-
-    const currentQuestion = questions[selectedQuestionIndex];
-
-    // Validate currentQuestion structure
-    if (!currentQuestion?.content?.options) {
-      return <div>Invalid question format</div>;
-    }
-
-    const options = currentQuestion.content.options || [];
-    const selectedOption = currentQuestion.content.correctAnswerIndex;
-
-    /**
-     * Handles changing the text of an option.
-     * @param index - The index of the option to change.
-     * @param value - The new value for the option.
-     */
-    const handleOptionChange = (index: number, value: string) => {
-      const updatedQuestions = [...questions];
-      if (!updatedQuestions[selectedQuestionIndex].content.options) {
-        updatedQuestions[selectedQuestionIndex].content.options = [];
-      }
-      updatedQuestions[selectedQuestionIndex].content.options[index] = value;
-      setQuestions(updatedQuestions);
-    };
-
-    /**
-     * Handles selecting the correct option.
-     * @param index - The index of the selected correct option.
-     */
-    const handleOptionSelect = (index: number) => {
-      if (!editable) return; // Prevent selecting if not editable
-
-      const updatedQuestions = [...questions];
-      updatedQuestions[selectedQuestionIndex].content.correctAnswerIndex =
-        index;
-      setQuestions(updatedQuestions);
-    };
 
     return (
       <div className="space-y-4">
@@ -134,30 +94,20 @@ const MCQ: React.FC<MCQProps> = ({ editable }) => {
           aria-label="Multiple choice options"
           className="text-lg mt-2"
         >
-          {options.map((option: string, index: number) => (
+          {options.map((option, index) => (
             <MCQOption
-              key={index}
+              key={`mcq-option-${index}`}
               option={option}
               index={index}
               selected={selectedOption === index}
               editable={editable}
-              onSelect={handleOptionSelect}
-              onChange={handleOptionChange}
+              onSelect={onOptionSelect}
+              onChange={onOptionChange}
             />
           ))}
         </div>
 
-        {/* Uncomment below if you implement add option functionality */}
-        {/* {editable && (
-          <button
-            onClick={addOption}
-            className={`${buttonClasses} disabled:opacity-50`}
-            disabled={!editable}
-            aria-label="Add new option"
-          >
-            Add Option
-          </button>
-        )} */}
+        {/* (Add Option button is commented out) */}
 
         <div className="text-lg mt-2">
           Correct answer:{" "}
@@ -172,14 +122,13 @@ const MCQ: React.FC<MCQProps> = ({ editable }) => {
     );
   } catch (error) {
     console.error("Error in MCQ component:", error);
-    // Add error boundary pattern
     return (
       <div className="error-message p-4 text-red-600 border border-red-300 rounded">
-        An error occurred:{" "}
-        {error instanceof Error ? error.message : "Unknown error"}
+        An error occurred: {error instanceof Error ? error.message : "Unknown error"}
       </div>
     );
   }
 };
 
-export default MCQ;
+
+export default Mcq;

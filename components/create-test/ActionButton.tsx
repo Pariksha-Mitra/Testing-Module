@@ -28,7 +28,6 @@ export const ActionButton: React.FC<ActionButtonProps> = React.memo(
         ${className}
       `}
         tabIndex={disabled ? -1 : 0}
-        role="button"
         aria-label={label}
         disabled={disabled}
       >

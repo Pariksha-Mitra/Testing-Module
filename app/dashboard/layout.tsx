@@ -2,22 +2,25 @@ import Header from '@/components/Header';
 import React from 'react';
 import Sidebar from '@/components/ui/Sidebar/Sidebar';
 
-interface DashboardLayoutProps {
+const DashboardLayout: React.FC<{
   children: React.ReactNode;
-}
-
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+}> = ({ children }) => {
   if (!children) {
     throw new Error('DashboardLayout requires children');
   }
-
   return (
-    <div className="relative flex bg-gradient-to-b from-yellow-200 to-blue-300 min-h-screen">
+    <div
+      className="relative flex h-screen"
+      style={{
+        background:
+          "linear-gradient(to bottom, #FBFFB7 0%, #FFFFFF 56%, #65D4FF 100%)",
+      }}
+    >
       <Sidebar />
-      <main className="flex-1 p-6 ml-24">
+      <div className="flex-1 px-5 py-5 ml-24 overflow-y-auto">
         <Header />
         {children}
-      </main>
+      </div>
     </div>
   );
 };

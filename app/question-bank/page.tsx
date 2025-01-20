@@ -1,9 +1,10 @@
-"use client"
-import React, { useContext, useMemo, useState } from 'react';
-import { QuestionList } from '@/components/question-bank/QuestionList';
-import { QuestionProps } from '@/utils/types';
-import { SelectionContext } from '@/context/SelectionContext';
-import '@/styles/scrollbar.css';
+"use client";
+
+import React, { useContext, useMemo, useState } from "react";
+import { QuestionList } from "@/components/question-bank/QuestionList";
+import { QuestionProps } from "@/utils/types";
+import { SelectionContext } from "@/context/SelectionContext";
+import "@/styles/scrollbar.css";
 
 const initialQuestions: QuestionProps[] = [
   {
@@ -106,19 +107,11 @@ const Page: React.FC = () => {
   }
   const { selection } = context;
 
-  // 1) Keep track of the question list
-  const [questionList, setQuestionList] =
-    useState<QuestionProps[]>(initialQuestions);
+  const [questionList, setQuestionList] = useState<QuestionProps[]>(initialQuestions);
+  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number | null>(null);
 
-  // 2) Keep track of which question is selected
-  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<
-    number | null
-  >(null);
-
-  // 3) Derived state: filter questions by dropdown selection
   const filteredQuestions = useMemo(() => {
     return questionList.filter((q) => {
-      // Only show the question if it matches all filter fields
       return (
         q.class === selection.class &&
         q.subject === selection.subject &&
@@ -128,12 +121,10 @@ const Page: React.FC = () => {
     });
   }, [questionList, selection]);
 
-  // 4) Handler for selecting a question
   const handleQuestionSelect = (index: number): void => {
     setSelectedQuestionIndex(index);
   };
 
-  // 5) Handler for deleting a question
   const handleDeleteQuestion = (index: number) => {
     const questionToDelete = filteredQuestions[index];
     if (!questionToDelete) return;
@@ -142,7 +133,6 @@ const Page: React.FC = () => {
       prevQuestions.filter((q) => q.id !== questionToDelete.id)
     );
 
-    // Update selectedQuestionIndex if necessary
     if (selectedQuestionIndex === index) {
       setSelectedQuestionIndex(null);
     }
@@ -150,14 +140,11 @@ const Page: React.FC = () => {
 
   return (
     <div className="flex flex-wrap gap-7 px-6 py-6 mt-4 bg-white rounded-3xl border border-black border-solid shadow-lg max-md:px-5 max-md:max-w-full">
-      <div className="flex flex-col grow shrink-0 max-md:max-w-full">
+      <div className="flex flex-col grow shrink-0 w-full">
         <div
           className="custom-scrollbar overflow-y-auto h-[505px] pr-2"
-          style={{
-            maxHeight: "505px", // Ensure consistent height
-          }}
+          style={{ maxHeight: "505px" }}
         >
-          {/* Render the filtered questions only */}
           <QuestionList
             questions={filteredQuestions}
             selectedQuestionIndex={selectedQuestionIndex ?? 0}

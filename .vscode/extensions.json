@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    "formulahendry.auto-rename-tag",
+    "dzhavat.bracket-pair-toggler",
+    "streetsidesoftware.code-spell-checker",
+    "usernamehw.errorlens",
+    "dsznajder.es7-react-js-snippets",
+    "mhutchie.git-graph",
+    "donjayamanne.githistory",
+    "github.copilot",
+    "github.copilot-chat",
+    "visualstudioexptteam.vscodeintellicode",
+    "visualstudioexptteam.intellicode-api-usage-examples",
+    "ms-vscode.vscode-typescript-next",
+    "orta.vscode-jest",
+    "firsttris.vscode-jest-runner",
+    "esbenp.prettier-vscode",
+    "sonarsource.sonarlint-vscode",
+    "developer2006.svg-gallery",
+    "chakrounanas.turbo-console-log"
+  ]
+}

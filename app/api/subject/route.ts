@@ -4,10 +4,12 @@ import { Standard, Subject } from '@/models/questionsSchema';
 
 /**
  * @swagger
- * /api/subjects:
+ * /api/subject:
  *   get:
  *     summary: Get all subjects
  *     description: Fetches a list of all subjects from the database.
+ *     tags:
+ *       - Subjects
  *     responses:
  *       200:
  *         description: Successfully retrieved subjects.
@@ -38,7 +40,7 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error retrieving subjects:", error);
+    console.error("Error retrieving subjects, GET Req error:", error);
     return NextResponse.json(
       {
         success: false,
@@ -51,10 +53,12 @@ export async function GET() {
 
 /**
  * @swagger
- * /api/subjects:
+ * /api/subject:
  *   post:
  *     summary: Create a new subject
  *     description: Creates a new subject in the database associated with a specific standard.
+ *     tags:
+ *       - Subjects
  *     requestBody:
  *       required: true
  *       content:
@@ -138,7 +142,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating subject:", error);
+    console.error("Error creating subject, POST req error :", error);
     return NextResponse.json(
       { error: "Failed to create subject" },
       { status: 500 }
@@ -148,10 +152,12 @@ export async function POST(req: Request) {
 
 /**
  * @swagger
- * /api/subjects:
+ * /api/subject:
  *   delete:
  *     summary: Delete a subject by ID
  *     description: Deletes a subject from the database.
+ *     tags:
+ *       - Subjects
  *     parameters:
  *       - in: query
  *         name: id
@@ -210,7 +216,7 @@ export async function DELETE(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting subject:", error);
+    console.error("Error deleting subject, DELETE req error :", error);
     return NextResponse.json(
       { error: "Failed to delete subject" },
       { status: 500 }
