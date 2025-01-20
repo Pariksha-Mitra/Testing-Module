@@ -1,7 +1,6 @@
-import { ROLE } from '../utils/types';
-import { z } from 'zod';
+import { ROLE } from "../utils/types";
+import { z } from "zod";
 
-// Define the schema using zod
 export const registerSchema = z.object({
   firstName: z.string().min(1, {
     message: "First name is required!",
@@ -25,7 +24,8 @@ export const registerSchema = z.object({
     })
     .optional(),
   invitationId: z.string().optional(),
+  rollNo: z.number().optional(),
+  division: z.enum(["A", "B", "C"]).optional(),
 });
 
-// Define the TypeScript type for the schema
 export type RegisterSchemaTypes = z.infer<typeof registerSchema>;
