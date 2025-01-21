@@ -340,3 +340,14 @@ export interface NewsItemProps  {
   title: string;
   onClick?: () => void;
 }
+
+export interface GameCardProps {
+  gradient: string;
+  text?: string;
+}
+
+export interface SubjectInputProps {
+  label: string;
+  width: string | number;
+  iconSrc: string;
+}
