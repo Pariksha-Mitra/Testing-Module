@@ -344,6 +344,10 @@ export interface NewsItemProps  {
 export interface GameCardProps {
   gradient: string;
   text?: string;
+  class?: string;
+  subject?: string;
+  lesson?: string;
+  homework?: string;
 }
 
 export interface SubjectInputProps {
