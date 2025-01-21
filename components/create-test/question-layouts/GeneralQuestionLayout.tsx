@@ -1,6 +1,8 @@
+// components/create-test/question-layouts/GeneralQuestionLayout.tsx
+
 "use client"
 import MatchThePairs from '@/components/create-test/match-the-pairs/MatchThePairs';
-import MCQ from '@/components/create-test/MCQ';
+import Mcq from '@/components/create-test/MCQ';
 import React, { ChangeEvent } from 'react';
 import TrueFalseComponent from '@/components/create-test/TrueFalse';
 import { QuestionType } from '@/utils/types';
@@ -16,6 +18,10 @@ interface GeneralQuestionLayoutProps {
   questionDescription: string;
   onQuestionTextChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onDescriptionChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  onOptionSelect?: (index: number) => void; // Optional, for MCQ
+  onOptionChange?: (index: number, value: string) => void; // Optional, for MCQ
+  options?: string[]; // Optional, for MCQ
+  selectedOption?: number | null; // Optional, for MCQ
   editable: boolean; // Added editable prop
   className?: string; // Add optional className prop
 }
@@ -27,6 +33,10 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
   questionDescription,
   onQuestionTextChange,
   onDescriptionChange,
+  onOptionSelect, // Destructure the new prop
+  onOptionChange, // Destructure the new prop
+  options = [], // Default to empty array
+  selectedOption = null, // Default to null
   editable, // Destructure editable
   className = '', // Default value
 }) => (
@@ -38,7 +48,6 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
       ${!editable ? 'opacity-50 pointer-events-none' : ''}
       ${className}
     `}
-    role="region"
     aria-label={`Question ${questionIndex + 1}`}
   >
     {/* First Column: Q{questionIndex + 1} */}
@@ -49,6 +58,7 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
     {/* Second Column */}
     <div className="flex flex-col w-full space-y-3">
       {/* Question Text */}
+      <p className='text-xl'>Question</p> {/* Fixed typo */}
       <textarea
         style={{ resize: "none" }}
         rows={2}
@@ -61,6 +71,7 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
       />
 
       {/* Description */}
+      <p className='text-xl'>Description</p> {/* Fixed typo */}
       <textarea
         style={{ resize: "none" }}
         rows={2}
@@ -74,12 +85,26 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
 
       {/* Question-Type-Specific Component */}
       <div className="w-full">
-        {questionType === "MCQ" && <MCQ editable={editable} />}
+        {questionType === "MCQ" && (
+          <Mcq
+            editable={editable}
+            options={options}
+            selectedOption={selectedOption}
+            onOptionSelect={onOptionSelect!} // Non-null assertion
+            onOptionChange={onOptionChange!} // Non-null assertion
+          />
+        )}
         {questionType === "True/False" && (
-          <TrueFalseComponent editable={editable} />
+          <TrueFalseComponent
+            editable={editable}
+            // Pass additional props if needed
+          />
         )}
         {questionType === "Match The Pairs" && (
-          <MatchThePairs editable={editable} />
+          <MatchThePairs
+            editable={editable}
+            // Pass additional props if needed
+          />
         )}
         {questionType === "Subjective Answer" && (
           <div className="bg-red-100 p-2">

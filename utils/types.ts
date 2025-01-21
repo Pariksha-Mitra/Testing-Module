@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react';
+
 /**
  * Enum for user roles
  */
@@ -86,21 +88,16 @@ export enum QuestionType {
  * @property {string} [content.image] - URL or path to the question image for MCQ(IMG-Text) or MCQ(IMG-IMG) type questions
  * @property {(string | null)[]} [content.imageOptions] - Array of image URLs/paths for MCQ(IMG-IMG) or MCQ(Text-IMG) type questions
  */
+
 export interface Question {
   id: number;
   type: QuestionType;
   content: {
-    questionText?: string;
-    description?: string;
-
-    // For text-based options (MCQ, MCQ(IMG-Text)):
-    options?: string[];
-    correctAnswerIndex?: number | null;
-
-    // For question image (MCQ(IMG-Text), MCQ(IMG-IMG)):
-    image?: string;
-
-    // For image-based options (MCQ(IMG-IMG), MCQ(Text-IMG)):
+    questionText: string | null;
+    description: string | null;
+    options: string[] | null;
+    correctAnswerIndex: number | null;
+    image: string | null;
     imageOptions?: (string | null)[];
   };
 }
@@ -131,18 +128,18 @@ export interface QuestionsContextProps {
     lesson: string;
     homework: string;
   };
-  setSelection: React.Dispatch<
-    React.SetStateAction<{
-      class: string;
-      subject: string;
-      lesson: string;
-      homework: string;
-    }>
-  >;
+  setSelection: Dispatch<SetStateAction<{
+    class: string;
+    subject: string;
+    lesson: string;
+    homework: string;
+  }>>;
   questions: Question[];
-  setQuestions: React.Dispatch<React.SetStateAction<Question[]>>;
+  setQuestions: Dispatch<SetStateAction<Question[]>>;
   selectedQuestionIndex: number;
-  setSelectedQuestionIndex: React.Dispatch<React.SetStateAction<number>>;
+  setSelectedQuestionIndex: Dispatch<SetStateAction<number>>;
+  isEditing: boolean;
+  setIsEditing: Dispatch<SetStateAction<boolean>>;
 }
 
 /**
@@ -284,6 +281,7 @@ export interface NavButtonProps {
   onClick?: () => void;
   ariaLabel?: string;
   tooltipText?: string;
+  disabled?:boolean;
 }
 
 /**
