@@ -1,26 +1,16 @@
-"use client";
+"use client"; // Ensure this is the first line
 
 import React, {
   createContext,
   ReactNode,
   useContext,
-  useState
+  useState,
+  useMemo,
 } from 'react';
 import { Question, QuestionsContextProps, QuestionType } from '@/utils/types';
 
-/**
- * Context for managing questions throughout the application
- * @description Provides question state and operations to child components
- */
-const QuestionsContext = createContext<QuestionsContextProps | undefined>(
-  undefined
-);
+const QuestionsContext = createContext<QuestionsContextProps | undefined>(undefined);
 
-/**
- * Custom hook to access the questions context
- * @returns {QuestionsContextProps} The questions context value
- * @throws {Error} If used outside of QuestionsProvider
- */
 export const useQuestions = (): QuestionsContextProps => {
   const context = useContext(QuestionsContext);
   if (!context) {
@@ -29,51 +19,43 @@ export const useQuestions = (): QuestionsContextProps => {
   return context;
 };
 
-/**
- * Props for the QuestionsProvider component
- */
 interface ProviderProps {
   children: ReactNode;
 }
 
 export const QuestionsProvider: React.FC<ProviderProps> = ({ children }) => {
-  const [selection, setSelection] = useState({
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  });
-
   const [questions, setQuestions] = useState<Question[]>([
     {
-      id: 1,
-      type: QuestionType.MCQ,
-      content: {
-        questionText: "",
-        description: "",
-        options: ["", "", "", ""],
-        correctAnswerIndex: null,
-        image: null,
-        imageOptions: [null, null, null, null],
-      },
+      id: "",
+      standardId: "",
+      subjectId:"",
+      chapterId: "",
+      exerciseId: "",
+      questionText: "",
+      questionType: QuestionType.MCQ,
+      answerFormat: "SINGLE_CHOICE",
+      options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+      correctAnswer: null,
+      numericalAnswer: undefined,
+      description: "",
+      image: null,
+      imageOptions: [null, null, null, null],
     },
   ]);
 
-  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
-  const [isEditing, setIsEditing] = useState(false); // Add this state
+  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number>(0);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const value = React.useMemo(
+  const value = useMemo(
     () => ({
-      selection,
-      setSelection,
       questions,
       setQuestions,
       selectedQuestionIndex,
       setSelectedQuestionIndex,
-      isEditing, // Provide this state in the context
-      setIsEditing, // Provide the setter in the context
+      isEditing,
+      setIsEditing,
     }),
-    [selection, questions, selectedQuestionIndex, isEditing]
+    [questions, selectedQuestionIndex, isEditing]
   );
 
   return (

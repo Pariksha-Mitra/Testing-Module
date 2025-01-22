@@ -1,34 +1,18 @@
+// src/context/SelectionContext.tsx
+
+"use client"; // Ensure this is the first line
+
 import React, {
   createContext,
   ReactNode,
   useContext,
-  useState
-  } from 'react';
+  useState,
+} from 'react';
+import { Selection, SelectionContextProps } from '@/utils/types';
 
-export interface Selection {
-  class: string;
-  subject: string;
-  lesson: string;
-  homework: string;
-}
+const SelectionContext = createContext<SelectionContextProps | undefined>(undefined);
 
-const DEFAULT_SELECTION: Selection = {
-  class: "५",
-  subject: "विषय १",
-  lesson: "धडा १",
-  homework: "स्वाध्याय १",
-};
-
-interface SelectionContextProps {
-  selection: Selection;
-  setSelection: React.Dispatch<React.SetStateAction<Selection>>;
-}
-
-export const SelectionContext = createContext<
-  SelectionContextProps | undefined
->(undefined);
-
-export const useSelection = () => {
+export const useSelection = (): SelectionContextProps => {
   const context = useContext(SelectionContext);
   if (!context) {
     throw new Error("useSelection must be used within a SelectionProvider");
@@ -36,8 +20,17 @@ export const useSelection = () => {
   return context;
 };
 
-export const SelectionProvider = ({ children }: { children: ReactNode }) => {
-  const [selection, setSelection] = useState<Selection>(DEFAULT_SELECTION);
+interface ProviderProps {
+  children: ReactNode;
+}
+
+export const SelectionProvider: React.FC<ProviderProps> = ({ children }) => {
+  const [selection, setSelection] = useState<Selection>({
+    standard: "५",
+    subject: "विषय १",
+    chapter: "धडा १",
+    exercise: "अभ्यास १",
+  });
 
   return (
     <SelectionContext.Provider value={{ selection, setSelection }}>
