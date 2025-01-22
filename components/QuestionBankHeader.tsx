@@ -2,21 +2,16 @@
 
 import Dropdown from "@/components/Dropdown/Dropdown";
 import Image from "next/image";
-import React, { useCallback, useContext, useMemo } from "react";
-import { SelectionContext } from "@/context/SelectionContext";
+import React, { useCallback, useMemo } from "react";
+import { useSelection } from "@/context/SelectionContext";
 
 /**
  * Header component for Question Bank page containing selection dropdowns
  * @returns React component with selection controls
  */
 export default function QuestionBankHeader() {
-  const context = useContext(SelectionContext);
 
-  if (!context) {
-    throw new Error("QuestionBankHeader must be used within a SelectionProvider");
-  }
-
-  const { selection, setSelection } = context;
+  const { selection, setSelection } = useSelection();
 
   const handleSelect = useCallback(
     (value: string | number, dropdownId: keyof typeof selection) => {

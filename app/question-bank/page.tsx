@@ -3,7 +3,7 @@
 import React, { useContext, useMemo, useState } from "react";
 import { QuestionList } from "@/components/question-bank/QuestionList";
 import { QuestionProps } from "@/utils/types";
-import { SelectionContext } from "@/context/SelectionContext";
+import { useSelection } from "@/context/SelectionContext";
 import "@/styles/scrollbar.css";
 
 const initialQuestions: QuestionProps[] = [
@@ -101,11 +101,8 @@ const initialQuestions: QuestionProps[] = [
 ];
 
 const Page: React.FC = () => {
-  const context = useContext(SelectionContext);
-  if (!context) {
-    throw new Error("Page must be used within a SelectionProvider");
-  }
-  const { selection } = context;
+ 
+  const { selection,setSelection } = useSelection();
 
   const [questionList, setQuestionList] = useState<QuestionProps[]>(initialQuestions);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number | null>(null);
@@ -113,10 +110,10 @@ const Page: React.FC = () => {
   const filteredQuestions = useMemo(() => {
     return questionList.filter((q) => {
       return (
-        q.class === selection.class &&
+        q.class === selection.standard &&
         q.subject === selection.subject &&
-        q.lesson === selection.lesson &&
-        q.homework === selection.homework
+        q.lesson === selection.chapter &&
+        q.homework === selection.exercise
       );
     });
   }, [questionList, selection]);
