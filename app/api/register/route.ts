@@ -74,7 +74,13 @@ enum division {
  *                 description: Invitation ID for teacher registration (optional)
  *                 example: INVITE123
  *               rollNo:
+ *                 type: number
+ *                 description: Roll Number of the student
+ *                 example: 2
+ *               division:
  *                 type: string
+ *                 description: Division of the student's class
+ *                 example: C
  *     responses:
  *       201:
  *         description: User registered successfully
