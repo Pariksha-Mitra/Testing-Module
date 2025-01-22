@@ -240,7 +240,7 @@ const Register = () => {
                 <input
                   id="rollNo"
                   className="p-3 border border-black shadow-md rounded-2xl"
-                  type="text"
+                  type="number"
                   placeholder="Roll No"
                   value={rollNo}
                   onChange={(e) => setRollNo(e.target.value)}
