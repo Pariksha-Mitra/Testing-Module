@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 
+
 /**
  * Enum for user roles
  */
@@ -57,49 +58,77 @@ export interface SidebarItemProps {
  * @property {string} MCQ_IMG_TEXT - MCQ with image question and text options
  * @property {string} MCQ_IMG_IMG - MCQ with image question and image options
  * @property {string} MCQ_TEXT_IMG - MCQ with text question and image options
- * @property {string} MATCH_PAIRS - Match corresponding pairs of items
- * @property {string} SUBJECTIVE - Open-ended questions requiring written answers
+ * @property {string} MATCH_THE_PAIRS - Match corresponding pairs of items
+ * @property {string} SUBJECTIVE_ANSWER - Open-ended questions requiring written answers
  * @property {string} TRUE_FALSE - Binary choice questions (True/False)
+ * @property {string} NUMERICAL - Numerical answer questions
+ * @property {string} SHORT_ANSWER - Short answer questions
  */
 export enum QuestionType {
   MCQ = "MCQ",
-  MCQ_IMG_TEXT = "MCQ (IMG-Text)",
-  MCQ_IMG_IMG = "MCQ (IMG-IMG)",
-  MCQ_TEXT_IMG = "MCQ (Text-IMG)",
-  MATCH_PAIRS = "Match The Pairs",
-  SUBJECTIVE = "Subjective Answer",
-  TRUE_FALSE = "True/False"
+  MCQ_IMG_TEXT = "MCQ_IMG_TEXT",
+  MCQ_IMG_IMG = "MCQ_IMG_IMG",
+  MCQ_TEXT_IMG = "MCQ_TEXT_IMG",
+  MATCH_THE_PAIRS = "MATCH_THE_PAIRS",
+  SUBJECTIVE_ANSWER = "SUBJECTIVE_ANSWER",
+  TRUE_FALSE = "TRUE_FALSE",
+  NUMERICAL = "NUMERICAL",
+  SHORT_ANSWER = "SHORT_ANSWER",
 }
 
-/**
- * Question interface: Generic question structure, used in question bank.
- */
+
+export interface StandardRelatedSubject {
+  _id: string;
+  subjectName: string;
+  fk_standard_id: string;
+}
+
+export interface ChapterRelatedExercise {
+  _id: string;
+  fk_chapter_id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+
 /**
  * Represents a question in the system.
  * @interface Question
  * 
  * @property {number} id - Unique identifier for the question
- * @property {QuestionType} type - Type of the question (e.g., MCQ, IMG-Text, etc.)
- * @property {object} content - Contains all the content-related information for the question
- * @property {string} [content.questionText] - The main text of the question
- * @property {string} [content.description] - Additional description or context for the question
- * @property {string[]} [content.options] - Array of text options for MCQ or MCQ(IMG-Text) type questions
- * @property {number | null} [content.correctAnswerIndex] - Index of the correct answer in the options array
- * @property {string} [content.image] - URL or path to the question image for MCQ(IMG-Text) or MCQ(IMG-IMG) type questions
- * @property {(string | null)[]} [content.imageOptions] - Array of image URLs/paths for MCQ(IMG-IMG) or MCQ(Text-IMG) type questions
+ * @property {string} standard - The standard or grade level of the question
+ * @property {string} chapter - The chapter associated with the question
+ * @property {string} exercise - The exercise identifier associated with the question
+ * @property {string} questionText - The main text of the question
+ * @property {QuestionType} questionType - Type of the question (e.g., MCQ, IMG-Text, etc.)
+ * @property {string} answerFormat - Format of the answer expected
+ * @property {string[]} options - Array of text options for MCQ or MCQ(IMG-Text) type questions
+ * @property {number | null} correctAnswerIndex - Index of the correct answer in the options array
+ * @property {number} [numericalAnswer] - Optional numerical answer for numerical questions
+ * @property {string} [description] - Optional additional description or context for the question
+ * @property {string | null} [image] - URL or path to the question image for MCQ(IMG-Text) or MCQ(IMG-IMG) type questions
+ * @property {(string | null)[]} [imageOptions] - Array of image URLs/paths for MCQ(IMG-IMG) or MCQ(Text-IMG) type questions
  */
 
+
 export interface Question {
-  id: number;
-  type: QuestionType;
-  content: {
-    questionText: string | null;
-    description: string | null;
-    options: string[] | null;
-    correctAnswerIndex: number | null;
-    image: string | null;
-    imageOptions?: (string | null)[];
-  };
+  id: string;
+  standardId: string;
+  subjectId: string;
+  chapterId: string;
+  exerciseId: string;
+  questionText: string;
+  questionType: QuestionType;
+  answerFormat: string;
+  options: string[];
+  correctAnswer: string | null;
+  numericalAnswer?: number;
+  description?: string;
+  image?: string | null;
+  imageOptions?: (string | null)[];
 }
 
 /**
@@ -109,37 +138,50 @@ export interface Question {
  * Interface representing the props for the Questions context.
  * @interface QuestionsContextProps
  * 
- * @property {Object} selection - Current selection state containing class, subject, lesson and homework
- * @property {string} selection.class - Selected class name/ID
- * @property {string} selection.subject - Selected subject name
- * @property {string} selection.lesson - Selected lesson name/number
- * @property {string} selection.homework - Selected homework identifier
- * 
- * @property {Function} setSelection - React setState function to update the selection object
  * @property {Question[]} questions - Array of Question objects representing the current questions
- * @property {Function} setQuestions - React setState function to update the questions array
+ * @property {Dispatch<SetStateAction<Question[]>>} setQuestions - React setState function to update the questions array
  * @property {number} selectedQuestionIndex - Index of currently selected/active question
- * @property {Function} setSelectedQuestionIndex - React setState function to update selected question index
+ * @property {Dispatch<SetStateAction<number>>} setSelectedQuestionIndex - React setState function to update selected question index
+ * @property {boolean} isEditing - Flag indicating if a question is currently being edited
+ * @property {Dispatch<SetStateAction<boolean>>} setIsEditing - React setState function to update editing state
  */
 export interface QuestionsContextProps {
-  selection: {
-    class: string;
-    subject: string;
-    lesson: string;
-    homework: string;
-  };
-  setSelection: Dispatch<SetStateAction<{
-    class: string;
-    subject: string;
-    lesson: string;
-    homework: string;
-  }>>;
   questions: Question[];
   setQuestions: Dispatch<SetStateAction<Question[]>>;
   selectedQuestionIndex: number;
   setSelectedQuestionIndex: Dispatch<SetStateAction<number>>;
   isEditing: boolean;
   setIsEditing: Dispatch<SetStateAction<boolean>>;
+}
+
+/**
+ * Represents the current selection state.
+ * @interface Selection
+ * @property {string} standard - Selected standard or grade level
+ * @property {string} subject - Selected subject
+ * @property {string} chapter - Selected chapter
+ * @property {string} exercise - Selected exercise identifier
+ */
+export interface Selection {
+  standard: string | null;
+  subject: string | null;
+  chapter: string | null;
+  exercise: string | null;
+}
+
+/**
+ * Context shape for storing and managing selection data.
+ */
+/**
+ * Interface representing the props for the Selection context.
+ * @interface SelectionContextProps
+ * 
+ * @property {Selection} selection - Current selection state containing standard, subject, chapter, and exercise
+ * @property {Dispatch<SetStateAction<Selection>>} setSelection - React setState function to update the selection object
+ */
+export interface SelectionContextProps {
+  selection: Selection;
+  setSelection: Dispatch<SetStateAction<Selection>>;
 }
 
 /**
@@ -166,31 +208,39 @@ export interface QuestionsContextProps {
  * @property {string | number} [allowAddOptionText] - Optional text to display for add option button
  * @property {(newOption: string) => void} [onAddOption] - Optional callback function when a new option is added
  */
+
+export interface DropdownItem {
+  id: string | number;
+  name: string | number;
+}
+
 export interface DropdownProps {
-  items: (string | number)[];
+  items: DropdownItem[];
   label?: string;
   onSelect?: (value: string | number) => void;
   defaultValue?: string | number;
   className?: string;
-  width?: string | number;
   id?: string;
   buttonBgColor?: string;
-  containerClass?: string;
   buttonBorderWidth?: string;
   buttonBorderColor?: string;
+  containerClass?: string;
   selected?: string | number;
   onChange?: (value: string | number) => void;
   allowAddOption?: boolean;
-  allowAddOptionText?: string | number;
-  onAddOption?: (newOption: string) => void;
+  allowAddOptionText?: string;
+  onAddOption?: (newOptionName: string) => void;
+  isDynamic?: boolean;
+  disabled?: boolean;
 }
+
 
 /**
  * AddOptionModalProps: For a modal that allows users to add a new dropdown option.
  */
 /**
  * Props interface for the AddOptionModal component.
- * @interface
+ * @interface AddOptionModalProps
  * 
  * @property {boolean} visible - Controls the visibility state of the modal
  * @property {() => void} onClose - Callback function triggered when the modal is closed
@@ -214,7 +264,7 @@ export interface AddOptionModalProps {
  */
 /**
  * Interface representing properties for a match pairs field component.
- * @interface
+ * @interface MatchPairsFieldProperties
  * 
  * @property {string} title - The title of the match pairs field
  * @property {boolean} [isRightSide] - Optional flag indicating if this is the right side of the matching pairs
@@ -274,6 +324,7 @@ export interface PairItemFieldProps {
  * @property {() => void} [onClick] - Optional click handler function for the button
  * @property {string} [ariaLabel] - Optional ARIA label for accessibility
  * @property {string} [tooltipText] - Optional text to display in a tooltip
+ * @property {boolean} [disabled] - Optional flag to disable the button
  */
 export interface NavButtonProps {
   imageSrc: string;
@@ -281,7 +332,7 @@ export interface NavButtonProps {
   onClick?: () => void;
   ariaLabel?: string;
   tooltipText?: string;
-  disabled?:boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -308,7 +359,6 @@ export interface QuestionProps {
   isSelected: boolean;
   onClick: () => void;
   onDelete?: () => void;
-  // These added for filtering:
   class?: string;
   subject?: string;
   lesson?: string;
@@ -333,9 +383,19 @@ export interface QuestionListProps {
   onDeleteQuestion: (index: number) => void;
 }
 
-
-export interface NewsItemProps  {
-  id: string; 
+/**
+ * NewsItemProps: Represents a single news item.
+ */
+/**
+ * Props interface for the NewsItem component.
+ * @interface NewsItemProps
+ * @property {string} id - Unique identifier for the news item
+ * @property {boolean} isNew - Flag indicating if the news item is new
+ * @property {string} title - Title of the news item
+ * @property {() => void} [onClick] - Optional click handler for the news item
+ */
+export interface NewsItemProps {
+  id: string;
   isNew: boolean;
   title: string;
   onClick?: () => void;
