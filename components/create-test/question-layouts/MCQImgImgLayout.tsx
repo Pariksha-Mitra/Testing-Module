@@ -6,8 +6,8 @@ import React, { ChangeEvent } from 'react';
 interface MCQImgImgLayoutProps {
   questionIndex: number;
   questionDescription: string;
-  image: string | null;
-  imageOptions: Array<string | null>;
+  image: string | null |undefined;
+  imageOptions: Array<string | null> |undefined ;
   selectedOption: number | null;
   onDescriptionChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onImageChange: (image: string) => void;

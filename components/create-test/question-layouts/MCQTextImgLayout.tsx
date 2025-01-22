@@ -5,14 +5,14 @@ import React, { ChangeEvent } from 'react';
 interface MCQTextImgLayoutProps {
   questionIndex: number;
   questionText: string;
-  questionDescription: string;
+  description: string; // Renamed from questionDescription for consistency
   onQuestionTextChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onDescriptionChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   editable: boolean;
   className?: string;
 
-  // New Props for ImgMCQ
-  imageOptions: (string | null)[];
+  // Props for ImgMCQ
+  imageOptions: (string | null)[] | undefined;
   selectedOption: number | null;
   onOptionSelect: (index: number) => void;
   onOptionChange: (index: number, value: string | null) => void;
@@ -21,13 +21,13 @@ interface MCQTextImgLayoutProps {
 export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
   questionIndex,
   questionText,
-  questionDescription,
+  description, // Updated prop name
   onQuestionTextChange,
   onDescriptionChange,
   editable,
   className = '',
 
-  // Destructure new props
+  // Destructure ImgMCQ props
   imageOptions,
   selectedOption,
   onOptionSelect,
@@ -69,7 +69,7 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
           style={{ resize: 'none' }}
           className="w-full p-2 border mt-3 h-[240px] border-black"
           placeholder="Enter question description here"
-          value={questionDescription}
+          value={description}
           onChange={onDescriptionChange}
           disabled={!editable}
           aria-disabled={!editable}
@@ -79,7 +79,7 @@ export const MCQTextImgLayout: React.FC<MCQTextImgLayoutProps> = ({
       {/* Right side: ImgMCQ */}
       <div className="flex flex-col w-full md:w-1/2 space-y-3">
         <ImgMCQ
-          questionIndex={questionIndex} // Pass questionIndex prop
+          questionIndex={questionIndex}
           editable={editable}
           imageOptions={imageOptions}
           selectedOption={selectedOption}
