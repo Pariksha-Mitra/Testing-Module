@@ -23,7 +23,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ href, ariaLabel, icon }) => {
 
   return (
     <Link href={href} aria-label={ariaLabel} onClick={handleClick}>
-      <div className="relative group">
+      <div className="relative group mt-5">
         <div
           className={`w-14 h-14 ${isActive ? "bg-[#6378fd]" : "bg-white"
             } rounded-xl border border-black shadow mb-8 flex items-center justify-center
