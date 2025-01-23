@@ -93,6 +93,22 @@ export interface ChapterRelatedExercise {
   __v: number;
 }
 
+export interface StandardResponse {
+  classes: Array<{ _id: string; standardName: string }>;
+}
+
+export interface SubjectResponse {
+  standard_related_subjects: Array<{ _id: string; subjectName: string }>;
+}
+
+export interface ChapterResponse {
+  subject_related_chapters: Array<{ _id: string; title: string }>;
+}
+
+export interface ExerciseResponse {
+  chapter_related_exercise: Array<{ _id: string; title: string }>;
+}
+
 
 /**
  * Represents a question in the system.
@@ -116,6 +132,7 @@ export interface ChapterRelatedExercise {
 
 export interface Question {
   id: string;
+  _id?: string; // local 
   standardId: string;
   subjectId: string;
   chapterId: string;
@@ -125,10 +142,11 @@ export interface Question {
   answerFormat: string;
   options: string[];
   correctAnswer: string | null;
-  numericalAnswer?: number;
+  numericalAnswer?: number | null;
   description?: string;
   image?: string | null;
   imageOptions?: (string | null)[];
+  isPersisted?: boolean;
 }
 
 /**
@@ -208,6 +226,19 @@ export interface SelectionContextProps {
  * @property {string | number} [allowAddOptionText] - Optional text to display for add option button
  * @property {(newOption: string) => void} [onAddOption] - Optional callback function when a new option is added
  */
+
+export interface QuestionResponse {
+  exercise_related_questions: Question[];
+}
+
+export interface AddOptionResponse {
+  _id: string;
+  subjectId?: string;
+  chapterId?: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface DropdownItem {
   id: string | number;
