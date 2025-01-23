@@ -3,15 +3,13 @@
 import Dropdown from "@/components/Dropdown/Dropdown";
 import Image from "next/image";
 import React, { useCallback, useMemo } from "react";
-import { useSelection } from "@/context/SelectionContext";
+import { useSelectionStore } from "@/store/selectionStore";
 
-/**
- * Header component for Question Bank page containing selection dropdowns
- * @returns React component with selection controls
- */
+
 export default function QuestionBankHeader() {
 
-  const { selection, setSelection } = useSelection();
+  const { selection, setSelection } = useSelectionStore();
+  
 
   const handleSelect = useCallback(
     (value: string | number, dropdownId: keyof typeof selection) => {
@@ -88,7 +86,7 @@ export default function QuestionBankHeader() {
         "
       >
         <Dropdown
-          id="class-dropdown"
+          id="standard-dropdown"
           items={classOptions}
           label="इयत्ता:"
           defaultValue={selection.class}
@@ -110,7 +108,7 @@ export default function QuestionBankHeader() {
           className="w-full sm:w-[20%]"
         />
         <Dropdown
-          id="lesson-dropdown"
+          id="chapter-dropdown"
           label="धडा:"
           items={lessonOptions}
           defaultValue={selection.lesson}

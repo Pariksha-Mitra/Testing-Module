@@ -6,10 +6,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import Dropdown from "@/components/Dropdown/Dropdown";
 import Image from "next/image";
 import { QuestionType, Question, DropdownItem } from "@/utils/types";
-import { useQuestions } from "@/context/QuestionsContext";
-import { useSelection } from "@/context/SelectionContext";
+import { useQuestionsStore } from "@/store/questionsStore";
+import { useSelectionStore } from "@/store/selectionStore";
 import { Skeleton } from "@mui/material";
-import { v4 as uuidv4 } from "uuid"; // Ensure uuid and @types/uuid are installed
+import { v4 as uuidv4 } from "uuid"; 
 import { useToast } from "@/components/ui/ToastProvider";
 
 // -------------- Types for API Responses --------------
@@ -30,7 +30,7 @@ interface ExerciseResponse {
 }
 
 interface QuestionResponse {
-  exercise_related_questions: Array<{ _id: string } & Question>; // Assuming backend sends _id and other question fields
+  exercise_related_questions: Array<{ _id: string } & Omit<Question, "id" | "isPersisted">>; // Backend sends _id and other question fields
 }
 
 interface AddOptionResponse {
@@ -55,6 +55,7 @@ async function fetchData<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export default function TestHeader() {
+  // Accessing Questions Store
   const {
     questions,
     setQuestions,
@@ -62,9 +63,11 @@ export default function TestHeader() {
     setSelectedQuestionIndex,
     isEditing,
     setIsEditing,
-  } = useQuestions();
+    addQuestion,
+  } = useQuestionsStore();
 
-  const { selection, setSelection } = useSelection();
+  // Accessing Selection Store
+  const { selection, setSelection } = useSelectionStore();
 
   const { showToast } = useToast();
 
@@ -108,33 +111,17 @@ export default function TestHeader() {
   // -------------------- Add a new question locally --------------------
   const handleAddQuestion = useCallback(
     (exerciseId: string, replace: boolean = false) => {
-      const newQuestion: Question = {
-        id: uuidv4(), // Unique ID
-        standardId: selection.standard!,
-        subjectId: selection.subject!,
-        chapterId: selection.chapter!,
-        exerciseId: exerciseId, // Use the passed exerciseId
-        questionText: "",
-        questionType: QuestionType.MCQ,
-        answerFormat: "SINGLE_CHOICE",
-        options: ["", "", "", ""],
-        correctAnswer: null,
-        description: "",
-        image: null,
-        imageOptions: [null, null, null, null],
-      };
-      if (replace) {
-        setQuestions([newQuestion]); // Reset to only the new question
-        setSelectedQuestionIndex(0);
-      } else {
-        setQuestions([...questions, newQuestion]); // Append the new question
-        setSelectedQuestionIndex(questions.length);
-      }
-
-      // Optionally, display a success message or notification
+      // Pass the current selection's standardId, subjectId, and chapterId
+      addQuestion(
+        exerciseId,
+        selection.standard ?? "",
+        selection.subject ?? "",
+        selection.chapter ?? "",
+        replace
+      );
       showToast("A new question draft has been added.", "success");
     },
-    [questions, setQuestions, setSelectedQuestionIndex, selection, showToast]
+    [addQuestion, selection, showToast]
   );
 
   // -------------------- Fetch Questions by Exercise --------------------
@@ -153,12 +140,12 @@ export default function TestHeader() {
           }
         );
 
-        // Map backend '_id' to frontend 'id'
+        // Map backend '_id' to frontend 'id' and set isPersisted to true
         const mappedQuestions: Question[] = data.exercise_related_questions.map(
           (q) => ({
             ...q,
-            id: q._id, // Map '_id' to 'id'
-            _id: undefined, // Remove '_id' if necessary
+            id: q._id || uuidv4(), // Use _id if available, else generate a UUID
+            isPersisted: true,
           })
         );
 
@@ -214,33 +201,36 @@ export default function TestHeader() {
         // Automatically select the first exercise and fetch dependent data
         if (options.length > 0) {
           const firstOption = options[0].id;
-          setSelection((prev) => ({ ...prev, exercise: firstOption }));
+          setSelection({ exercise: firstOption });
 
           fetchQuestions(firstOption);
         } else {
           // If no exercises, clear downstream selections
-          setSelection((prev) => ({ ...prev, exercise: null }));
+          setSelection({ exercise: null });
 
           setExerciseOptions([]);
 
-          const newQuestion: Question = {
-            id: uuidv4(), // Unique ID
-            standardId: selection.standard!,
-            subjectId: selection.subject!,
-            chapterId: selection.chapter!,
-            exerciseId: selection.exercise!,
-            questionText: "",
-            questionType: QuestionType.MCQ,
-            answerFormat: "Single Choice",
-            options: ["", "", "", ""],
-            correctAnswer: null,
-            description: "",
-            image: null,
-            imageOptions: [null, null, null, null],
-          };
+          if (questions.length === 0) {
+            const newQuestion: Question = {
+              id: uuidv4(), // Unique temporary ID
+              standardId: selection.standard ?? "",
+              subjectId: selection.subject ?? "",
+              chapterId: selection.chapter ?? "",
+              exerciseId: selection.exercise ?? "",
+              questionText: "",
+              questionType: QuestionType.MCQ,
+              answerFormat: "SINGLE_CHOICE",
+              options: ["", "", "", ""],
+              correctAnswer: null,
+              description: "",
+              image: null,
+              imageOptions: [null, null, null, null],
+              isPersisted: false,
+            };
 
-          setQuestions([newQuestion]); // Reset to only the new question
-          setSelectedQuestionIndex(0);
+            setQuestions([newQuestion]); // Reset to only the new question
+            setSelectedQuestionIndex(0);
+          }
         }
       } catch (err) {
         console.error("Error fetching exercises:", err);
@@ -257,6 +247,7 @@ export default function TestHeader() {
       selection,
       setQuestions,
       setSelectedQuestionIndex,
+      questions.length,
     ]
   );
 
@@ -287,31 +278,34 @@ export default function TestHeader() {
         // Automatically select the first chapter and fetch dependent data
         if (options.length > 0) {
           const firstOption = options[0].id;
-          setSelection((prev) => ({ ...prev, chapter: firstOption }));
+          setSelection({ chapter: firstOption });
           fetchExercises(firstOption);
         } else {
           // If no chapters, clear downstream selections
-          setSelection((prev) => ({ ...prev, chapter: null, exercise: null }));
+          setSelection({ chapter: null, exercise: null });
           setExerciseOptions([]);
 
-          const newQuestion: Question = {
-            id: uuidv4(), // Unique ID
-            standardId: selection.standard!,
-            subjectId: selection.subject!,
-            chapterId: selection.chapter!,
-            exerciseId: selection.exercise!,
-            questionText: "",
-            questionType: QuestionType.MCQ,
-            answerFormat: "Single Choice",
-            options: ["", "", "", ""],
-            correctAnswer: null,
-            description: "",
-            image: null,
-            imageOptions: [null, null, null, null],
-          };
+          if (questions.length === 0) {
+            const newQuestion: Question = {
+              id: uuidv4(), // Unique temporary ID
+              standardId: selection.standard ?? "",
+              subjectId: selection.subject ?? "",
+              chapterId: selection.chapter ?? "",
+              exerciseId: selection.exercise ?? "",
+              questionText: "",
+              questionType: QuestionType.MCQ,
+              answerFormat: "SINGLE_CHOICE",
+              options: ["", "", "", ""],
+              correctAnswer: null,
+              description: "",
+              image: null,
+              imageOptions: [null, null, null, null],
+              isPersisted: false,
+            };
 
-          setQuestions([newQuestion]); // Reset to only the new question
-          setSelectedQuestionIndex(0);
+            setQuestions([newQuestion]); // Reset to only the new question
+            setSelectedQuestionIndex(0);
+          }
         }
       } catch (err) {
         console.error("Error fetching chapters:", err);
@@ -328,6 +322,7 @@ export default function TestHeader() {
       selection,
       setQuestions,
       setSelectedQuestionIndex,
+      questions.length,
     ]
   );
 
@@ -358,44 +353,40 @@ export default function TestHeader() {
         // Automatically select the first subject and fetch dependent data
         if (options.length > 0) {
           const firstOption = options[0].id;
-          setSelection((prev) => ({ ...prev, subject: firstOption }));
+          setSelection({ subject: firstOption });
           fetchChapters(firstOption);
         } else {
           // If no subjects, clear downstream selections
-          setSelection((prev) => ({
-            ...prev,
-            subject: null,
-            chapter: null,
-            exercise: null,
-          }));
+          setSelection({ subject: null, chapter: null, exercise: null });
           setChapterOptions([]);
           setExerciseOptions([]);
 
-          const newQuestion: Question = {
-            id: uuidv4(), // Unique ID
-            standardId: selection.standard!,
-            subjectId: selection.subject!,
-            chapterId: selection.chapter!,
-            exerciseId: selection.exercise!,
-            questionText: "",
-            questionType: QuestionType.MCQ,
-            answerFormat: "Single Choice",
-            options: ["", "", "", ""],
-            correctAnswer: null,
-            description: "",
-            image: null,
-            imageOptions: [null, null, null, null],
-          };
+          if (questions.length === 0) {
+            const newQuestion: Question = {
+              id: uuidv4(), // Unique temporary ID
+              standardId: selection.standard ?? "",
+              subjectId: selection.subject ?? "",
+              chapterId: selection.chapter ?? "",
+              exerciseId: selection.exercise ?? "",
+              questionText: "",
+              questionType: QuestionType.MCQ,
+              answerFormat: "SINGLE_CHOICE",
+              options: ["", "", "", ""],
+              correctAnswer: null,
+              description: "",
+              image: null,
+              imageOptions: [null, null, null, null],
+              isPersisted: false,
+            };
 
-          setQuestions([newQuestion]); // Reset to only the new question
-          setSelectedQuestionIndex(0);
+            setQuestions([newQuestion]); // Reset to only the new question
+            setSelectedQuestionIndex(0);
+          }
         }
       } catch (err) {
         console.error("Error fetching subjects:", err);
         updateError("subjects", "Failed to load subjects.");
       } finally {
-        setLoading((prev) => ({ ...prev, subjects: false }));
-        setLoading((prev) => ({ ...prev, subjects: false }));
         updateLoading("subjects", false);
       }
     },
@@ -407,6 +398,7 @@ export default function TestHeader() {
       selection,
       setQuestions,
       setSelectedQuestionIndex,
+      questions.length,
     ]
   );
 
@@ -425,22 +417,29 @@ export default function TestHeader() {
       }
 
       // Update the selection with reset for dependent fields
-      setSelection((prev) => {
-        const updated: Selection = { ...prev, [dropdownKey]: value };
-        if (dropdownKey === "standard") {
-          updated.subject = null;
-          updated.chapter = null;
-          updated.exercise = null;
-        }
-        if (dropdownKey === "subject") {
-          updated.chapter = null;
-          updated.exercise = null;
-        }
-        if (dropdownKey === "chapter") {
-          updated.exercise = null;
-        }
-        return updated;
-      });
+      if (dropdownKey === "standard") {
+        setSelection({
+          standard: value as string,
+          subject: null,
+          chapter: null,
+          exercise: null,
+        });
+      } else if (dropdownKey === "subject") {
+        setSelection({
+          subject: value as string,
+          chapter: null,
+          exercise: null,
+        });
+      } else if (dropdownKey === "chapter") {
+        setSelection({
+          chapter: value as string,
+          exercise: null,
+        });
+      } else if (dropdownKey === "exercise") {
+        setSelection({
+          exercise: value as string,
+        });
+      }
 
       // Immediately reset the dependent dropdowns & errors to avoid stale data
       if (dropdownKey === "standard") {
@@ -482,6 +481,48 @@ export default function TestHeader() {
       updateError,
     ]
   );
+
+  // -------------------- Fetch Standards Function --------------------
+  const fetchStandardsOnMount = useCallback(async (): Promise<void> => {
+    updateLoading("standards", true);
+    updateError("standards", null);
+
+    try {
+      const data = await fetchData<StandardResponse>("/api/standard");
+      const options = data.classes.map(
+        (cls: { _id: string; standardName: string }) => ({
+          id: cls._id,
+          name: cls.standardName,
+        })
+      );
+      setClassOptions(options);
+
+      // Automatically select the first standard and fetch dependent data
+      if (options.length > 0) {
+        const firstOption = options[0].id;
+        setSelection({ standard: firstOption });
+        handleSelect(firstOption, "standard");
+      } else {
+        // If no standards, clear all selections
+        setSelection({
+          standard: null,
+          subject: null,
+          chapter: null,
+          exercise: null,
+        });
+        setSubjectOptions([]);
+        setChapterOptions([]);
+        setExerciseOptions([]);
+        setQuestions([]);
+        setSelectedQuestionIndex(0);
+      }
+    } catch (err) {
+      console.error("Error fetching standards:", err);
+      updateError("standards", "Failed to load standards.");
+    } finally {
+      updateLoading("standards", false);
+    }
+  }, [handleSelect, setQuestions, setSelectedQuestionIndex, setSelection, updateError, updateLoading]);
 
   // -------------------- Handle Adding New Options via Dropdown --------------------
   const handleAddOption = useCallback(
@@ -538,7 +579,7 @@ export default function TestHeader() {
         } else if (dropdownKey === "subject") {
           await fetchSubjects(selection.standard!);
         } else if (dropdownKey === "standard") {
-          await fetchStandards(); // Need to define fetchStandards
+          await fetchStandardsOnMount();
         }
 
         showToast(`New ${dropdownKey} added successfully!`, "success");
@@ -555,53 +596,13 @@ export default function TestHeader() {
       fetchChapters,
       fetchExercises,
       showToast,
+      fetchStandardsOnMount,
     ]
   );
 
   // -------------------- Fetch Standards on Mount --------------------
   useEffect(() => {
-    const fetchStandards = async (): Promise<void> => {
-      updateLoading("standards", true);
-      updateError("standards", null);
-
-      try {
-        const data = await fetchData<StandardResponse>("/api/standard");
-        const options = data.classes.map(
-          (cls: { _id: string; standardName: string }) => ({
-            id: cls._id,
-            name: cls.standardName,
-          })
-        );
-        setClassOptions(options);
-
-        // Automatically select the first standard and fetch dependent data
-        if (options.length > 0) {
-          const firstOption = options[0].id;
-          setSelection((prev) => ({ ...prev, standard: firstOption }));
-          handleSelect(firstOption, "standard");
-        } else {
-          // If no standards, clear all selections
-          setSelection({
-            standard: null,
-            subject: null,
-            chapter: null,
-            exercise: null,
-          });
-          setSubjectOptions([]);
-          setChapterOptions([]);
-          setExerciseOptions([]);
-          setQuestions([]);
-          setSelectedQuestionIndex(0);
-        }
-      } catch (err) {
-        console.error("Error fetching standards:", err);
-        updateError("standards", "Failed to load standards.");
-      } finally {
-        updateLoading("standards", false);
-      }
-    };
-
-    fetchStandards();
+    fetchStandardsOnMount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run once on mount
 
