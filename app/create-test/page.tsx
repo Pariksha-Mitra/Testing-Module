@@ -11,7 +11,7 @@ import React, {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { QuestionType, Question } from "@/utils/types";
-import { useQuestions } from "@/context/QuestionsContext";
+import { useQuestionsStore } from "@/store/questionsStore";
 import MCQImgTextLayout from "@/components/create-test/question-layouts/MCQImgTextLayout";
 import MCQImgImgLayout from "@/components/create-test/question-layouts/MCQImgImgLayout";
 import MCQTextImgLayout from "@/components/create-test/question-layouts/MCQTextImgLayout";
@@ -23,7 +23,7 @@ import { useToast } from "@/components/ui/ToastProvider";
 import { Skeleton } from "@mui/material";
 
 const Page: React.FC = () => {
-  // Accessing Questions Context
+  // Accessing Questions Store
   const {
     questions,
     setQuestions,
@@ -31,7 +31,10 @@ const Page: React.FC = () => {
     setSelectedQuestionIndex,
     isEditing,
     setIsEditing,
-  } = useQuestions();
+    addQuestion,
+    deleteQuestion,
+    updateQuestionField,
+  } = useQuestionsStore();
 
   const router = useRouter();
   const pathname = usePathname();
@@ -80,26 +83,15 @@ const Page: React.FC = () => {
   }, [isEditing, pathname, prevPathname, router]);
 
   // Helper function to update any field in currentQuestion
-  const updateQuestionField = useCallback(
+  const updateQuestionFieldHandler = useCallback(
     (
       questionIndex: number,
       field: keyof Question,
       value: Question[keyof Question]
     ) => {
-      setQuestions((prevQuestions) => {
-        const updatedQuestions = [...prevQuestions];
-        updatedQuestions[questionIndex] = {
-          ...updatedQuestions[questionIndex],
-          [field]: value,
-        };
-        console.log(
-          `Updating question ${questionIndex} field ${field} to`,
-          value
-        ); // Debugging
-        return updatedQuestions;
-      });
+      updateQuestionField(questionIndex, field, value);
     },
-    [setQuestions]
+    [updateQuestionField]
   );
 
   // Handler for changing the question type
@@ -115,22 +107,38 @@ const Page: React.FC = () => {
 
         setIsLoading(true);
         try {
-          setQuestions((prevQuestions) => {
-            const updatedQuestions = [...prevQuestions];
-            updatedQuestions[selectedQuestionIndex] = {
-              ...updatedQuestions[selectedQuestionIndex],
-              questionType: value as QuestionType,
-              questionText: "",
-              description: "",
-              options: ["Option 1", "Option 2", "Option 3", "Option 4"],
-              correctAnswer: null,
-              numericalAnswer: undefined,
-              image: null,
-              imageOptions: [null, null, null, null],
-            };
-            console.log("Changing question type to", value); // Debugging
-            return updatedQuestions;
-          });
+          if (!currentQuestion) {
+            showToast("No question selected.", "error");
+            return;
+          }
+
+          // Update question type and reset relevant fields
+          updateQuestionFieldHandler(
+            selectedQuestionIndex,
+            "questionType",
+            value as QuestionType
+          );
+          updateQuestionFieldHandler(selectedQuestionIndex, "questionText", "");
+          updateQuestionFieldHandler(selectedQuestionIndex, "description", "");
+          updateQuestionFieldHandler(selectedQuestionIndex, "options", [
+            "Option 1",
+            "Option 2",
+            "Option 3",
+            "Option 4",
+          ]);
+          updateQuestionFieldHandler(
+            selectedQuestionIndex,
+            "correctAnswer",
+            null
+          );
+          updateQuestionFieldHandler(selectedQuestionIndex, "image", null);
+          updateQuestionFieldHandler(selectedQuestionIndex, "imageOptions", [
+            null,
+            null,
+            null,
+            null,
+          ]);
+
           setIsEditing(false); // Reset editing state after type change
           showToast("Question type changed successfully.", "success");
         } catch (error) {
@@ -142,7 +150,14 @@ const Page: React.FC = () => {
         }
       }
     },
-    [isEditing, selectedQuestionIndex, setQuestions, setIsEditing, showToast]
+    [
+      isEditing,
+      setIsEditing,
+      selectedQuestionIndex,
+      updateQuestionFieldHandler,
+      showToast,
+      currentQuestion,
+    ]
   );
 
   // Dropdown Items using Enum
@@ -155,25 +170,27 @@ const Page: React.FC = () => {
     []
   );
 
-  console.log(QuestionTypeDropdownItems);
-
   // Handlers for question fields
   const handleQuestionTextChange = useCallback(
     (e: ChangeEvent<HTMLTextAreaElement>) => {
-      updateQuestionField(
+      updateQuestionFieldHandler(
         selectedQuestionIndex,
         "questionText",
         e.target.value
       );
     },
-    [selectedQuestionIndex, updateQuestionField]
+    [selectedQuestionIndex, updateQuestionFieldHandler]
   );
 
   const handleDescriptionChange = useCallback(
     (e: ChangeEvent<HTMLTextAreaElement>) => {
-      updateQuestionField(selectedQuestionIndex, "description", e.target.value);
+      updateQuestionFieldHandler(
+        selectedQuestionIndex,
+        "description",
+        e.target.value
+      );
     },
-    [selectedQuestionIndex, updateQuestionField]
+    [selectedQuestionIndex, updateQuestionFieldHandler]
   );
 
   const handleImageChange = useCallback(
@@ -181,7 +198,7 @@ const Page: React.FC = () => {
       setIsLoading(true);
       try {
         console.log("Handling main image change:", image); // Debugging
-        updateQuestionField(selectedQuestionIndex, "image", image);
+        updateQuestionFieldHandler(selectedQuestionIndex, "image", image);
         showToast("Image updated successfully.", "success");
       } catch (error) {
         console.error("Error handling image change:", error);
@@ -191,67 +208,83 @@ const Page: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [selectedQuestionIndex, updateQuestionField, showToast]
+    [selectedQuestionIndex, updateQuestionFieldHandler, showToast]
   );
 
   const handleImageRemove = useCallback(() => {
     console.log("Handling main image removal"); // Debugging
-    updateQuestionField(selectedQuestionIndex, "image", null);
+    updateQuestionFieldHandler(selectedQuestionIndex, "image", null);
     showToast("Image removed successfully.", "success");
-  }, [selectedQuestionIndex, updateQuestionField, showToast]);
+  }, [selectedQuestionIndex, updateQuestionFieldHandler, showToast]);
 
   // Handler to update correctAnswer when an option is selected
   const handleCorrectAnswerChange = useCallback(
     (newAnswer: string) => {
-      updateQuestionField(selectedQuestionIndex, "correctAnswer", newAnswer);
+      updateQuestionFieldHandler(
+        selectedQuestionIndex,
+        "correctAnswer",
+        newAnswer
+      );
     },
-    [selectedQuestionIndex, updateQuestionField]
+    [selectedQuestionIndex, updateQuestionFieldHandler]
   );
 
   // Handlers for options
   const handleOptionSelect = useCallback(
     (index: number) => {
+      if (!currentQuestion) {
+        showToast("No question selected.", "error");
+        return;
+      }
       const selectedOptionText = currentQuestion.options[index] || null;
-      setQuestions((prevQuestions) =>
-        prevQuestions.map((q, idx) =>
-          idx === selectedQuestionIndex
-            ? { ...q, correctAnswer: selectedOptionText }
-            : q
-        )
+      updateQuestionFieldHandler(
+        selectedQuestionIndex,
+        "correctAnswer",
+        selectedOptionText
       );
     },
-    [currentQuestion.options, selectedQuestionIndex, setQuestions]
+    [
+      currentQuestion,
+      selectedQuestionIndex,
+      updateQuestionFieldHandler,
+      showToast,
+    ]
   );
 
   const handleOptionChange = useCallback(
     (index: number, value: string) => {
-      setQuestions((prevQuestions) => {
-        const updatedQuestions = [...prevQuestions];
-        const currentQ = { ...updatedQuestions[selectedQuestionIndex] };
+      if (!currentQuestion) {
+        showToast("No question selected.", "error");
+        return;
+      }
+      const field =
+        currentQuestion.questionType === QuestionType.MCQ
+          ? "options"
+          : "imageOptions";
+      const updatedOptions = [...(currentQuestion[field] as (string | null)[])];
+      updatedOptions[index] = value;
 
-        if (currentQ.questionType === QuestionType.MCQ) {
-          const updatedOptions = [...(currentQ.options ?? [])];
-          updatedOptions[index] = value;
-          currentQ.options = updatedOptions;
-        } else {
-          const updatedImageOptions = [
-            ...(currentQ.imageOptions ?? [null, null, null, null]),
-          ];
-          updatedImageOptions[index] = value;
-          currentQ.imageOptions = updatedImageOptions;
-        }
+      updateQuestionFieldHandler(
+        selectedQuestionIndex,
+        field as keyof Question,
+        updatedOptions
+      );
 
-        // If the changed option was the correct answer, update correctAnswer
-        if (currentQ.correctAnswer === currentQ.options[index]) {
-          currentQ.correctAnswer = value;
-        }
-
-        updatedQuestions[selectedQuestionIndex] = currentQ;
-
-        return updatedQuestions;
-      });
+      // If the changed option was the correct answer, update correctAnswer
+      if (currentQuestion.correctAnswer === currentQuestion.options[index]) {
+        updateQuestionFieldHandler(
+          selectedQuestionIndex,
+          "correctAnswer",
+          value
+        );
+      }
     },
-    [selectedQuestionIndex, setQuestions]
+    [
+      currentQuestion,
+      selectedQuestionIndex,
+      updateQuestionFieldHandler,
+      showToast,
+    ]
   );
 
   // Handlers for questionText change (for MCQTextImgLayout)
@@ -264,8 +297,10 @@ const Page: React.FC = () => {
 
   // Log current questions state
   useEffect(() => {
-    console.log("Current Questions State:", questions);
-  }, [questions, currentQuestion]);
+    console.log("Questions:", questions);
+    console.log("Selected Question Index:", selectedQuestionIndex);
+    console.log("Current Question:", currentQuestion);
+  }, [questions, selectedQuestionIndex, currentQuestion]);
 
   // Buttons Data with unique ids
   const buttonData = useMemo(
@@ -287,9 +322,59 @@ const Page: React.FC = () => {
   const canGoNext = selectedQuestionIndex < questions.length - 1;
   const canGoPrevious = selectedQuestionIndex > 0;
 
-  // Handler for action buttons with confirmation for delete
-  // Inside your Page component in page.tsx
+  // -------------------- Delete Question Function --------------------
+  const deleteQuestionHandler = useCallback(async () => {
+    if (!currentQuestion) {
+      showToast("No question selected.", "error");
+      return;
+    }
 
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this question?"
+    );
+    if (!confirmDelete) return;
+
+    if (!currentQuestion.id) {
+      showToast("Invalid question ID.", "error");
+      return;
+    }
+
+    if (currentQuestion.isPersisted) {
+      // Persisted question: Make DELETE request to backend
+      console.log("Deleting persisted question with id:", currentQuestion.id);
+
+      try {
+        const response = await fetch(
+          `/api/questions?id=${currentQuestion.id}`,
+          {
+            method: "DELETE",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          deleteQuestion(selectedQuestionIndex);
+          showToast("Question deleted successfully.", "success");
+        } else {
+          const errorMsg = data.error || "Failed to delete the question.";
+          showToast(errorMsg, "error");
+        }
+      } catch (error) {
+        console.error("Error deleting persisted question:", error);
+        setError("Failed to delete the question. Please try again.");
+        showToast("Failed to delete the question.", "error");
+      }
+    } else {
+      // Unsaved question: Remove from UI only
+      console.log("Removing unsaved question with id:", currentQuestion.id);
+
+      deleteQuestion(selectedQuestionIndex);
+      showToast("Question removed successfully.", "success");
+    }
+  }, [currentQuestion, selectedQuestionIndex, deleteQuestion, showToast]);
+
+  // -------------------- Handler for action buttons with confirmation for delete --------------------
   const handleActionButtonClick = useCallback(
     async (buttonLabel: string) => {
       setIsLoading(true);
@@ -299,6 +384,11 @@ const Page: React.FC = () => {
           showToast("Editing enabled.", "info");
         } else if (buttonLabel === "SAVE") {
           // Validate that the question has an ID (i.e., it's an existing question)
+          if (!currentQuestion) {
+            showToast("No question selected.", "error");
+            return;
+          }
+
           if (!currentQuestion.id) {
             showToast("Cannot save a question without an ID.", "error");
             return;
@@ -316,13 +406,27 @@ const Page: React.FC = () => {
             options: currentQuestion.options,
             correctAnswer: currentQuestion.correctAnswer,
             numericalAnswer: currentQuestion.numericalAnswer,
+            description: currentQuestion.description,
+            image: currentQuestion.image,
+            imageOptions: currentQuestion.imageOptions,
           };
 
           console.log(JSON.stringify(payload));
 
-          // Send PUT request to update the question
-          const response = await fetch(`/api/questions`, {
-            method: "POST",
+          // Determine if the question is persisted
+          const isPersisted = currentQuestion.isPersisted || false;
+
+          // Choose the appropriate HTTP method
+          const method = isPersisted ? "PUT" : "POST";
+
+          // Choose the appropriate endpoint
+          const endpoint = isPersisted
+            ? `/api/questions/${currentQuestion.id}`
+            : `/api/questions`;
+
+          // Send request to save the question
+          const response = await fetch(endpoint, {
+            method: method,
             headers: {
               "Content-Type": "application/json",
             },
@@ -334,53 +438,66 @@ const Page: React.FC = () => {
           if (response.ok) {
             showToast("Question saved successfully.", "success");
             setIsEditing(false);
-            // Update the questions state with the updated question
-            setQuestions((prevQuestions) => {
-              const updatedQuestions = [...prevQuestions];
-              updatedQuestions[selectedQuestionIndex] = data.question;
-              return updatedQuestions;
-            });
+
+            const updatedQuestion = data.question;
+            updateQuestionFieldHandler(
+              selectedQuestionIndex,
+              "questionText",
+              updatedQuestion.questionText
+            );
+            updateQuestionFieldHandler(
+              selectedQuestionIndex,
+              "questionType",
+              updatedQuestion.questionType
+            );
+            updateQuestionFieldHandler(
+              selectedQuestionIndex,
+              "answerFormat",
+              updatedQuestion.answerFormat
+            );
+            updateQuestionFieldHandler(
+              selectedQuestionIndex,
+              "options",
+              updatedQuestion.options
+            );
+            updateQuestionFieldHandler(
+              selectedQuestionIndex,
+              "correctAnswer",
+              updatedQuestion.correctAnswer
+            );
+            updateQuestionFieldHandler(
+              selectedQuestionIndex,
+              "numericalAnswer",
+              updatedQuestion.numericalAnswer
+            );
+            // updateQuestionFieldHandler(
+            //   selectedQuestionIndex,
+            //   "description",
+            //   updatedQuestion.description
+            // );
+            // updateQuestionFieldHandler(
+            //   selectedQuestionIndex,
+            //   "image",
+            //   updatedQuestion.image
+            // );
+            // updateQuestionFieldHandler(
+            //   selectedQuestionIndex,
+            //   "imageOptions",
+            //   updatedQuestion.imageOptions
+            // );
+            // updateQuestionFieldHandler(
+            //   selectedQuestionIndex,
+            //   "isPersisted",
+            //   true
+            // );
           } else {
             const errorMsg = data.error || "Failed to save changes.";
             showToast(errorMsg, "error");
             setError(errorMsg);
           }
         } else if (buttonLabel === "DELETE") {
-          // Existing DELETE logic...
-          const confirmDelete = window.confirm(
-            "Are you sure you want to delete this question?"
-          );
-          if (!confirmDelete) return;
-
-          if (!currentQuestion.id) {
-            showToast("Invalid question ID.", "error");
-            return;
-          }
-
-          console.log("Deleting question with id:", currentQuestion.id); // Debugging
-
-          const response = await fetch(
-            `/api/questions?id=${currentQuestion.id}`,
-            {
-              method: "DELETE",
-            }
-          );
-
-          const data = await response.json();
-
-          if (response.ok && data.success) {
-            setQuestions((prevQuestions) => {
-              const updatedQuestions = prevQuestions.filter(
-                (_, idx) => idx !== selectedQuestionIndex
-              );
-              return updatedQuestions;
-            });
-            setSelectedQuestionIndex((prev) => (prev > 0 ? prev - 1 : 0));
-            showToast("Question deleted successfully.", "success");
-          } else {
-            const errorMsg = data.error || "Failed to delete the question.";
-            showToast(errorMsg, "error");
-          }
+          // DELETE logic handled separately below
+          await deleteQuestionHandler();
         }
       } catch (error) {
         console.error(`Error performing action "${buttonLabel}":`, error);
@@ -396,16 +513,16 @@ const Page: React.FC = () => {
       }
     },
     [
-      currentQuestion, 
+      currentQuestion,
       selectedQuestionIndex,
-      setQuestions,
-      setSelectedQuestionIndex,
       setIsEditing,
       showToast,
+      deleteQuestionHandler,
+      updateQuestionFieldHandler,
     ]
   );
 
-  // Helper function to render the appropriate question layout
+  // -------------------- Helper function to render the appropriate question layout --------------------
   const renderQuestionLayout = useCallback(
     (question: Question, index: number) => {
       switch (question.questionType) {
@@ -536,14 +653,29 @@ const Page: React.FC = () => {
   if (isLoading) {
     return (
       <div className="bg-white text-black flex flex-col items-center p-4 mt-2 rounded-3xl shadow border border-black laila-regular">
-        <Skeleton sx={{ bgcolor: "#a6b1ff" }} variant="rectangular" width="100%" height="500px" />
+        <Skeleton
+          sx={{ bgcolor: "#f2f2f2" }}
+          variant="rectangular"
+          width="100%"
+          height="500px"
+        />
+      </div>
+    );
+  }
+
+  // Prevent rendering if there are no questions
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return (
+      <div className="bg-white text-black flex flex-col items-center p-4 mt-2 rounded-3xl shadow border border-black laila-regular">
+        <p className="text-red-500">
+          No questions available. Please add a question.
+        </p>
       </div>
     );
   }
 
   return (
     <>
-      
       <div className="bg-white text-black flex flex-col items-center p-4 mt-2 rounded-3xl shadow border border-black laila-regular">
         <div className="flex flex-col md:flex-row items-center justify-between flex-wrap w-full gap-4">
           {/* Dropdown (प्रकार:) */}
@@ -552,15 +684,14 @@ const Page: React.FC = () => {
               id="dropdown-2"
               items={QuestionTypeDropdownItems}
               label="प्रकार:"
-              selected={currentQuestion.questionType}
+              selected={currentQuestion?.questionType}
               buttonBgColor="bg-[#fc708a]"
               buttonBorderColor="border-white"
               buttonBorderWidth="border-[2px]"
               onSelect={(value) =>
                 handleQuestionTypeChange(value, "dropdown-2")
               }
-             
-              disabled={!isEditing}
+              disabled={!isEditing || !currentQuestion}
             />
           </div>
 
