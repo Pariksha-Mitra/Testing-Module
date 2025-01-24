@@ -96,7 +96,7 @@ export async function GET(req: Request, context: Context) {
   try {
     await connectDb();
 
-    const { standardId } = context.params;
+    const { standardId } = await context.params;
     
     // Check if standardId is provided
     if (!standardId) {
