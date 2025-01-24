@@ -1,5 +1,5 @@
 import { connectDb } from '@/utils/db';
-import { NextResponse } from 'next/server';
+import { NextResponse,NextRequest } from 'next/server';
 import { Chapter, Exercise, Question, Standard, Subject } from "@/models/questionsSchema";
 
 /**
@@ -276,6 +276,110 @@ export async function DELETE(req: Request) {
     console.log("error while handling DELETE req in question",error);
     return NextResponse.json(
       { success: false, error: "Failed to delete question" }, { status: 500 }
+    );
+  }
+}
+
+
+
+export async function PUT(req: NextRequest) {
+  try {
+    await connectDb();
+
+    const body = await req.json();
+
+    const {
+      questionId,
+      standardId,
+      subjectId,
+      chapterId,
+      exerciseId,
+      questionText,
+      questionDescription,
+      questionType,
+      answerFormat,
+      options,
+      correctAnswer,
+      numericalAnswer,
+    } = body;
+
+    if (
+      !standardId ||
+      !subjectId ||
+      !chapterId ||
+      !exerciseId ||
+      !questionText ||
+      !questionDescription ||
+      !questionType ||
+      !answerFormat ||
+      (questionType === "MCQ" && !correctAnswer) ||
+      (questionType === "NUMERICAL" && numericalAnswer == null)
+    ) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!questionId) {
+      return NextResponse.json(
+        { error: "questionId is required to identify the question for update" },
+        { status: 400 }
+      );
+    }
+
+    const existingQuestion = await Question.findOne({ _id: questionId });
+    if (!existingQuestion) {
+      return NextResponse.json(
+        { error: "No existing record found for question"},
+        { status: 404 }
+      );
+    }
+
+    if (questionType === "MCQ" && (!options || options.length === 0)) {
+      return NextResponse.json(
+        { error: "MCQ questions require at least one option." },
+        { status: 400 }
+      );
+    }
+
+    const validAnswerFormats = ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TEXT", "NUMBER", "MCQ"];
+    if (answerFormat && !validAnswerFormats.includes(answerFormat)) {
+      return NextResponse.json(
+        { error: `Invalid answerFormat. Expected one of: ${validAnswerFormats.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
+    if (standardId) existingQuestion.fk_standard_id = standardId;
+    if (subjectId) existingQuestion.fk_subject_id = subjectId;
+    if (chapterId) existingQuestion.fk_chapter_id = chapterId;
+    if (exerciseId) existingQuestion.fk_exercise_id = exerciseId;
+    if (questionText) existingQuestion.questionText = questionText;
+    if (questionDescription) existingQuestion.questionDescription = questionDescription;
+    if (questionType) existingQuestion.questionType = questionType;
+    if (answerFormat) existingQuestion.answerFormat = answerFormat;
+    if (questionType === "MCQ") {
+      existingQuestion.options = options || existingQuestion.options;
+      existingQuestion.correctAnswer = correctAnswer || existingQuestion.correctAnswer;
+    }
+    if (questionType === "NUMERICAL") {
+      existingQuestion.numericalAnswer = numericalAnswer != null ? numericalAnswer : existingQuestion.numericalAnswer;
+    }
+
+    // Save the updated question to the database
+    const updatedQuestion = await existingQuestion.save();
+
+    return NextResponse.json(
+      { message: "Question updated successfully", question: updatedQuestion },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error while handling PUT request for question:", error);
+
+    return NextResponse.json(
+      { error: "Failed to update question" },
+      { status: 500 }
     );
   }
 }
