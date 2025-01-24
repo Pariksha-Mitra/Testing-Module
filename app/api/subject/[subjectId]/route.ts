@@ -37,19 +37,18 @@ import { Subject } from '@/models/questionsSchema';
 
 export async function GET(
   req: Request,
-  { params }: { params: { subjectId: string } }
+  { params }:{ params: { subjectId: string } }
 ) {
   try {
     await connectDb();
-
-    if (!params?.subjectId) {
+    const {subjectId} = await params;
+    if (!subjectId) {
       return NextResponse.json(
         { success: false, error: "Invalid SubjectId" },
         { status: 400 }
       );
     }
 
-    const { subjectId } = params;
     const singleSubject = await Subject.findById(subjectId);
 
     if (!singleSubject) {
