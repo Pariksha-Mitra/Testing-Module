@@ -1,5 +1,5 @@
 import { connectDb } from '@/utils/db';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { Standard, Subject } from '@/models/questionsSchema';
 
 /**
@@ -220,6 +220,47 @@ export async function DELETE(req: Request) {
     return NextResponse.json(
       { error: "Failed to delete subject" },
       { status: 500 }
+    );
+  }
+}
+
+
+
+export async function PUT(req:NextRequest) {
+  try {
+    await connectDb();
+    const {subjectId, subjectName, description, standardId} = await req.json();
+
+    if(!subjectId || !subjectName || !standardId){
+    return NextResponse.json(
+      {error: "subjectId, subjectName and standard Id are required"}, 
+      {status: 400});
+    }
+
+    const existingSubject = await Subject.findOne({_id: subjectId});
+    if(!existingSubject){
+      return NextResponse.json(
+        {error: "No existing record found for subject update"},
+        { status: 404}
+      )
+    }
+
+    if(subjectName) existingSubject.subjectName = subjectName;
+    if(description) existingSubject.description = description;
+    if(standardId) existingSubject.fk_standard_id = standardId;
+
+    await existingSubject.save();
+
+    return NextResponse.json(
+      {message: "Subject updated successfully", subject: existingSubject},
+      {status: 200}
+    );
+
+  } catch (error) {
+    console.log("Error updating subject", error);
+    return NextResponse.json(
+      {error: "Something went wrong while updating subject"},
+      {status: 500}
     );
   }
 }
