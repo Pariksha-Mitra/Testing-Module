@@ -29,7 +29,6 @@ const MCQImgTextLayout: React.FC<MCQImgTextLayoutProps> = ({
   image,
   options,
   correctAnswer,
-  selectedOption,
   onDescriptionChange,
   onQuestionTextChange,
   onImageChange,

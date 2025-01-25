@@ -34,7 +34,6 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
   onOptionChange,
   onCorrectAnswerChange,
   options = [],
-  selectedOption = null,
   editable,
   className = "",
   validationErrors = {},

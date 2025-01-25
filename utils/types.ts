@@ -155,6 +155,24 @@ export interface BackendQuestion {
   numericalAnswer: number | null;
 }
 
+
+export interface Payload {
+  questionText: string;
+  questionDescription?: string;
+  questionType: string;
+  answerFormat: string;
+  options: string[];
+  correctAnswer?: string | null;
+  numericalAnswer?: number | null;
+  image?: string | null;
+  imageOptions: string[] | null | undefined;
+  id?: string;
+  standardId?: string;
+  subjectId?: string;
+  chapterId?: string;
+  exerciseId?: string;
+}
+
 /**
  * Question list API response structure.
  */

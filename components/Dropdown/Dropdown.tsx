@@ -1,5 +1,3 @@
-// Dropdown.tsx
-
 import AddOptionModal from './AddOptionModal';
 import clsx from 'clsx';
 import { DropdownProps, DropdownItem } from '@/utils/types';
@@ -109,7 +107,7 @@ const Dropdown: FC<DropdownProps> = ({
   }, [isOpen, handleClickOutside]);
 
   const handleOptionClick = useCallback(
-    (option: DropdownItem, index: number) => {
+    (option: DropdownItem) => {
       if (allowAddOption && option.id === 'add_option') {
         setIsOpen(false);
         setShowModal(true);

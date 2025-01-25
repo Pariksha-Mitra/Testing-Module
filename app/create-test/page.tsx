@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { QuestionType, Question } from "@/utils/types";
+import { QuestionType, Question, Payload } from "@/utils/types";
 import { QuestionLayout } from "@/components/create-test/question-layouts/QuestionLayout";
 import { ActionButton } from "@/components/create-test/ActionButton";
 import { NavButton } from "@/components/create-test/NavButton";
@@ -496,7 +496,7 @@ const Page: React.FC = () => {
     }
 
     // Prepare payload
-    const payload: any = {
+    const payload: Payload = {
       questionText: currentQuestion.questionText,
       questionDescription: currentQuestion.description,
       questionType: currentQuestion.questionType,
@@ -505,7 +505,7 @@ const Page: React.FC = () => {
       correctAnswer: currentQuestion.correctAnswer,
       numericalAnswer: currentQuestion.numericalAnswer,
       image: currentQuestion.image,
-      imageOptions: currentQuestion.imageOptions,
+      imageOptions: currentQuestion.imageOptions?.filter((option): option is string => option !== null), // Filter out null values
     };
 
     // If the question is persisted, include the ID in the payload
