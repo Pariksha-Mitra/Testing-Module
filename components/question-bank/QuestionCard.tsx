@@ -1,19 +1,15 @@
-import React from 'react';
-import { QuestionProps } from '@/utils/types';
+import React from "react";
+import { QuestionCardPros } from "@/utils/types";
 
-export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> = ({
-  questionNumber,
-  description,
-  isSelected,
-  onClick,
-  onDelete,
-  icon,
-}) => {
-  const showAddQuestion = !description;
 
-  // Handler to manage keyboard interactions for the main card
+export const QuestionCard: React.FC<
+  QuestionCardPros & { icon?: React.ReactNode }
+> = ({ q_no, questionText, isSelected, icon, onClick, onDelete }) => {
+  const showAddQuestion = !questionText;
+
+  // Handle keyboard interactions for the main card
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault(); // Prevent scrolling when space is pressed
       onClick();
     }
@@ -26,7 +22,7 @@ export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> 
       onClick={onClick}
       onKeyDown={handleKeyDown}
       aria-pressed={isSelected}
-      aria-label={showAddQuestion ? 'Add new question' : `Question ${questionNumber}`}
+      aria-label={showAddQuestion ? "Add new question" : `Question ${q_no}`}
       className={`
         rozha-one-regular 
         flex flex-col md:flex-row 
@@ -39,9 +35,10 @@ export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> 
         border border-solid 
         shadow-lg 
         px-4 py-3 
-        ${isSelected
-          ? 'border-emerald-400 bg-emerald-50'
-          : 'border-zinc-300 bg-white'
+        ${
+          isSelected
+            ? "border-emerald-400 bg-emerald-50"
+            : "border-zinc-300 bg-white"
         }
         transition-colors
         cursor-pointer
@@ -64,14 +61,14 @@ export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> 
           px-4 py-2 
           md:py-[19px]
         "
-        style={{ minWidth: '80px' }}
+        style={{ minWidth: "80px" }}
       >
         {icon ? (
           <div className="flex justify-center items-center h-[32px] w-[32px]">
             {icon}
           </div>
         ) : (
-          <span className="text-lg md:text-xl">{questionNumber}</span>
+          <span className="text-lg md:text-xl">{q_no}</span>
         )}
       </div>
 
@@ -81,10 +78,13 @@ export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> 
           {showAddQuestion ? (
             <p className="text-[#2836ff] text-lg md:text-xl">Add question</p>
           ) : (
-            <p className="text-sm text-wrap md:text-xl truncate">{description}</p>
+            <p className="text-sm text-wrap md:text-xl truncate">
+              {questionText}
+            </p>
           )}
         </div>
 
+        {/** Only show delete button if onDelete is defined (i.e., if user is a Teacher) */}
         {onDelete && !showAddQuestion && (
           <button
             type="button"
@@ -93,7 +93,7 @@ export const QuestionCard: React.FC<QuestionProps & { icon?: React.ReactNode }> 
               onDelete();
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.stopPropagation();
                 onDelete();
               }
