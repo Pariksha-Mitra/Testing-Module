@@ -16,10 +16,10 @@ const TestPageLayout: React.FC<{
     <ToastProvider>
       <div className="relative flex bg-gradient-to-b from-yellow-200 to-blue-300 min-h-screen">
         <Sidebar />
-        <main className="flex-1 p-6 ml-24">
+        <div className="flex-1 p-6 ml-24">
           <TestHeader />
           {children}
-        </main>
+        </div>
       </div>
     </ToastProvider>
   );
