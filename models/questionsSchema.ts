@@ -168,6 +168,10 @@ const questionSchema: Schema = new mongoose.Schema(
       trim: true,
       unique: true,
     },
+    questionDescription: {
+      type: String,
+      trim: true,
+    },
     questionType: {
       type: String,
       required: true,
