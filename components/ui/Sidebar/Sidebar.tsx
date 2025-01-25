@@ -28,23 +28,24 @@ export default function Sidebar() {
           icon={<DashboardIcon />}
         />
 
-        {role === ROLE.Teacher ? (
-          <>
-            <SidebarItem
-              href="/question-bank"
-              ariaLabel="प्रश्न संच"
-              icon={<QuestionBankIcon />}
-            />
+        <SidebarItem
+          href="/question-bank"
+          ariaLabel="प्रश्न संच"
+          icon={<QuestionBankIcon />}
+        />
 
-            <SidebarItem
-              href="/create-test"
-              ariaLabel="चाचणी तयार करा"
-              icon={<CreateTestIcon />}
-            />
-          </>
-        ) : (
-          <></>
+        {role === ROLE.Teacher && (
+             <SidebarItem
+             href="/create-test"
+             ariaLabel="चाचणी तयार करा"
+             icon={<CreateTestIcon />}
+           />
+         
         )}
+          
+           
+         
+        
 
         <SidebarItem href="/result" ariaLabel="निकाल" icon={<ResultIcon />} />
 
