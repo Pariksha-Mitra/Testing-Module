@@ -8,13 +8,12 @@ import NewsContent from "@/components/dashboard/student/sections/NewsContent";
 import AnalysisContent from "@/components/dashboard/student/sections/AnalysisContent";
 import GamesContent from "@/components/dashboard/student/sections/GamesContent";
 import TestsContent from "@/components/dashboard/student/sections/TestsContent";
-import PlaceholderContent from "@/components/dashboard/common/PlaceholderContent";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "@mui/material";
 
 const Page: React.FC = () => {
-  const { data: session, status } = useSession();
-  const isLoading = status === "loading";
+  const { data: session } = useSession();
+
   const role = session?.user.role;
 
   const data = [
@@ -54,9 +53,7 @@ const Page: React.FC = () => {
               backgroundColor="bg-[#FC708A]"
               rounded="rounded-2xl"
             >
-
               <AnalysisContent data={data} total={total} />
-
             </Section>
 
             {/* Games Section */}
@@ -65,9 +62,7 @@ const Page: React.FC = () => {
               backgroundColor="bg-[#CBD32E]"
               className="relative min-h-[300px]"
             >
-              
-                <GamesContent />
-              
+              <GamesContent />
             </Section>
 
             {/* Tests Section */}
@@ -76,8 +71,7 @@ const Page: React.FC = () => {
               backgroundColor="bg-[#F7D827]"
               className="container mx-auto px-4"
             >
-              
-                <TestsContent />
+              <TestsContent />
             </Section>
           </>
         );
@@ -106,16 +100,36 @@ const Page: React.FC = () => {
           <>
             {/* Placeholder Sections for Unknown Role */}
             <Section title="" backgroundColor="bg-[#7CD9FE]">
-              <Skeleton variant="rectangular" width="100%" height={200} />
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
             </Section>
             <Section title="" backgroundColor="bg-[#FC708A]">
-              <Skeleton variant="rectangular" width="100%" height={200} />
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
             </Section>
             <Section title="" backgroundColor="bg-[#CBD32E]">
-              <Skeleton variant="rectangular" width="100%" height={200} />
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
             </Section>
             <Section title="" backgroundColor="bg-[#F7D827]">
-              <Skeleton variant="rectangular" width="100%" />
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
             </Section>
           </>
         );

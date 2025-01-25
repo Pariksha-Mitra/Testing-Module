@@ -31,7 +31,7 @@ const testItems: TestItem[] = [
 
 const TestsContent: React.FC = () => {
   return (
-    <div className="flex flex-col md:flex-row flex-wrap gap-6 w-full overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col md:flex-row flex-wrap gap-6 w-full overflow-y-auto thin-scrollbar">
       {testItems.map((item) => (
         <div
           key={item.type}
