@@ -1,5 +1,5 @@
 import { connectDb } from '@/utils/db';
-import { NextResponse,NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { Chapter, Exercise, Question, Standard, Subject } from "@/models/questionsSchema";
 
 /**
