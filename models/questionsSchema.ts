@@ -45,6 +45,7 @@ interface IQuestion extends Document {
   fk_chapter_id: mongoose.Types.ObjectId;
   fk_exercise_id: mongoose.Types.ObjectId;
   questionText: string;
+  questionDescription: string,
   questionType: QuestionTypeEnum;
   answerFormat: AnswerFormatEnum;
   options?: string[];

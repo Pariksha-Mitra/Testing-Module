@@ -1,5 +1,5 @@
 import { connectDb } from '@/utils/db';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import {
   Chapter,
   Exercise,
@@ -233,6 +233,45 @@ export async function DELETE(req: Request) {
     console.error("Error deleting standard and related data:", error);
     return NextResponse.json(
       { error: "Failed to delete standard and related data" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    await connectDb();
+
+    const { standardId, standardName, description } = await req.json();
+
+    if (!standardId || !standardName) {
+      return NextResponse.json(
+        { error: "Record standardId and standardName are required", standardId, standardName },
+        { status: 400 }
+      );
+    }
+
+    const existingStandard = await Standard.findById({_id:standardId});
+    if (!existingStandard) {
+      return NextResponse.json(
+        { error: "No existing record found for standard" },
+        { status: 404 }
+      );
+    }
+
+    if (standardName) existingStandard.standardName = standardName;
+    if (description) existingStandard.description = description;
+
+    await existingStandard.save();
+
+    return NextResponse.json(
+      { message: "Standard updated successfully", standard: existingStandard },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating standard:", error);
+    return NextResponse.json(
+      { error: "Something went wrong while updating standard" },
       { status: 500 }
     );
   }

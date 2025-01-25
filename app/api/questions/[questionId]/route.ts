@@ -124,6 +124,7 @@ export async function GET(req: Request, context: Context) {
     const flattenedQuestion = {
       _id: singleQuestion._id,
       questionText: singleQuestion.questionText,
+      questionDescription: singleQuestion.questionDescription,
       questionType: singleQuestion.questionType,
       answerFormat: singleQuestion.answerFormat,
       options: singleQuestion.options,

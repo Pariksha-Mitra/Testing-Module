@@ -1,5 +1,5 @@
 import { connectDb } from '@/utils/db';
-import { NextResponse } from 'next/server';
+import { NextResponse,NextRequest } from 'next/server';
 import { Chapter, Exercise, Question, Standard, Subject } from "@/models/questionsSchema";
 
 /**
@@ -55,6 +55,7 @@ export async function GET() {
       return {
         _id: question._id,
         questionText: question.questionText,
+        questionDescription: question.questionDescription,
         questionType: question.questionType,
         answerFormat: question.answerFormat,
         options: question.options,
@@ -166,6 +167,7 @@ export async function POST(req: Request) {
       !chapterId ||
       !exerciseId ||
       !questionText ||
+      !questionDescription ||
       !questionType ||
       !answerFormat ||
       (questionType === "MCQ" && !correctAnswer) ||
@@ -198,8 +200,8 @@ export async function POST(req: Request) {
       fk_chapter_id: chapterId,
       fk_exercise_id: exerciseId,
       questionText,
-      questionType,
       questionDescription,
+      questionType,
       answerFormat,
       options: questionType === "MCQ" ? options : [],
       correctAnswer,

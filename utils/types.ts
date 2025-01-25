@@ -402,3 +402,18 @@ export interface NewsItemProps {
   title: string;
   onClick?: () => void;
 }
+
+export interface GameCardProps {
+  gradient: string;
+  text?: string;
+  class?: string;
+  subject?: string;
+  lesson?: string;
+  homework?: string;
+}
+
+export interface SubjectInputProps {
+  label: string;
+  width: string | number;
+  iconSrc: string;
+}
