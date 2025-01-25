@@ -1,57 +1,50 @@
-"use client"
-import React from "react";
-import { useQuestions } from "@/context/QuestionsContext";
+import React from 'react';
 
-interface TrueFalseComponentProps {
-  editable: boolean; // Added editable prop
+interface TrueFalseProps {
+  editable: boolean;
+  correctAnswer: string | null;
+  onCorrectAnswerChange: (value: string) => void;
+  validationErrors?: { [key: string]: string }; // Optional, for validation errors
 }
 
-const TrueFalseComponent: React.FC<TrueFalseComponentProps> = ({ editable }) => {
-  const { questions, setQuestions, selectedQuestionIndex } = useQuestions();
-  const currentQuestion = questions[selectedQuestionIndex];
-
-  if (!currentQuestion || !currentQuestion.content) {
-    return <div>No question data available.</div>;
-  }
-
-  const handleAnswerChange = (value: boolean) => {
-    if (!editable) return; // Prevent changes if not editable
-
-    const updatedQuestions = [...questions];
-    updatedQuestions[selectedQuestionIndex].content.correctAnswerIndex = value ? 1 : 0;
-    setQuestions(updatedQuestions);
-  };
-
+const TrueFalseComponent: React.FC<TrueFalseProps> = ({
+  editable,
+  correctAnswer,
+  onCorrectAnswerChange,
+  validationErrors = {},
+}) => {
   return (
-    <div className="flex space-x-4 mt-4">
-      <button
-        onClick={() => handleAnswerChange(true)}
-        disabled={!editable} // Disable button when not editable
-        className={`px-4 py-2 rounded ${
-          currentQuestion.content.correctAnswerIndex === 1
-            ? "bg-green-500 text-white cursor-not-allowed"
-            : editable
-            ? "bg-gray-200 hover:bg-gray-300 cursor-pointer"
-            : "bg-gray-200 cursor-not-allowed"
-        }`}
-        aria-disabled={!editable} // Accessibility attribute
+    <div className="space-y-4">
+      <div
+        role="radiogroup"
+        aria-label="True or False options"
+        className="text-lg mt-2"
       >
-        True
-      </button>
-      <button
-        onClick={() => handleAnswerChange(false)}
-        disabled={!editable} // Disable button when not editable
-        className={`px-4 py-2 rounded ${
-          currentQuestion.content.correctAnswerIndex === 0
-            ? "bg-red-500 text-white cursor-not-allowed"
-            : editable
-            ? "bg-gray-200 hover:bg-gray-300 cursor-pointer"
-            : "bg-gray-200 cursor-not-allowed"
-        }`}
-        aria-disabled={!editable} // Accessibility attribute
-      >
-        False
-      </button>
+        {['True', 'False'].map((option, index) => (
+          <div key={`true-false-option-${index}`} className="flex items-center space-x-3 mt-3">
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name="true-false"
+                value={option}
+                checked={correctAnswer === option}
+                onChange={() => onCorrectAnswerChange(option)}
+                disabled={!editable}
+                className="form-radio h-5 w-5 text-blue-600"
+                required
+              />
+              <span>{option}</span>
+            </label>
+          </div>
+        ))}
+      </div>
+
+      {/* Correct Answer Error */}
+      {validationErrors.correctAnswer && (
+        <span className="text-red-500 text-sm">
+          {validationErrors.correctAnswer}
+        </span>
+      )}
     </div>
   );
 };

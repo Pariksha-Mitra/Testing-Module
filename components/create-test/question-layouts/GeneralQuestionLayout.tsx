@@ -19,6 +19,7 @@ interface GeneralQuestionLayoutProps {
   selectedOption?: number | null; // Optional, for MCQ
   editable: boolean; // Required, to enable editing
   className?: string; // Optional className for custom styling
+  validationErrors?: { [key: string]: string }; // Optional, for validation errors
 }
 
 export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
@@ -33,12 +34,15 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
   onOptionChange,
   onCorrectAnswerChange,
   options = [],
-  
+  selectedOption = null,
   editable,
   className = "",
+  validationErrors = {},
 }) => (
   <div
-    className={`flex flex-col md:flex-row px-3 py-3 mt-6 w-full border border-black ${!editable ? "opacity-50 pointer-events-none" : ""} ${className}`}
+    className={`flex flex-col md:flex-row px-3 py-3 mt-6 w-full border border-black ${
+      !editable ? "opacity-50 pointer-events-none" : ""
+    } ${className}`}
     aria-label={`Question ${questionIndex + 1}`}
   >
     {/* First Column: Q{questionIndex + 1} */}
@@ -55,11 +59,20 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
         rows={2}
         value={questionText}
         onChange={onQuestionTextChange}
-        className="self-stretch w-full p-2 border border-black"
+        className={`self-stretch w-full p-2 border ${
+          validationErrors.questionText ? "border-red-500" : "border-black"
+        }`}
         placeholder="Enter question here"
         disabled={!editable}
         aria-disabled={!editable}
+        required
       />
+      {validationErrors.questionText && (
+        <span className="text-red-500 text-sm">
+          {validationErrors.questionText}
+        </span>
+      )}
+
       {/* Description */}
       <p className="text-xl">Description</p>
       <textarea
@@ -67,11 +80,20 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
         rows={2}
         value={questionDescription}
         onChange={onDescriptionChange}
-        className="w-full p-2 border border-black"
+        className={`w-full p-2 border ${
+          validationErrors.description ? "border-red-500" : "border-black"
+        }`}
         placeholder="Enter question description here"
         disabled={!editable}
         aria-disabled={!editable}
+        required
       />
+      {validationErrors.description && (
+        <span className="text-red-500 text-sm">
+          {validationErrors.description}
+        </span>
+      )}
+
       {/* Question-Type-Specific Component */}
       <div className="w-full">
         {questionType === QuestionType.MCQ && (
@@ -85,21 +107,47 @@ export const GeneralQuestionLayout: React.FC<GeneralQuestionLayoutProps> = ({
             onOptionSelect={onOptionSelect}
             onOptionChange={onOptionChange}
             onCorrectAnswerChange={onCorrectAnswerChange}
+            validationErrors={validationErrors}
           />
         )}
         {questionType === QuestionType["True/False"] && (
-          <TrueFalseComponent editable={editable} />
+          <TrueFalseComponent
+            editable={editable}
+            correctAnswer={correctAnswer}
+            onCorrectAnswerChange={onCorrectAnswerChange}
+            validationErrors={validationErrors}
+          />
         )}
         {questionType === QuestionType["Match The Pairs"] && (
-          <MatchThePairs editable={editable} />
+          <MatchThePairs
+            editable={editable}
+            correctAnswer={correctAnswer}
+            onCorrectAnswerChange={onCorrectAnswerChange}
+            validationErrors={validationErrors}
+          />
         )}
         {questionType === QuestionType["Subjective Answer"] && (
           <div className="bg-red-100 p-2">
             <h2 className="font-bold">Subjective Answer</h2>
             {/* Add more fields or explanation if needed */}
+            {validationErrors.subjectiveAnswer && (
+              <span className="text-red-500 text-sm">
+                {validationErrors.subjectiveAnswer}
+              </span>
+            )}
           </div>
         )}
       </div>
+
+      {/* Display General Errors */}
+      {validationErrors.options && (
+        <span className="text-red-500 text-sm">{validationErrors.options}</span>
+      )}
+      {validationErrors.correctAnswer && (
+        <span className="text-red-500 text-sm">
+          {validationErrors.correctAnswer}
+        </span>
+      )}
     </div>
   </div>
 );
