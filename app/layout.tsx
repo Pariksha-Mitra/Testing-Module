@@ -1,5 +1,5 @@
 import AuthProvider from "@/utils/AuthProvider";
-import { Laila, Rozha_One, Arya } from "next/font/google";
+import { Laila, Rozha_One, Arya,Inter } from "next/font/google";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { QuestionsProvider } from "@/context/QuestionsContext";
 import "./globals.css";
@@ -23,6 +23,11 @@ const arya = Arya({
   subsets: ["latin", "devanagari"],
   variable: "--font-arya",
 });
+const inter = Inter({
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "Parikhsa Mitra",
@@ -40,7 +45,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         cz-shortcut-listen="true"
-        className={`${rozhaOne.variable} ${laila.variable} ${arya.variable} antialiased`}
+        className={`${rozhaOne.variable} ${laila.variable} ${arya.variable} ${inter.variable} antialiased`}
       >
         <AuthProvider>
           <ToastProvider>

@@ -16,6 +16,7 @@ export default {
         rozhaOne: ['var(--font-rozha-one)', 'serif'],
         laila: ['var(--font-laila)', 'serif'],
         arya: ['var(--font-arya)', 'serif'],
+        inter: ['var(--font-inter)', 'sans-serif'],
       },
     },
   },
