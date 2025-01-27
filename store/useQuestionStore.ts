@@ -50,6 +50,7 @@ export const useQuestionStore = create<QuestionStore>()(
             } else {
               // No questions found, add a default one
               // get().addQuestion(exercise, true);
+              useQuestionStore.getState().resetQuestions();
             }
           } catch (err: unknown) {
             if (err instanceof Error) {
@@ -73,7 +74,7 @@ export const useQuestionStore = create<QuestionStore>()(
             chapterId: chapter ?? '',
             exerciseId: exerciseId,
             questionText: '',
-            description: '',
+            questionDescription: '',
             questionType: QuestionType.MCQ,
             answerFormat: 'SINGLE_CHOICE',
             options: ['', '', '', ''],
