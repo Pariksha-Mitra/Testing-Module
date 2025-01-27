@@ -1,7 +1,7 @@
 // File: src/hooks/useDropdowns.ts
 
 import { useEffect, useCallback } from 'react';
-import { useSelectionStore, Selection } from '@/store/useSelectionStore';
+import { useSelectionStore } from '@/store/useSelectionStore';
 import { useStandardStore } from '@/store/useStandardStore';
 import { useSubjectStore } from '@/store/useSubjectStore';
 import { useChapterStore } from '@/store/useChapterStore';
