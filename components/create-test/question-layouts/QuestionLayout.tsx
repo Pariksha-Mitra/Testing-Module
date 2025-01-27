@@ -42,7 +42,7 @@ export const QuestionLayout: React.FC<{
           key={question.id}
           questionIndex={index}
           questionText={question.questionText}
-          questionDescription={question.description ?? ""}
+          questionDescription={question.questionDescription ?? ""}
           options={question.options}
           selectedOption={
             question.correctAnswer
@@ -66,7 +66,7 @@ export const QuestionLayout: React.FC<{
           editable={isEditing}
           key={question.id}
           questionIndex={index}
-          questionDescription={question.description ?? ""}
+          questionDescription={question.questionDescription ?? ""}
           selectedOption={
             question.correctAnswer
               ? question.options.indexOf(question.correctAnswer)
@@ -91,7 +91,7 @@ export const QuestionLayout: React.FC<{
           key={question.id}
           questionIndex={index}
           questionText={question.questionText}
-          description={question.description ?? ""}
+          description={question.questionDescription ?? ""}
           selectedOption={
             question.correctAnswer
               ? question.options.indexOf(question.correctAnswer)
@@ -115,7 +115,7 @@ export const QuestionLayout: React.FC<{
           key={question.id}
           questionIndex={index}
           questionText={question.questionText}
-          questionDescription={question.description ?? ""}
+          questionDescription={question.questionDescription ?? ""}
           options={question.options}
           selectedOption={
             question.correctAnswer

@@ -92,14 +92,13 @@ export interface Question {
   subjectId: string;
   chapterId: string;
   exerciseId: string;
-
   questionText: string;
   questionType: QuestionType;
   answerFormat: string;
   options: string[];
   correctAnswer: string | null;
   numericalAnswer?: number | null;
-  description?: string;
+  questionDescription?: string;
   image?: string | null;
   imageOptions?: (string | null)[];
   isPersisted?: boolean;

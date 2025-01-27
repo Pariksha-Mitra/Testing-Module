@@ -20,8 +20,6 @@ import Dropdown from "@/components/Dropdown/Dropdown";
 import { useQuestionStore } from "@/store/useQuestionStore";
 import { useDropdowns } from "@/utils/hooks/useDropdowns";
 
-// Define a separate QuestionLayout component for better modularity
-
 const Page: React.FC = () => {
   // Accessing Questions Store
   const {
@@ -37,25 +35,29 @@ const Page: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Current question & loading state
   const currentQuestion = questions[selectedQuestionIndex];
-
   const [isLoading, setIsLoading] = useState(false);
 
-  const { showToast } = useToast(); // Assuming you have a toast provider
+  const { showToast } = useToast();
 
   // Track previous pathname to detect route changes
   const [prevPathname, setPrevPathname] = useState(pathname);
+
+  // Editing & Error state
   const [isEditing, setIsEditing] = useState(false);
 
-  // General Error State
+  // General Error State (will show in the UI)
   const [error, setError] = useState<string | null>(null);
 
-  // Validation State
+  // Validation errors (field-level)
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
   }>({});
 
+  // ---------------------
   // Unsaved Changes Warning Logic
+  // ---------------------
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isEditing) {
@@ -87,19 +89,25 @@ const Page: React.FC = () => {
     };
   }, [isEditing, pathname, prevPathname, router]);
 
-  // Helper function to update any field in currentQuestion
+  // ---------------------
+  // Helper: Update a field in the current question
+  // ---------------------
   const updateQuestionFieldHandler = useCallback(
-    (
+    <
+      K extends keyof Question
+    >(
       questionIndex: number,
-      field: keyof Question,
-      value: Question[keyof Question]
+      field: K,
+      value: Question[K]
     ) => {
       updateQuestionField(questionIndex, field, value);
     },
     [updateQuestionField]
   );
 
-  // Validation Function
+  // ---------------------
+  // Validate the current question
+  // ---------------------
   const validateQuestion = useCallback((): boolean => {
     const errors: { [key: string]: string } = {};
 
@@ -108,20 +116,20 @@ const Page: React.FC = () => {
       return false;
     }
 
-    // Validate questionText
+    // Example validation: question text must not be empty
     if (!currentQuestion.questionText.trim()) {
       errors.questionText = "Question text cannot be empty.";
     }
 
-    // Validate description (optional, but example rule)
+    // Optional example: description length
     if (
-      currentQuestion.description &&
-      currentQuestion.description.length > 500
+      currentQuestion.questionDescription &&
+      currentQuestion.questionDescription.length > 500
     ) {
-      errors.description = "Description cannot exceed 500 characters.";
+      errors.questionDescription = "Description cannot exceed 500 characters.";
     }
 
-    // Validate based on question type
+    // Switch on questionType for further validations
     switch (currentQuestion.questionType) {
       case QuestionType.MCQ:
       case QuestionType.MCQ_IMG_TEXT:
@@ -133,7 +141,6 @@ const Page: React.FC = () => {
             errors[`option_${index}`] = `Option ${index + 1} cannot be empty.`;
           }
         });
-
         // Ensure a correct answer is selected
         if (
           currentQuestion.correctAnswer === null ||
@@ -141,25 +148,23 @@ const Page: React.FC = () => {
         ) {
           errors.correctAnswer = "A correct answer must be selected.";
         }
-
         break;
 
-      case QuestionType["TRUE_FALSE"]:
-        // For True/False, ensure an answer is selected
+      case QuestionType.TRUE_FALSE:
+        // Must choose True or False
         if (currentQuestion.correctAnswer === null) {
           errors.correctAnswer =
             "Please select True or False as the correct answer.";
         }
         break;
 
-      case QuestionType["MATCH_THE_PAIRS"]:
-        // Implement specific validations for Match The Pairs
+      case QuestionType.MATCH_THE_PAIRS:
+        // Implement specific validations for MTP
         // Example: Ensure there are pairs defined
         // Add your own validation logic here
         break;
 
-      case QuestionType["SUBJECTIVE_ANSWER"]:
-        // For subjective answers, ensure questionText is descriptive enough
+      case QuestionType.SUBJECTIVE_ANSWER:
         if (currentQuestion.questionText.length < 10) {
           errors.questionText =
             "Question text should be at least 10 characters long.";
@@ -173,7 +178,6 @@ const Page: React.FC = () => {
     setValidationErrors(errors);
 
     if (Object.keys(errors).length > 0) {
-      // Display the first error as a toast
       const firstError = Object.values(errors)[0];
       showToast(firstError, "error");
       return false;
@@ -184,7 +188,9 @@ const Page: React.FC = () => {
     return true;
   }, [currentQuestion, showToast]);
 
-  // Handler for changing the question type
+  // ---------------------
+  // Handler: Change Question Type
+  // ---------------------
   const handleQuestionTypeChange = useCallback(
     async (value: string | number, dropdownId: string) => {
       if (dropdownId === "dropdown-2") {
@@ -209,7 +215,7 @@ const Page: React.FC = () => {
             value as QuestionType
           );
           updateQuestionFieldHandler(selectedQuestionIndex, "questionText", "");
-          updateQuestionFieldHandler(selectedQuestionIndex, "description", "");
+          updateQuestionFieldHandler(selectedQuestionIndex, "questionDescription", ""); // Ensure description is reset if needed
           updateQuestionFieldHandler(selectedQuestionIndex, "options", [
             "Option 1",
             "Option 2",
@@ -229,11 +235,14 @@ const Page: React.FC = () => {
             null,
           ]);
 
-          setIsEditing(false); // Reset editing state after type change
+          setIsEditing(false);
           showToast("Question type changed successfully.", "success");
+
+          // Clear any existing general error on success
+          setError(null);
         } catch (error) {
           console.error("Error changing question type:", error);
-          setError("Failed to change question type. Please try again."); // Set general error
+          setError("Failed to change question type. Please try again.");
           showToast("Failed to change question type.", "error");
         } finally {
           setIsLoading(false);
@@ -242,25 +251,16 @@ const Page: React.FC = () => {
     },
     [
       isEditing,
-      setIsEditing,
+      currentQuestion,
       selectedQuestionIndex,
       updateQuestionFieldHandler,
       showToast,
-      currentQuestion,
     ]
   );
 
-  // Dropdown Items using Enum
-  const QuestionTypeDropdownItems = useMemo(
-    () =>
-      Object.values(QuestionType).map((item) => ({
-        id: item,
-        name: item.replace(/_/g, " "), // Replace underscores with spaces for better display
-      })),
-    []
-  );
-
-  // Handlers for question fields with error clearing
+  // ---------------------
+  // Field Handlers
+  // ---------------------
   const handleQuestionTextChange = useCallback(
     (e: ChangeEvent<HTMLTextAreaElement>) => {
       updateQuestionFieldHandler(
@@ -268,8 +268,6 @@ const Page: React.FC = () => {
         "questionText",
         e.target.value
       );
-
-      // Clear the questionText error if it exists
       if (validationErrors.questionText) {
         setValidationErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
@@ -285,15 +283,13 @@ const Page: React.FC = () => {
     (e: ChangeEvent<HTMLTextAreaElement>) => {
       updateQuestionFieldHandler(
         selectedQuestionIndex,
-        "description",
+        "questionDescription",
         e.target.value
       );
-
-      // Clear the description error if it exists
-      if (validationErrors.description) {
+      if (validationErrors.questionDescription) { // Updated to match the field
         setValidationErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
-          delete newErrors.description;
+          delete newErrors.questionDescription;
           return newErrors;
         });
       }
@@ -305,11 +301,10 @@ const Page: React.FC = () => {
     (image: string) => {
       setIsLoading(true);
       try {
-        console.log("Handling main image change:", image); // Debugging
         updateQuestionFieldHandler(selectedQuestionIndex, "image", image);
         showToast("Image updated successfully.", "success");
 
-        // Clear the image error if it exists (if any)
+        // Clear the image error if any
         if (validationErrors.image) {
           setValidationErrors((prevErrors) => {
             const newErrors = { ...prevErrors };
@@ -319,26 +314,20 @@ const Page: React.FC = () => {
         }
       } catch (error) {
         console.error("Error handling image change:", error);
-        setError("Failed to update image. Please try again."); // Set general error
+        setError("Failed to update image. Please try again.");
         showToast("Failed to update image.", "error");
       } finally {
         setIsLoading(false);
       }
     },
-    [
-      selectedQuestionIndex,
-      updateQuestionFieldHandler,
-      showToast,
-      validationErrors,
-    ]
+    [selectedQuestionIndex, updateQuestionFieldHandler, showToast, validationErrors]
   );
 
   const handleImageRemove = useCallback(() => {
-    console.log("Handling main image removal"); // Debugging
     updateQuestionFieldHandler(selectedQuestionIndex, "image", null);
     showToast("Image removed successfully.", "success");
 
-    // Clear the image error if it exists (if any)
+    // Clear the image error if any
     if (validationErrors.image) {
       setValidationErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
@@ -353,7 +342,6 @@ const Page: React.FC = () => {
     validationErrors,
   ]);
 
-  // Handler to update correctAnswer when an option is selected
   const handleCorrectAnswerChange = useCallback(
     (newAnswer: string) => {
       updateQuestionFieldHandler(
@@ -361,8 +349,6 @@ const Page: React.FC = () => {
         "correctAnswer",
         newAnswer
       );
-
-      // Clear the correctAnswer error if it exists
       if (validationErrors.correctAnswer) {
         setValidationErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
@@ -374,7 +360,6 @@ const Page: React.FC = () => {
     [selectedQuestionIndex, updateQuestionFieldHandler, validationErrors]
   );
 
-  // Handlers for options with error clearing
   const handleOptionSelect = useCallback(
     (index: number) => {
       if (!currentQuestion) {
@@ -387,8 +372,6 @@ const Page: React.FC = () => {
         "correctAnswer",
         selectedOptionText
       );
-
-      // Clear the correctAnswer error if it exists
       if (validationErrors.correctAnswer) {
         setValidationErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
@@ -432,8 +415,6 @@ const Page: React.FC = () => {
           "correctAnswer",
           value
         );
-
-        // Clear the correctAnswer error if it exists
         if (validationErrors.correctAnswer) {
           setValidationErrors((prevErrors) => {
             const newErrors = { ...prevErrors };
@@ -461,7 +442,6 @@ const Page: React.FC = () => {
     ]
   );
 
-  // Handlers for questionText change (for MCQTextImgLayout)
   const handleQuestionTextChangeForLayout = useCallback(
     (e: ChangeEvent<HTMLTextAreaElement>) => {
       handleQuestionTextChange(e);
@@ -469,24 +449,27 @@ const Page: React.FC = () => {
     [handleQuestionTextChange]
   );
 
-  // Log current questions state
+  // For debugging
   useEffect(() => {
     console.log("Questions:", questions);
     console.log("Selected Question Index:", selectedQuestionIndex);
     console.log("Current Question:", currentQuestion);
   }, [questions, selectedQuestionIndex, currentQuestion]);
 
-  // -------------------- Action Handlers Refactored --------------------
+  // ---------------------
+  // Action Handlers
+  // ---------------------
 
-  // Handler for EDIT action
+  // Enable editing
   const handleEdit = useCallback(() => {
     setIsEditing(true);
     showToast("Editing enabled.", "info");
+    // Optionally clear error when starting a fresh edit:
+    // setError(null);
   }, [showToast]);
 
-  // Handler for SAVE or UPDATE action
+  // Save / Update
   const handleSaveOrUpdate = useCallback(async () => {
-    // Perform validation
     const isValid = validateQuestion();
     if (!isValid) return;
 
@@ -495,20 +478,20 @@ const Page: React.FC = () => {
       return;
     }
 
-    // Prepare payload
     const payload: Payload = {
       questionText: currentQuestion.questionText,
-      questionDescription: currentQuestion.description,
+      questionDescription: currentQuestion.questionDescription, // Ensure this is included
       questionType: currentQuestion.questionType,
       answerFormat: currentQuestion.answerFormat,
       options: currentQuestion.options,
       correctAnswer: currentQuestion.correctAnswer,
       numericalAnswer: currentQuestion.numericalAnswer,
       image: currentQuestion.image,
-      imageOptions: currentQuestion.imageOptions?.filter((option): option is string => option !== null), // Filter out null values
+      imageOptions: currentQuestion.imageOptions?.filter(
+        (option): option is string => option !== null
+      ),
     };
 
-    // If the question is persisted, include the ID in the payload
     if (currentQuestion.isPersisted) {
       payload.id = currentQuestion.id;
     } else {
@@ -518,9 +501,6 @@ const Page: React.FC = () => {
       payload.exerciseId = currentQuestion.exerciseId;
     }
 
-    console.log("Payload:", JSON.stringify(payload));
-
-    // Determine the HTTP method and endpoint
     const method = currentQuestion.isPersisted ? "PATCH" : "POST";
     const endpoint = "/api/questions";
 
@@ -539,15 +519,21 @@ const Page: React.FC = () => {
         showToast("Question saved successfully.", "success");
         setIsEditing(false);
 
+        // Clear any existing general error on success
+        setError(null);
+
         if (currentQuestion.isPersisted) {
-          // Update the local store with the updated question fields
+          // Update local store with updated fields, including questionDescription
           const updatedFields: Partial<Question> = {
             questionText: data.question.questionText,
+            questionDescription: data.question.questionDescription, // Included
             questionType: data.question.questionType,
             answerFormat: data.question.answerFormat,
             options: data.question.options,
             correctAnswer: data.question.correctAnswer,
             numericalAnswer: data.question.numericalAnswer,
+            image: data.question.image,
+            imageOptions: data.question.imageOptions,
           };
 
           Object.entries(updatedFields).forEach(([field, value]) => {
@@ -558,17 +544,13 @@ const Page: React.FC = () => {
             );
           });
         } else {
-          // For newly created questions, mark them as persisted
+          // Mark newly created questions as persisted
           updateQuestionFieldHandler(
             selectedQuestionIndex,
             "id",
             data.question._id
           );
-          updateQuestionFieldHandler(
-            selectedQuestionIndex,
-            "isPersisted",
-            true
-          );
+          updateQuestionFieldHandler(selectedQuestionIndex, "isPersisted", true);
         }
       } else {
         const errorMsg = data.error || "Failed to save changes.";
@@ -588,7 +570,7 @@ const Page: React.FC = () => {
     updateQuestionFieldHandler,
   ]);
 
-  // Handler for DELETE action
+  // Delete
   const handleDelete = useCallback(async () => {
     if (!currentQuestion) {
       showToast("No question selected.", "error");
@@ -606,9 +588,7 @@ const Page: React.FC = () => {
     }
 
     if (currentQuestion.isPersisted) {
-      // Persisted question: Make DELETE request to backend
-      console.log("Deleting persisted question with id:", currentQuestion.id);
-
+      // Persisted question: Make DELETE request
       try {
         const response = await fetch(
           `/api/questions?id=${currentQuestion.id}`,
@@ -622,9 +602,13 @@ const Page: React.FC = () => {
         if (response.ok && data.success) {
           deleteQuestion(selectedQuestionIndex);
           showToast("Question deleted successfully.", "success");
+
+          // Clear any existing general error on success
+          setError(null);
         } else {
           const errorMsg = data.error || "Failed to delete the question.";
           showToast(errorMsg, "error");
+          setError(errorMsg);
         }
       } catch (error) {
         console.error("Error deleting persisted question:", error);
@@ -632,19 +616,28 @@ const Page: React.FC = () => {
         showToast("Failed to delete the question.", "error");
       }
     } else {
-      // Unsaved question: Remove from UI only
-      console.log("Removing unsaved question with id:", currentQuestion.id);
-
+      // Unsaved question: Just remove from store
       deleteQuestion(selectedQuestionIndex);
       showToast("Question removed successfully.", "success");
-    }
-  }, [currentQuestion, selectedQuestionIndex, deleteQuestion, showToast]);
 
-  // Main Action Button Click Handler
+      // Clear any existing general error on success
+      setError(null);
+    }
+  }, [
+    currentQuestion,
+    selectedQuestionIndex,
+    deleteQuestion,
+    showToast,
+  ]);
+
+  // Single entry point for action button clicks
   const handleActionButtonClick = useCallback(
     async (buttonLabel: string) => {
       setIsLoading(true);
       try {
+        // Optionally clear error at the start of any new action:
+        // setError(null);
+
         switch (buttonLabel) {
           case "EDIT":
             handleEdit();
@@ -677,32 +670,33 @@ const Page: React.FC = () => {
     [handleEdit, handleSaveOrUpdate, handleDelete, showToast]
   );
 
-  // -------------------- Delete Question Function --------------------
-  // Note: Already handled in `handleDelete` above
-  // Remove this if not needed
-  // -------------------- End Delete Function --------------------
-
-  // -------------------- Navigation Handlers --------------------
+  // ---------------------
+  // Navigation
+  // ---------------------
   const canGoNext = selectedQuestionIndex < questions.length - 1;
   const canGoPrevious = selectedQuestionIndex > 0;
 
   const navigateToPrevious = useCallback(() => {
     if (canGoPrevious) {
       setSelectedQuestionIndex(selectedQuestionIndex - 1);
-      setIsEditing(false); // Reset editing state when navigating
+      setIsEditing(false);
+      // Optionally clear error on navigate
+      // setError(null);
     }
   }, [canGoPrevious, selectedQuestionIndex, setSelectedQuestionIndex]);
 
   const navigateToNext = useCallback(() => {
     if (canGoNext) {
       setSelectedQuestionIndex(selectedQuestionIndex + 1);
-      setIsEditing(false); // Reset editing state when navigating
+      setIsEditing(false);
+      // Optionally clear error on navigate
+      // setError(null);
     }
   }, [canGoNext, selectedQuestionIndex, setSelectedQuestionIndex]);
-  // -------------------- End Navigation Handlers --------------------
 
-  // -------------------- Rendering Question Layout --------------------
-  // Utilize the extracted QuestionLayout component
+  // ---------------------
+  // Render Question Layout
+  // ---------------------
   const renderQuestionLayout = useCallback(
     (question: Question) => {
       return (
@@ -732,10 +726,10 @@ const Page: React.FC = () => {
       handleCorrectAnswerChange,
     ]
   );
-  // -------------------- End Rendering Question Layout --------------------
 
-  // -------------------- Button Data --------------------
-  // Modify button labels based on editing state and persistence
+  // ---------------------
+  // Action Buttons (EDIT/SAVE/DELETE)
+  // ---------------------
   const buttonData = useMemo(() => {
     let editSaveLabel: string;
     let editSaveBgColor: string;
@@ -767,9 +761,9 @@ const Page: React.FC = () => {
     ];
   }, [isEditing, currentQuestion?.isPersisted]);
 
-  // -------------------- End Button Data --------------------
-
-  // -------------------- Loading State Handling --------------------
+  // ---------------------
+  // Loading State Handling
+  // ---------------------
   if (isLoading || isAnyLoading) {
     return (
       <div className="bg-white text-black flex flex-col items-center p-4 mt-2 rounded-3xl shadow border border-black laila-regular">
@@ -783,10 +777,8 @@ const Page: React.FC = () => {
       </div>
     );
   }
-  // -------------------- End Loading State Handling --------------------
 
-  // -------------------- No Questions Handling --------------------
-  // Prevent rendering if there are no questions
+  // If no questions
   if (!Array.isArray(questions) || questions.length === 0 || isAnyLoading) {
     return (
       <div className="bg-white text-black flex flex-col items-center p-4 mt-2 rounded-3xl shadow border border-black laila-regular">
@@ -794,8 +786,10 @@ const Page: React.FC = () => {
       </div>
     );
   }
-  // -------------------- End No Questions Handling --------------------
 
+  // ---------------------
+  // Final Render
+  // ---------------------
   return (
     <>
       <div className="bg-white text-black flex flex-col items-center p-4 mt-2 rounded-3xl shadow border border-black laila-regular">
@@ -804,15 +798,16 @@ const Page: React.FC = () => {
           <div className="w-full md:w-[30%] flex-start">
             <Dropdown
               id="dropdown-2"
-              items={QuestionTypeDropdownItems}
+              items={Object.values(QuestionType).map((type) => ({
+                id: type,
+                name: type.replace(/_/g, " "),
+              }))}
               label="प्रकार:"
               selected={currentQuestion?.questionType}
               buttonBgColor="bg-[#fc708a]"
               buttonBorderColor="border-white"
               buttonBorderWidth="border-[2px]"
-              onSelect={(value) =>
-                handleQuestionTypeChange(value, "dropdown-2")
-              }
+              onSelect={(value) => handleQuestionTypeChange(value, "dropdown-2")}
               disabled={!isEditing || !currentQuestion}
             />
           </div>
@@ -836,7 +831,7 @@ const Page: React.FC = () => {
           </div>
         </div>
 
-        {/* Display General Error */}
+        {/* Display General Error if set */}
         {error && (
           <div className="mt-2 p-2 bg-red-100 text-red-700 rounded">
             {error}

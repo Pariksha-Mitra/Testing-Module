@@ -167,7 +167,6 @@ export async function POST(req: Request) {
       !chapterId ||
       !exerciseId ||
       !questionText ||
-      !questionDescription ||
       !questionType ||
       !answerFormat ||
       (questionType === "MCQ" && !correctAnswer) ||
@@ -312,6 +311,8 @@ export async function DELETE(req: Request) {
  *                 type: string
  *               questionText:
  *                 type: string
+ *               questionDescription:
+ *                 type: string
  *               questionType:
  *                 type: string
  *               answerFormat:
@@ -369,7 +370,7 @@ export async function PATCH(req: Request) {
     if (chapterId) updateFields.fk_chapter_id = chapterId;
     if (exerciseId) updateFields.fk_exercise_id = exerciseId;
     if (questionText) updateFields.questionText = questionText;
-    if (questionText) updateFields.questionDescription = questionDescription;
+    if (questionDescription) updateFields.questionDescription = questionDescription; // Corrected condition
     if (questionType) updateFields.questionType = questionType;
     if (answerFormat) updateFields.answerFormat = answerFormat;
     if (options && questionType === "MCQ") updateFields.options = options;
