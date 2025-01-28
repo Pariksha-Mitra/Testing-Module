@@ -111,7 +111,7 @@ export async function POST(req: Request) {
         if (gameProgressId || gameProgressExists) {
             const id = gameProgressId
                 ? gameProgressId
-                : gameProgressExists!!._id;
+                : gameProgressExists?._id;
             const updatedFields = {
                 ...(current_lvl !== undefined && { current_lvl }),
                 ...(rank !== undefined && { rank }),

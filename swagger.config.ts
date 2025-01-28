@@ -10,7 +10,11 @@ export const swaggerConfig = {
     },
     servers: [
       {
-        url: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
+        url: process.env.NEXTAUTH_URL || "https://testing-module-fork.vercel.app",
+        description: "Production server",
+      },
+      {
+        url: "http://localhost:3000",
         description: "Development server",
       },
     ],
@@ -304,4 +308,7 @@ export const swaggerConfig = {
       },
     },
   },
+  apis: ["./app/api/**/*.ts",
+    ".next/server/**/*.js"
+  ],
 };

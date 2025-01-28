@@ -1,21 +1,23 @@
 "use client";
-import ImageUpload from '@/components/create-test/ImageUpload';
-import Mcq from '@/components/create-test/MCQ';
-import React, { ChangeEvent } from 'react';
+import ImageUpload from "@/components/create-test/ImageUpload";
+import Mcq from "@/components/create-test/MCQ";
+import React, { ChangeEvent } from "react";
 
 interface MCQImgTextLayoutProps {
   questionIndex: number;
   questionDescription: string;
   questionText: string;
-  image: string | null; // Accepts null
-  options: string[]; // MCQ options
-  selectedOption: number | null; // Selected option index
+  image: string | null | undefined; // Accepts null
+  correctAnswer?: string | null;
   onDescriptionChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onQuestionTextChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   onImageChange: (image: string) => void;
   onImageRemove: () => void;
-  onOptionSelect: (index: number) => void; // Handles option selection
-  onOptionChange: (index: number, value: string) => void; // Handles option text changes
+  onOptionSelect?: (index: number) => void; // Optional, for MCQ
+  onOptionChange?: (index: number, value: string) => void; // Optional, for MCQ
+  onCorrectAnswerChange?: (value: string) => void; // Optional, for MCQ
+  options?: string[]; // Optional, for MCQ
+  selectedOption?: number | null; // Optional, for MCQ
   editable: boolean;
   className?: string;
 }
@@ -26,36 +28,34 @@ const MCQImgTextLayout: React.FC<MCQImgTextLayoutProps> = ({
   questionText,
   image,
   options,
-  selectedOption,
+  correctAnswer,
   onDescriptionChange,
   onQuestionTextChange,
   onImageChange,
   onImageRemove,
   onOptionSelect,
   onOptionChange,
+  onCorrectAnswerChange,
   editable,
-  className = '',
+  className = "",
 }) => (
   <div
     className={`
       flex flex-col md:flex-row 
       px-3 py-3 mt-6 w-full 
       border border-black 
-      ${!editable ? 'opacity-50 pointer-events-none' : ''}
+      ${!editable ? "opacity-50 pointer-events-none" : ""}
       ${className}
     `}
     aria-label={`Question ${questionIndex + 1}`}
   >
     {/* Question Number */}
-    <div className="w-full md:w-[3%] p-3 text-lg">
-      Q{questionIndex + 1}
-    </div>
+    <div className="w-full md:w-[3%] p-3 text-lg">Q{questionIndex + 1}</div>
 
     {/* Question Content */}
     <div className="flex flex-col w-full space-y-3">
       {/* Image Upload and Text Fields */}
       <div className="flex flex-col md:flex-row w-full space-y-3 md:space-y-0 md:space-x-3">
-
         {/* Image Upload Section */}
         <div className="w-full md:w-1/2 flex flex-col items-center justify-center border border-black">
           <ImageUpload
@@ -70,7 +70,8 @@ const MCQImgTextLayout: React.FC<MCQImgTextLayoutProps> = ({
 
         {/* Text Fields for Question and Description */}
         <div className="flex flex-col w-full md:w-1/2 space-y-3">
-          <p className='text-xl'>Question</p> {/* Fixed typo: 'texl-xl' to 'text-xl' */}
+          <p className="text-xl">Question</p>{" "}
+          {/* Fixed typo: 'texl-xl' to 'text-xl' */}
           <textarea
             style={{ resize: "none" }}
             rows={7}
@@ -80,7 +81,8 @@ const MCQImgTextLayout: React.FC<MCQImgTextLayoutProps> = ({
             onChange={onQuestionTextChange}
             disabled={!editable}
           />
-          <p className='text-xl'>Description</p> {/* Fixed typo: 'texl-xl' to 'text-xl' */}
+          <p className="text-xl">Description</p>{" "}
+          {/* Fixed typo: 'texl-xl' to 'text-xl' */}
           <textarea
             style={{ resize: "none" }}
             rows={4}
@@ -97,10 +99,12 @@ const MCQImgTextLayout: React.FC<MCQImgTextLayoutProps> = ({
       <div className="w-full">
         <Mcq
           editable={editable}
-          options={options} // Pass actual options
-          selectedOption={selectedOption} // Pass actual selected option
-          onOptionSelect={onOptionSelect} // Pass handler for selection
-          onOptionChange={onOptionChange} // Pass handler for option text changes
+          options={options}
+          selectedOption={correctAnswer ? options.indexOf(correctAnswer) : null}
+          correctAnswer={correctAnswer}
+          onOptionSelect={onOptionSelect}
+          onOptionChange={onOptionChange}
+          onCorrectAnswerChange={onCorrectAnswerChange}
         />
       </div>
     </div>

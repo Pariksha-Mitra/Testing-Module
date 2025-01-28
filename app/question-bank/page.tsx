@@ -1,142 +1,126 @@
 "use client";
 
-import React, { useContext, useMemo, useState } from "react";
+import React, { useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { ROLE } from "@/utils/types";         
 import { QuestionList } from "@/components/question-bank/QuestionList";
-import { QuestionProps } from "@/utils/types";
-import { SelectionContext } from "@/context/SelectionContext";
+import { useQuestionStore } from "@/store/useQuestionStore";
 import "@/styles/scrollbar.css";
-
-const initialQuestions: QuestionProps[] = [
-  {
-    id: "1",
-    questionNumber: "Q.1",
-    description: "Question description here",
-    isSelected: false,
-    onClick: () => {},
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  },
-  {
-    id: "2",
-    questionNumber: "Q.2",
-    description: "Question description here",
-    isSelected: false,
-    onClick: () => {},
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  },
-  {
-    id: "3",
-    questionNumber: "Q.3",
-    description: "Question description here",
-    isSelected: false,
-    onClick: () => {},
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  },
-  {
-    id: "4",
-    questionNumber: "Q.4",
-    description: "Question description here",
-    isSelected: false,
-    onClick: () => {},
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  },
-  {
-    id: "5",
-    questionNumber: "Q.5",
-    description: "Question description here",
-    isSelected: false,
-    onClick: () => {},
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  },
-
-  {
-    id: "6",
-    questionNumber: "Q.6",
-    description: "Question description here",
-    isSelected: false,
-    onClick: () => {},
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  },
-
-  {
-    id: "7",
-    questionNumber: "Q.7",
-    description: "Question description here",
-    isSelected: false,
-    onClick: () => {},
-    class: "५",
-    subject: "विषय १",
-    lesson: "धडा १",
-    homework: "स्वाध्याय १",
-  },
-
-  {
-    id: "8",
-    questionNumber: "Q.1",
-    description: "Another question description",
-    isSelected: false,
-    onClick: () => {},
-    class: "५",
-    subject: "विषय २",
-    lesson: "धडा २",
-    homework: "स्वाध्याय १",
-  },
-];
+import { useToast } from "@/components/ui/ToastProvider";
+import { useSelectionStore } from "@/store/useSelectionStore";
+import { Skeleton } from "@mui/material";
 
 const Page: React.FC = () => {
-  const context = useContext(SelectionContext);
-  if (!context) {
-    throw new Error("Page must be used within a SelectionProvider");
-  }
-  const { selection } = context;
+  const router = useRouter();
+  const { showToast } = useToast();
 
-  const [questionList, setQuestionList] = useState<QuestionProps[]>(initialQuestions);
-  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number | null>(null);
+  // Get the user's role from session
+  const { data: session } = useSession();
+  const isTeacher = session?.user?.role === ROLE.Teacher;
 
-  const filteredQuestions = useMemo(() => {
-    return questionList.filter((q) => {
-      return (
-        q.class === selection.class &&
-        q.subject === selection.subject &&
-        q.lesson === selection.lesson &&
-        q.homework === selection.homework
-      );
-    });
-  }, [questionList, selection]);
+  // Hooks from your question store
+  const {
+    questions,
+    selectedQuestionIndex,
+    setSelectedQuestionIndex,
+    deleteQuestion,
+    fetchQuestions,
+    loading,
+    error,
+  } = useQuestionStore();
 
-  const handleQuestionSelect = (index: number): void => {
-    setSelectedQuestionIndex(index);
-  };
+  const selection = useSelectionStore((state) => state.selection);
 
-  const handleDeleteQuestion = (index: number) => {
-    const questionToDelete = filteredQuestions[index];
-    if (!questionToDelete) return;
-
-    setQuestionList((prevQuestions) =>
-      prevQuestions.filter((q) => q.id !== questionToDelete.id)
-    );
-
-    if (selectedQuestionIndex === index) {
-      setSelectedQuestionIndex(null);
+  useEffect(() => {
+    // Fetch questions when exercise changes
+    if (selection.exercise) {
+      fetchQuestions();
+    } else {
+      // Reset questions if no exercise is selected
+      useQuestionStore.getState().resetQuestions();
     }
-  };
+  }, [selection.exercise, fetchQuestions]);
+
+  const handleQuestionSelect = useCallback(
+    (index: number): void => {
+      // Always set the selected index
+      setSelectedQuestionIndex(index);
+
+      // Only navigate to "/create-test" if the user is a Teacher
+      if (isTeacher) {
+        router.push(`/create-test?question=${index}`);
+      }
+    },
+    [isTeacher, setSelectedQuestionIndex, router]
+  );
+
+  const handleDeleteQuestion = useCallback(async () => {
+    const currentQuestion = questions[selectedQuestionIndex];
+    if (!currentQuestion) {
+      showToast("No question selected.", "error");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this question?"
+    );
+    if (!confirmDelete) return;
+
+    if (!currentQuestion.id) {
+      showToast("Invalid question ID.", "error");
+      return;
+    }
+
+    if (currentQuestion.isPersisted) {
+      // Persisted question => DELETE request to backend
+      console.log("Deleting persisted question with id:", currentQuestion.id);
+
+      try {
+        const response = await fetch(`/api/questions?id=${currentQuestion.id}`, {
+          method: "DELETE",
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          deleteQuestion(selectedQuestionIndex);
+          showToast("Question deleted successfully.", "success");
+        } else {
+          const errorMsg = data.error || "Failed to delete the question.";
+          showToast(errorMsg, "error");
+        }
+      } catch (error) {
+        console.error("Error deleting persisted question:", error);
+        showToast("Failed to delete the question.", "error");
+      }
+    } else {
+      // Unsaved question => remove only in UI
+      console.log("Removing unsaved question with id:", currentQuestion.id);
+      deleteQuestion(selectedQuestionIndex);
+      showToast("Question removed successfully.", "success");
+    }
+  }, [questions, selectedQuestionIndex, deleteQuestion, showToast]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-wrap gap-7 px-6 py-6 mt-4 bg-white rounded-3xl border border-black border-solid shadow-lg max-md:px-5 max-md:max-w-full">
+        <div className="flex flex-col grow shrink-0 w-full">
+          <Skeleton
+            sx={{ bgcolor: "#f1f1f1" }}
+            variant="rectangular"
+            width="100%"
+            height={505}
+            animation="wave"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="flex flex-wrap gap-7 px-6 py-6 mt-4 bg-white rounded-3xl border border-black border-solid shadow-lg max-md:px-5 max-md:max-w-full">
@@ -146,8 +130,8 @@ const Page: React.FC = () => {
           style={{ maxHeight: "505px" }}
         >
           <QuestionList
-            questions={filteredQuestions}
-            selectedQuestionIndex={selectedQuestionIndex ?? 0}
+            questions={questions}
+            selectedQuestionIndex={selectedQuestionIndex}
             onQuestionSelect={handleQuestionSelect}
             onDeleteQuestion={handleDeleteQuestion}
           />

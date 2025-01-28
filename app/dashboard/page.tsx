@@ -8,11 +8,13 @@ import NewsContent from "@/components/dashboard/student/sections/NewsContent";
 import AnalysisContent from "@/components/dashboard/student/sections/AnalysisContent";
 import GamesContent from "@/components/dashboard/student/sections/GamesContent";
 import TestsContent from "@/components/dashboard/student/sections/TestsContent";
-import PlaceholderContent from "@/components/dashboard/common/PlaceholderContent";
-
+import { useSession } from "next-auth/react";
+import { Skeleton } from "@mui/material";
 
 const Page: React.FC = () => {
-  const role = ROLE.Student;
+  const { data: session } = useSession();
+
+  const role = session?.user.role;
 
   const data = [
     { color: "#FF6384", value: 20, label: "parameter 1" },
@@ -35,55 +37,107 @@ const Page: React.FC = () => {
     { id: "9", isNew: false, title: "Title 9" },
   ];
 
+  const renderContent = () => {
+    switch (role) {
+      case ROLE.Student:
+        return (
+          <>
+            {/* News Section */}
+            <Section title="सध्याच्या गोष्टी" backgroundColor="bg-[#7CD9FE]">
+              <NewsContent news={news} />
+            </Section>
+
+            {/* Analysis Section */}
+            <Section
+              title="विश्लेषण"
+              backgroundColor="bg-[#FC708A]"
+              rounded="rounded-2xl"
+            >
+              <AnalysisContent data={data} total={total} />
+            </Section>
+
+            {/* Games Section */}
+            <Section
+              title="गेम्स"
+              backgroundColor="bg-[#CBD32E]"
+              className="relative min-h-[300px]"
+            >
+              <GamesContent />
+            </Section>
+
+            {/* Tests Section */}
+            <Section
+              title="चाचण्या"
+              backgroundColor="bg-[#F7D827]"
+              className="container mx-auto px-4"
+            >
+              <TestsContent />
+            </Section>
+          </>
+        );
+
+      case ROLE.Teacher:
+        return (
+          <>
+            {/* Placeholder Sections for Teacher */}
+            <Section title="" backgroundColor="bg-white">
+              <div></div>
+            </Section>
+            <Section title="" backgroundColor="bg-white">
+              <div></div>
+            </Section>
+            <Section title="" backgroundColor="bg-white">
+              <div></div>
+            </Section>
+            <Section title="" backgroundColor="bg-white">
+              <div></div>
+            </Section>
+          </>
+        );
+
+      default:
+        return (
+          <>
+            {/* Placeholder Sections for Unknown Role */}
+            <Section title="" backgroundColor="bg-[#7CD9FE]">
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
+            </Section>
+            <Section title="" backgroundColor="bg-[#FC708A]">
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
+            </Section>
+            <Section title="" backgroundColor="bg-[#CBD32E]">
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
+            </Section>
+            <Section title="" backgroundColor="bg-[#F7D827]">
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
+            </Section>
+          </>
+        );
+    }
+  };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-4 mt-4 w-full md:h-[81%]">
-      {role === ROLE.Student ? (
-        <>
-          {/* News Section */}
-          <Section title="सध्याच्या गोष्टी" backgroundColor="bg-[#7CD9FE]">
-            <NewsContent news={news} />
-          </Section>
-
-          {/* Analysis Section */}
-          <Section
-            title="विश्लेषण"
-            backgroundColor="bg-[#FC708A]"
-            rounded="rounded-2xl"
-          >
-            <AnalysisContent data={data} total={total} />
-          </Section>
-
-          {/* Games Section */}
-          <Section
-            title="गेम्स"
-            backgroundColor="bg-[#CBD32E]"
-            className="relative min-h-[300px]"
-          >
-            <GamesContent />
-          </Section>
-
-          {/* Tests Section */}
-          <Section title="चाचण्या" backgroundColor="bg-[#F7D827]" className="container mx-auto px-4">
-            <TestsContent />
-          </Section>
-        </>
-      ) : (
-        <>
-          {/* Placeholder Sections for Non-Student Roles */}
-          <Section title="" backgroundColor="bg-white">
-            <PlaceholderContent />
-          </Section>
-          <Section title="" backgroundColor="bg-white">
-            <PlaceholderContent />
-          </Section>
-          <Section title="" backgroundColor="bg-white">
-            <PlaceholderContent />
-          </Section>
-          <Section title="" backgroundColor="bg-white">
-            <PlaceholderContent />
-          </Section>
-        </>
-      )}
+      {renderContent()}
     </div>
   );
 };

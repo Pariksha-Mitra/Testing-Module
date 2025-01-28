@@ -30,8 +30,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if((token?.role === ROLE.Student && url.pathname === "/create-test")
-  || (token?.role === ROLE.Student && url.pathname === "/question-bank")) {
+  if (token?.role === ROLE.Student && url.pathname === "/create-test") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

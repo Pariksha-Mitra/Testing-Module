@@ -1,14 +1,11 @@
-import { Dispatch, SetStateAction } from 'react';
+import React from "react";
 
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 1. Enums
+// ────────────────────────────────────────────────────────────────────────────────
 /**
- * Enum for user roles
- */
-/**
- * Represents the possible roles that can be assigned to users in the system.
- * @enum {string}
- * @readonly
- * @property {string} Teacher - Role for users who teach or instruct
- * @property {string} Student - Role for users who learn or study
+ * Enum for user roles.
  */
 export enum ROLE {
   Teacher = "teacher",
@@ -16,15 +13,265 @@ export enum ROLE {
 }
 
 /**
- * ToggleGroupProps: Used for toggle groups (Teacher/Student).
+ * Enumerates the different types of questions supported in the system.
  */
+export enum QuestionType {
+  MCQ = "MCQ",
+  MCQ_IMG_TEXT = "MCQ_IMG_TEXT",
+  MCQ_IMG_IMG = "MCQ_IMG_IMG",
+  MCQ_TEXT_IMG = "MCQ_TEXT_IMG",
+  MATCH_THE_PAIRS = "MATCH_THE_PAIRS",
+  SUBJECTIVE_ANSWER = "SUBJECTIVE_ANSWER",
+  TRUE_FALSE = "TRUE_FALSE",
+  NUMERICAL = "NUMERICAL",
+  SHORT_ANSWER = "SHORT_ANSWER",
+}
+
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 2. Domain Models (Core Data Structures)
+// ────────────────────────────────────────────────────────────────────────────────
+
 /**
- * Props interface for the ToggleGroup component.
- * @interface ToggleGroupProps
- * @property {string} id - Unique identifier for the toggle group
- * @property {string} label - Display label for the toggle group
- * @property {ROLE} [selectedValue] - Currently selected role value (optional)
- * @property {function} [onChange] - Callback function triggered when selection changes, receives new role value (optional)
+ * Represents a standard/grade in the system.
+ */
+export interface BackendStandard {
+  _id: string;
+  standardName: string;
+}
+
+/**
+ * Represents a subject in the system.
+ */
+export interface Subject {
+  _id: string;
+  subjectName: string;
+}
+
+/**
+ * Represents a chapter in the system.
+ */
+export interface Chapter {
+  _id: string;
+  title: string;
+}
+
+/**
+ * Represents an exercise associated with a chapter.
+ */
+export interface Exercise {
+  _id: string;
+  title: string;
+}
+
+/**
+ * Represents the current selection state for standard/subject/chapter/exercise.
+ */
+export interface Selection {
+  standard: string | null;
+  subject: string | null;
+  chapter: string | null;
+  exercise: string | null;
+}
+
+/**
+ * Represents a question in the system.
+ */
+export interface Question {
+  /**
+   * Local unique identifier (could match _id if persisted).
+   */
+  id: string;
+
+  /**
+   * Optional _id from the backend.
+   */
+  _id?: string;
+
+  standardId: string;
+  subjectId: string;
+  chapterId: string;
+  exerciseId: string;
+  questionText: string;
+  questionType: QuestionType;
+  answerFormat: string;
+  options: string[];
+  correctAnswer: string | null;
+  numericalAnswer?: number | null;
+  questionDescription?: string;
+  image?: string | null;
+  imageOptions?: (string | null)[];
+  isPersisted?: boolean;
+}
+
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 3. API Response Interfaces
+// ────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Standard API response structure.
+ */
+export interface StandardResponse {
+  classes: BackendStandard[];
+}
+
+/**
+ * Subject API response structure.
+ */
+export interface SubjectResponse {
+  standard_related_subjects: Subject[];
+}
+
+/**
+ * Chapter API response structure.
+ */
+export interface ChapterResponse {
+  subject_related_chapters: Chapter[];
+}
+
+/**
+ * Exercise API response structure.
+ */
+export interface ExerciseResponse {
+  chapter_related_exercise: Exercise[];
+}
+
+/**
+ * Represents the shape of a question returned from the backend.
+ */
+export interface BackendQuestion {
+  _id: string;
+  questionText: string;
+  questionType: string;
+  answerFormat: string;
+  questionDescription: string;
+  options: string[];
+  correctAnswer: string | null;
+  description: string;
+  image: string | null;
+  imageOptions: (string | null)[];
+  numericalAnswer: number | null;
+}
+
+
+export interface Payload {
+  questionText: string;
+  questionDescription?: string;
+  questionType: string;
+  answerFormat: string;
+  options: string[];
+  correctAnswer?: string | null;
+  numericalAnswer?: number | null;
+  image?: string | null;
+  imageOptions: string[] | null | undefined;
+  id?: string;
+  standardId?: string;
+  subjectId?: string;
+  chapterId?: string;
+  exerciseId?: string;
+}
+
+/**
+ * Question list API response structure.
+ */
+export interface QuestionResponse {
+  exercise_related_questions: BackendQuestion[];
+}
+
+/**
+ * Add-Option endpoint response for newly created resource.
+ */
+export interface AddOptionResponse {
+  _id: string;
+  subjectId?: string;
+  chapterId?: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 4. Store Interfaces (e.g., for Zustand/Redux)
+// ────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Store for handling standards.
+ */
+export interface StandardStore {
+  standards: { id: string; name: string }[];
+  loading: boolean;
+  error: string | null;
+  fetchStandards: () => Promise<void>;
+}
+
+/**
+ * Store for handling subjects.
+ */
+export interface SubjectStore {
+  subjects: { id: string; name: string }[];
+  loading: boolean;
+  error: string | null;
+  fetchSubjects: () => Promise<void>;
+}
+
+/**
+ * Store for handling chapters.
+ */
+export interface ChapterStore {
+  chapters: { id: string; name: string }[];
+  loading: boolean;
+  error: string | null;
+  fetchChapters: () => Promise<void>;
+}
+
+/**
+ * Store for handling exercises.
+ */
+export interface ExerciseStore {
+  exercises: { id: string; name: string }[];
+  loading: boolean;
+  error: string | null;
+  fetchExercises: () => Promise<void>;
+}
+
+/**
+ * Store for handling the selected standard/subject/chapter/exercise.
+ */
+export interface SelectionStore {
+  selection: Selection;
+  setSelection: (selection: Partial<Selection>) => void;
+  resetSelection: () => void;
+}
+
+/**
+ * Store for handling questions.
+ */
+export interface QuestionStore {
+  questions: Question[];
+  selectedQuestionIndex: number;
+  loading: boolean;
+  error: string | null;
+  fetchQuestions: () => Promise<void>;
+  addQuestion: (exerciseId: string, replace?: boolean) => void;
+  setSelectedQuestionIndex: (index: number) => void;
+  deleteQuestion: (index: number) => void;
+  updateQuestionField: <K extends keyof Question>(
+    questionIndex: number,
+    field: K,
+    value: Question[K]
+  ) => void;
+  resetQuestions: () => void;
+}
+
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 5. Component Props (UI-Related Interfaces)
+// ────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ToggleGroupProps: Used for toggle groups (Teacher/Student).
  */
 export interface ToggleGroupProps {
   id: string;
@@ -36,13 +283,6 @@ export interface ToggleGroupProps {
 /**
  * SidebarItemProps: Represents a single item (link) in a sidebar.
  */
-/**
- * Properties for a sidebar item component
- * @interface SidebarItemProps
- * @property {string} href - The URL or path that the sidebar item links to
- * @property {string} ariaLabel - Accessible label for screen readers describing the sidebar item
- * @property {React.ReactNode} icon - Icon element to be displayed alongside the sidebar item
- */
 export interface SidebarItemProps {
   href: string;
   ariaLabel: string;
@@ -50,154 +290,38 @@ export interface SidebarItemProps {
 }
 
 /**
- * Enumerates the different types of questions supported in the system.
- * @enum {string}
- * @readonly
- * @property {string} MCQ - Multiple Choice Questions with text options
- * @property {string} MCQ_IMG_TEXT - MCQ with image question and text options
- * @property {string} MCQ_IMG_IMG - MCQ with image question and image options
- * @property {string} MCQ_TEXT_IMG - MCQ with text question and image options
- * @property {string} MATCH_PAIRS - Match corresponding pairs of items
- * @property {string} SUBJECTIVE - Open-ended questions requiring written answers
- * @property {string} TRUE_FALSE - Binary choice questions (True/False)
+ * Reusable dropdown component properties.
  */
-export enum QuestionType {
-  MCQ = "MCQ",
-  MCQ_IMG_TEXT = "MCQ (IMG-Text)",
-  MCQ_IMG_IMG = "MCQ (IMG-IMG)",
-  MCQ_TEXT_IMG = "MCQ (Text-IMG)",
-  MATCH_PAIRS = "Match The Pairs",
-  SUBJECTIVE = "Subjective Answer",
-  TRUE_FALSE = "True/False"
-}
-
-/**
- * Question interface: Generic question structure, used in question bank.
- */
-/**
- * Represents a question in the system.
- * @interface Question
- * 
- * @property {number} id - Unique identifier for the question
- * @property {QuestionType} type - Type of the question (e.g., MCQ, IMG-Text, etc.)
- * @property {object} content - Contains all the content-related information for the question
- * @property {string} [content.questionText] - The main text of the question
- * @property {string} [content.description] - Additional description or context for the question
- * @property {string[]} [content.options] - Array of text options for MCQ or MCQ(IMG-Text) type questions
- * @property {number | null} [content.correctAnswerIndex] - Index of the correct answer in the options array
- * @property {string} [content.image] - URL or path to the question image for MCQ(IMG-Text) or MCQ(IMG-IMG) type questions
- * @property {(string | null)[]} [content.imageOptions] - Array of image URLs/paths for MCQ(IMG-IMG) or MCQ(Text-IMG) type questions
- */
-
-export interface Question {
-  id: number;
-  type: QuestionType;
-  content: {
-    questionText: string | null;
-    description: string | null;
-    options: string[] | null;
-    correctAnswerIndex: number | null;
-    image: string | null;
-    imageOptions?: (string | null)[];
-  };
-}
-
-/**
- * Context shape for storing and managing question data + dropdown selections.
- */
-/**
- * Interface representing the props for the Questions context.
- * @interface QuestionsContextProps
- * 
- * @property {Object} selection - Current selection state containing class, subject, lesson and homework
- * @property {string} selection.class - Selected class name/ID
- * @property {string} selection.subject - Selected subject name
- * @property {string} selection.lesson - Selected lesson name/number
- * @property {string} selection.homework - Selected homework identifier
- * 
- * @property {Function} setSelection - React setState function to update the selection object
- * @property {Question[]} questions - Array of Question objects representing the current questions
- * @property {Function} setQuestions - React setState function to update the questions array
- * @property {number} selectedQuestionIndex - Index of currently selected/active question
- * @property {Function} setSelectedQuestionIndex - React setState function to update selected question index
- */
-export interface QuestionsContextProps {
-  selection: {
-    class: string;
-    subject: string;
-    lesson: string;
-    homework: string;
-  };
-  setSelection: Dispatch<SetStateAction<{
-    class: string;
-    subject: string;
-    lesson: string;
-    homework: string;
-  }>>;
-  questions: Question[];
-  setQuestions: Dispatch<SetStateAction<Question[]>>;
-  selectedQuestionIndex: number;
-  setSelectedQuestionIndex: Dispatch<SetStateAction<number>>;
-  isEditing: boolean;
-  setIsEditing: Dispatch<SetStateAction<boolean>>;
+export interface DropdownItem {
+  id: string | number;
+  name: string | number;
 }
 
 /**
  * DropdownProps: Reusable dropdown component properties.
  */
-/**
- * Props interface for a customizable dropdown component.
- * @interface DropdownProps
- * 
- * @property {(string | number)[]} items - Array of items to be displayed in the dropdown
- * @property {string} [label] - Optional label text for the dropdown
- * @property {(value: string | number) => void} [onSelect] - Optional callback function when an item is selected
- * @property {string | number} [defaultValue] - Optional initial value for the dropdown
- * @property {string} [className] - Optional CSS class name for styling the dropdown button
- * @property {string | number} [width] - Optional width specification for the dropdown
- * @property {string} [id] - Optional unique identifier for the dropdown
- * @property {string} [buttonBgColor] - Optional background color for the dropdown button
- * @property {string} [containerClass] - Optional CSS class name for styling the dropdown container
- * @property {string} [buttonBorderWidth] - Optional border width for the dropdown button
- * @property {string} [buttonBorderColor] - Optional border color for the dropdown button
- * @property {string | number} [selected] - Optional currently selected value
- * @property {(value: string | number) => void} [onChange] - Optional callback function when selection changes
- * @property {boolean} [allowAddOption] - Optional flag to enable adding new options
- * @property {string | number} [allowAddOptionText] - Optional text to display for add option button
- * @property {(newOption: string) => void} [onAddOption] - Optional callback function when a new option is added
- */
 export interface DropdownProps {
-  items: (string | number)[];
+  items: DropdownItem[];
   label?: string;
   onSelect?: (value: string | number) => void;
   defaultValue?: string | number;
   className?: string;
-  width?: string | number;
   id?: string;
   buttonBgColor?: string;
-  containerClass?: string;
   buttonBorderWidth?: string;
   buttonBorderColor?: string;
+  containerClass?: string;
   selected?: string | number;
   onChange?: (value: string | number) => void;
   allowAddOption?: boolean;
-  allowAddOptionText?: string | number;
-  onAddOption?: (newOption: string) => void;
+  allowAddOptionText?: string;
+  onAddOption?: (newOptionName: string) => void;
+  isDynamic?: boolean;
+  disabled?: boolean;
 }
 
 /**
  * AddOptionModalProps: For a modal that allows users to add a new dropdown option.
- */
-/**
- * Props interface for the AddOptionModal component.
- * @interface
- * 
- * @property {boolean} visible - Controls the visibility state of the modal
- * @property {() => void} onClose - Callback function triggered when the modal is closed
- * @property {(newValue: string) => void} onConfirm - Callback function triggered when the modal input is confirmed, receives the new value as parameter
- * @property {string} [title] - Optional title text to be displayed in the modal header
- * @property {string} [placeholder] - Optional placeholder text for the modal input field
- * @property {string} [className] - Optional CSS class name for additional styling
  */
 export interface AddOptionModalProps {
   visible: boolean;
@@ -210,22 +334,7 @@ export interface AddOptionModalProps {
 
 /**
  * MatchPairsFieldProperties: For a 'match the pairs' question type,
- * to handle left and right pairs, connections, etc.
- */
-/**
- * Interface representing properties for a match pairs field component.
- * @interface
- * 
- * @property {string} title - The title of the match pairs field
- * @property {boolean} [isRightSide] - Optional flag indicating if this is the right side of the matching pairs
- * @property {Record<string, string>} values - Key-value pairs of items to be matched
- * @property {function} onValueChange - Callback function triggered when a value changes
- * @param {string} key - The key of the changed value
- * @param {string} value - The new value
- * @property {function} onConnect - Callback function triggered when items are connected
- * @param {string} key - The key of the connected item
- * @property {string | null} [activeItem] - Optional currently active/selected item
- * @property {Record<string, string>} [connections] - Optional record of established connections between pairs
+ * to handle left/right pairs, connections, etc.
  */
 export interface MatchPairsFieldProperties {
   title: string;
@@ -240,18 +349,6 @@ export interface MatchPairsFieldProperties {
 /**
  * PairItemFieldProps: Single item in a 'match the pairs' field.
  */
-/**
- * Props interface for a pair item field component
- * @interface PairItemFieldProps
- * 
- * @property {string} label - The display label for the field
- * @property {boolean} [isRight] - Optional flag indicating if the item is positioned on the right
- * @property {string} value - The current value of the field
- * @property {(value: string) => void} onChange - Callback function triggered when the field value changes
- * @property {string} id - Unique identifier for the field
- * @property {boolean} [isActive] - Optional flag indicating if the field is in active state
- * @property {() => void} onSelect - Callback function triggered when the field is selected
- */
 export interface PairItemFieldProps {
   label: string;
   isRight?: boolean;
@@ -265,77 +362,41 @@ export interface PairItemFieldProps {
 /**
  * NavButtonProps: For a custom nav button with an optional tooltip.
  */
-/**
- * Props interface for a navigation button component.
- * 
- * @interface NavButtonProps
- * @property {string} imageSrc - The source URL/path for the button's image
- * @property {string} [imageAlt] - Optional alternative text for the button's image
- * @property {() => void} [onClick] - Optional click handler function for the button
- * @property {string} [ariaLabel] - Optional ARIA label for accessibility
- * @property {string} [tooltipText] - Optional text to display in a tooltip
- */
 export interface NavButtonProps {
   imageSrc: string;
   imageAlt?: string;
   onClick?: () => void;
   ariaLabel?: string;
   tooltipText?: string;
-  disabled?:boolean;
+  disabled?: boolean;
 }
 
 /**
- * QuestionProps:  Used in question-bank UI (list, card).
+ * QuestionCardProps: Represents props for a single question card item.
  */
-/**
- * Properties for the Question component.
- * @interface QuestionProps
- * @property {string} id - Unique identifier for the question
- * @property {string} questionNumber - Display number/sequence of the question
- * @property {string} description - Main content/text of the question
- * @property {boolean} isSelected - Flag indicating if question is currently selected
- * @property {Function} onClick - Click handler for when question is selected
- * @property {Function} [onDelete] - Optional handler for question deletion
- * @property {string} [class] - Optional class/grade level for filtering
- * @property {string} [subject] - Optional subject category for filtering
- * @property {string} [lesson] - Optional lesson identifier for filtering
- * @property {string} [homework] - Optional homework identifier for filtering
- */
-export interface QuestionProps {
-  id: string;
-  questionNumber: string;
-  description: string;
+export interface QuestionCardProps {
+  q_no: string;
+  questionText: string;
   isSelected: boolean;
   onClick: () => void;
   onDelete?: () => void;
-  // These added for filtering:
-  class?: string;
-  subject?: string;
-  lesson?: string;
-  homework?: string;
 }
 
 /**
- * QuestionListProps: For rendering a list of `QuestionProps`.
- */
-/**
- * Props interface for the QuestionList component.
- * @interface QuestionListProps
- * @property {QuestionProps[]} questions - Array of question objects to be displayed in the list
- * @property {number} selectedQuestionIndex - Index of the currently selected question
- * @property {(index: number) => void} onQuestionSelect - Callback function triggered when a question is selected
- * @property {(index: number) => void} onDeleteQuestion - Callback function triggered when a question is deleted
+ * QuestionListProps: For rendering a list of Questions.
  */
 export interface QuestionListProps {
-  questions: QuestionProps[];
+  questions: Question[];
   selectedQuestionIndex: number;
   onQuestionSelect: (index: number) => void;
   onDeleteQuestion: (index: number) => void;
 }
 
-
-export interface NewsItemProps  {
-  id: string; 
+/**
+ * NewsItemProps: Represents a single news item.
+ */
+export interface NewsItemProps {
+  id: string;
   isNew: boolean;
   title: string;
   onClick?: () => void;

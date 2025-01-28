@@ -189,6 +189,18 @@ export async function POST(req: Request) {
       );
     }
 
+    if(invitationId && (invitationId !== process.env.INVITATION_ID)) {
+      return NextResponse.json(
+        {
+          message: "Invalid invitation ID",
+          invitationId,
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
     const slug =
       `${firstName}-${surname}-${dateOfBirth}-${schoolId}`.toLowerCase();
 

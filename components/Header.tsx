@@ -20,7 +20,7 @@ export default function Header() {
             {isLoading ? (
               <Skeleton   sx={{ bgcolor: '#8fa4ff' }} variant="text" width={200} height={30} animation="wave"/>
             ) : (
-              `${session?.user.username}, DETAILS`
+              `${session?.user.username}, ${session?.user.role}`
             )}
           </p>
         </div>

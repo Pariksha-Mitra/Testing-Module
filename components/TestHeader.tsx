@@ -1,105 +1,64 @@
 "use client";
-import Dropdown from '@/components/Dropdown/Dropdown';
-import Image from 'next/image';
-import React, { useCallback, useMemo } from 'react';
-import { QuestionType } from '@/utils/types';
-import { useQuestions } from '@/context/QuestionsContext';
 
-export default function TestHeader() {
+import React, { useEffect } from "react";
+import Dropdown from "@/components/Dropdown/Dropdown";
+import Image from "next/image";
+import { Skeleton } from "@mui/material";
+import { useDropdowns } from "@/utils/hooks/useDropdowns";
+import { useQuestionStore } from "@/store/useQuestionStore";
+import { useSearchParams } from "next/navigation";
+
+const TestHeader: React.FC = () => {
   const {
     selection,
-    setSelection,
+    standards,
+    subjects,
+    chapters,
+    exercises,
     questions,
-    setQuestions,
-    selectedQuestionIndex,
-    setSelectedQuestionIndex,
-    isEditing, // Added isEditing from context
-    setIsEditing, // Added setIsEditing from context
-  } = useQuestions();
+    isAnyLoading,
+    errorMessages,
+    handleSelect,
+    handleAddOption,
+    handleAddQuestion,
+  } = useDropdowns();
 
-  const classOptions = useMemo(() => ["५", "६", "७", "८", "९", "१०"], []);
-  const subjectOptions = useMemo(() => ["विषय १", "विषय २", "विषय ३"], []);
-  const lessonOptions = useMemo(() => ["धडा १", "धडा २", "धडा ३"], []);
-  const homeworkOptions = useMemo(() => ["स्वाध्याय १", "स्वाध्याय २"], []);
+  const { selectedQuestionIndex, setSelectedQuestionIndex, fetchQuestions } =
+    useQuestionStore();
 
-  const handleSelect = useCallback(
-    async (value: string | number, dropdownKey: string) => {
-      if (isEditing) {
-        const confirmLeave = window.confirm(
-          "You have unsaved changes. Are you sure you want to change this dropdown option?"
-        );
-        if (!confirmLeave) return;
+  const searchParams = useSearchParams();
+  const questionIndexParam = searchParams.get("question");
+
+  useEffect(() => {
+    const initializeSelectedQuestion = async () => {
+      if (questionIndexParam !== null) {
+        const index = Number(questionIndexParam);
+        if (!isNaN(index) && index >= 0 && index < questions.length) {
+          // Ensure questions are fetched before setting the index
+          if (questions.length === 0) {
+            await fetchQuestions();
+          }
+          setSelectedQuestionIndex(index);
+        }
       }
-      setSelection((prevSelection) => ({
-        ...prevSelection,
-        [dropdownKey]: value,
-      }));
-      setQuestions([]);
-      setSelectedQuestionIndex(0);
-
-      const fetchedQuestions = [
-        {
-          id: 1,
-          type: QuestionType.MCQ,
-          content: {
-            questionText: "",
-            description: "",
-            options: ["", "", "", ""],
-            correctAnswerIndex: null,
-            image: null,
-            imageOptions: [null, null, null, null],
-          },
-        },
-      ];
-      setQuestions(fetchedQuestions);
-      setIsEditing(false); // Reset editing state
-    },
-    [isEditing, setSelection, setQuestions, setSelectedQuestionIndex, setIsEditing]
-  );
-
-  const handleAddQuestion = useCallback(() => {
-    if (isEditing) {
-      const confirmAdd = window.confirm(
-        "You have unsaved changes. Are you sure you want to add a new question?"
-      );
-      if (!confirmAdd) return;
-    }
-    const newQuestion = {
-      id: questions.length + 1,
-      type: QuestionType.MCQ,
-      content: {
-        questionText: "",
-        description: "",
-        options: ["", "", "", ""],
-        correctAnswerIndex: null,
-        image: null,
-        imageOptions: [null, null, null, null],
-      },
     };
-    setQuestions([...questions, newQuestion]);
-    setSelectedQuestionIndex(questions.length); // Select the new question
-    setIsEditing(false); // Reset editing state
-  }, [isEditing, questions, setQuestions, setSelectedQuestionIndex, setIsEditing]);
 
-  const handleSelectQuestion = useCallback(
-    (index: number) => {
-      if (isEditing) {
-        const confirmNavigate = window.confirm(
-          "You have unsaved changes. Are you sure you want to navigate to another question?"
-        );
-        if (!confirmNavigate) return;
-      }
-      setSelectedQuestionIndex(index);
-      setIsEditing(false); // Reset editing state
-    },
-    [isEditing, setSelectedQuestionIndex, setIsEditing]
-  );
+    initializeSelectedQuestion();
+  }, [
+    questionIndexParam,
+    setSelectedQuestionIndex,
+    fetchQuestions,
+    questions.length,
+  ]);
+
+  const skeletonPlaceholders = ["skel-1", "skel-2", "skel-3", "skel-4"];
 
   return (
     <div className="text-white rounded-lg">
       <div className="flex flex-col md:flex-row gap-2">
         {/* Left Section: Dropdowns and Header */}
         <div className="flex flex-col items-center p-4 rounded-lg shadow bg-[#6378fd] w-full md:w-1/2">
+          {/* Header */}
           <div className="flex items-center justify-center w-full text-center gap-8">
             <Image
               src="/test-paper.png"
@@ -109,86 +68,165 @@ export default function TestHeader() {
             />
             <h1 className="text-7xl rozha-one-regular">चाचणी तयार करा</h1>
           </div>
+
+          {/* Dropdowns */}
           <div className="flex flex-wrap justify-between w-full mr-3 ml-3 gap-2">
-            <Dropdown
-              id="class-dropdown"
-              items={classOptions}
-              label="इयत्ता:"
-              selected={selection.class}
-              buttonBgColor="bg-[#fc708a]"
-              buttonBorderColor="border-white"
-              buttonBorderWidth="border-[2px]"
-              onSelect={(value) => handleSelect(value, "class")}
-              className="sm:w-[48%]"
-            />
-            <Dropdown
-              id="subject-dropdown"
-              label="विषय:"
-              items={subjectOptions}
-              selected={selection.subject}
-              buttonBgColor="bg-[#fc708a]"
-              buttonBorderColor="border-white"
-              buttonBorderWidth="border-[2px]"
-              onSelect={(value) => handleSelect(value, "subject")}
-              className="sm:w-[48%]"
-            />
-            <Dropdown
-              id="lesson-dropdown"
-              label="धडा:"
-              items={lessonOptions}
-              selected={selection.lesson}
-              buttonBgColor="bg-[#fc708a]"
-              buttonBorderColor="border-white"
-              buttonBorderWidth="border-[2px]"
-              onSelect={(value) => handleSelect(value, "lesson")}
-              className="sm:w-[48%]"
-              allowAddOption
-              allowAddOptionText="add lesson"
-            />
-            <Dropdown
-              id="homework-dropdown"
-              label="स्वाध्याय:"
-              items={homeworkOptions}
-              selected={selection.homework}
-              buttonBgColor="bg-[#fc708a]"
-              buttonBorderColor="border-white"
-              buttonBorderWidth="border-[2px]"
-              onSelect={(value) => handleSelect(value, "homework")}
-              className="sm:w-[48%]"
-              allowAddOption
-              allowAddOptionText="add homework"
-            />
+            {isAnyLoading ? (
+              <div className="grid grid-cols-2 gap-4 w-full">
+                {/* Skeleton placeholders */}
+                {skeletonPlaceholders.map((skeletonKey) => (
+                  <Skeleton
+                    key={skeletonKey}
+                    sx={{ bgcolor: "#a6b1ff" }}
+                    variant="rectangular"
+                    width="100%"
+                    height={45}
+                    className="rounded-[20px]"
+                    animation="wave"
+                  />
+                ))}
+              </div>
+            ) : (
+              <>
+                {/* Standard Dropdown */}
+                <Dropdown
+                  isDynamic
+                  id="standard-dropdown"
+                  items={standards}
+                  label="इयत्ता:"
+                  selected={selection.standard ?? undefined}
+                  buttonBgColor="bg-[#fc708a]"
+                  buttonBorderColor="border-white"
+                  buttonBorderWidth="border-[2px]"
+                  onSelect={(val) => handleSelect(val, "standard")}
+                  className="sm:w-[48%]"
+                  disabled={false} // Since data is loaded
+                  allowAddOption={true}
+                  allowAddOptionText="Add Standard"
+                  onAddOption={(newOptionName) =>
+                    handleAddOption(newOptionName, "standard")
+                  }
+                />
+
+                {/* Subject Dropdown */}
+                <Dropdown
+                  isDynamic
+                  id="subject-dropdown"
+                  items={subjects}
+                  label="विषय:"
+                  selected={selection.subject ?? undefined}
+                  buttonBgColor="bg-[#fc708a]"
+                  buttonBorderColor="border-white"
+                  buttonBorderWidth="border-[2px]"
+                  onSelect={(val) => handleSelect(val, "subject")}
+                  className="sm:w-[48%]"
+                  disabled={!selection.standard}
+                  allowAddOption={true}
+                  allowAddOptionText="Add Subject"
+                  onAddOption={(newOptionName) =>
+                    handleAddOption(newOptionName, "subject")
+                  }
+                />
+
+                {/* Chapter Dropdown */}
+                <Dropdown
+                  isDynamic
+                  id="chapter-dropdown"
+                  items={chapters}
+                  label="धडा:"
+                  selected={selection.chapter ?? undefined}
+                  buttonBgColor="bg-[#fc708a]"
+                  buttonBorderColor="border-white"
+                  buttonBorderWidth="border-[2px]"
+                  onSelect={(val) => handleSelect(val, "chapter")}
+                  className="sm:w-[48%]"
+                  disabled={!selection.subject}
+                  allowAddOption={true}
+                  allowAddOptionText="Add Chapter"
+                  onAddOption={(newOptionName) =>
+                    handleAddOption(newOptionName, "chapter")
+                  }
+                />
+
+                {/* Exercise Dropdown */}
+                <Dropdown
+                  isDynamic
+                  id="exercise-dropdown"
+                  items={exercises}
+                  label="अभ्यास:"
+                  selected={selection.exercise ?? undefined}
+                  buttonBgColor="bg-[#fc708a]"
+                  buttonBorderColor="border-white"
+                  buttonBorderWidth="border-[2px]"
+                  onSelect={(val) => handleSelect(val, "exercise")}
+                  className="sm:w-[48%]"
+                  disabled={!selection.chapter}
+                  allowAddOption={true}
+                  allowAddOptionText="Add Exercise"
+                  onAddOption={(newOptionName) =>
+                    handleAddOption(newOptionName, "exercise")
+                  }
+                />
+              </>
+            )}
           </div>
+
+          {/* Error Messages */}
+          {errorMessages.length > 0 && (
+            <div className="mt-2">
+              {errorMessages.map((msg, idx) => (
+                <div key={`${msg}-${idx}`} className="text-red-500 text-sm">
+                  {msg}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty Data Messages */}
+          {!isAnyLoading && selection.standard && subjects.length === 0 && (
+            <div className="mt-2 text-yellow-500 text-sm">
+              No subjects available for the selected standard.
+            </div>
+          )}
+          {!isAnyLoading && selection.subject && chapters.length === 0 && (
+            <div className="mt-2 text-yellow-500 text-sm">
+              No chapters available for the selected subject.
+            </div>
+          )}
+          {!isAnyLoading && selection.chapter && exercises.length === 0 && (
+            <div className="mt-2 text-yellow-500 text-sm">
+              No exercises available for the selected chapter.
+            </div>
+          )}
         </div>
 
         {/* Right Section: Question Navigation */}
-        <div className="flex flex-col p-4 rounded-lg shadow bg-[#6378fd] w-full md:w-1/2 ">
+        <div className="flex flex-col p-4 rounded-lg shadow bg-[#6378fd] w-full md:w-1/2">
           <div className="grid grid-cols-7 gap-4 p-4">
             {questions.map((question, index) => (
               <button
-                key={question.id}
-                className={`flex pt-1 laila-semibold items-center justify-center ${selectedQuestionIndex === index ? "bg-green-400" : "bg-[#a6b1ff]"
-                  } w-10 h-10 text-white rounded-full font-bold`}
-                onClick={() => handleSelectQuestion(index)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleSelectQuestion(index);
-                  }
+                key={question.id || index}
+                className={`flex pt-1 laila-semibold items-center justify-center ${
+                  selectedQuestionIndex === index
+                    ? "bg-green-400"
+                    : "bg-[#a6b1ff]"
+                } w-10 h-10 text-white rounded-full font-bold`}
+                onClick={() => {
+                  setSelectedQuestionIndex(index);
                 }}
               >
-                {question.id}
+                {index + 1}
               </button>
             ))}
             <button
-              className="flex items-center justify-center bg-[#a6b1ff] w-10 h-10 rounded-full"
+              className="flex items-center justify-center bg-[#a6b1ff] w-10 h-10 rounded-full cursor-pointer"
               onClick={handleAddQuestion}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleAddQuestion();
-                }
-              }}
+              disabled={!selection.exercise}
+              title={
+                !selection.exercise
+                  ? "Select an exercise first"
+                  : "Add Question"
+              }
             >
               <svg
                 width="15"
@@ -200,17 +238,11 @@ export default function TestHeader() {
                 <path d="M19.098 43.3068V0.147724H24.9276V43.3068H19.098ZM0.416193 24.625V18.8295H43.6094V24.625H0.416193Z" />
               </svg>
             </button>
-
-
-            {Array.from({ length: 21 - questions.length - 1 }, (_, i) => (
-              <div
-                key={`placeholder-${i}`}
-                className="w-10 h-10 bg-[#a6b1ff] rounded-full opacity-50"
-              ></div>
-            ))}
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default TestHeader;

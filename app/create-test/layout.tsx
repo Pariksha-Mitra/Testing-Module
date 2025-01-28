@@ -1,26 +1,38 @@
-"use client"
-import React from "react";
-import Sidebar from "@/components/ui/Sidebar/Sidebar";
+"use client";
+
+import React, { Suspense } from "react";
 import TestHeader from "@/components/TestHeader";
-import { QuestionsProvider } from "@/context/QuestionsContext";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import Sidebar from "@/components/ui/Sidebar/Sidebar";
+import { Skeleton } from "@mui/material";
 
 const TestPageLayout: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   if (!children) {
-    throw new Error("TestPageLayout requires children");
+    return <div>Error: No content provided for this layout.</div>;
   }
 
   return (
-    <QuestionsProvider>
+    <ToastProvider>
       <div className="relative flex bg-gradient-to-b from-yellow-200 to-blue-300 min-h-screen">
-        <Sidebar />
-        <main className="flex-1 p-6 ml-24">
-          <TestHeader />
+        <Suspense fallback={<div>Loading Sidebar...</div>}>
+          <Sidebar />
+        </Suspense>
+        <div className="flex-1 p-6 ml-24 overflow-auto">
+          <Suspense
+            fallback={
+              <div className="flex flex-col items-center p-4 rounded-lg shadow bg-[#6378fd] w-full">
+                <Skeleton variant="rectangular" height={"200px"}></Skeleton>
+              </div>
+            }
+          >
+            <TestHeader />
+          </Suspense>
           {children}
-        </main>
+        </div>
       </div>
-    </QuestionsProvider>
+    </ToastProvider>
   );
 };
 

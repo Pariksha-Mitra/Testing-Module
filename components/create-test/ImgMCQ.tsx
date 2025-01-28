@@ -5,7 +5,7 @@ import React from 'react';
 interface ImgMCQProps {
   questionIndex: number;
   editable: boolean;
-  imageOptions: Array<string | null>;
+  imageOptions: Array<string | null> | undefined;
   selectedOption: number | null;
   onOptionSelect: (index: number) => void;
   onOptionChange: (index: number, value: string | null) => void;
@@ -45,7 +45,7 @@ const ImgMCQ: React.FC<ImgMCQProps> = ({
         aria-label={`Image options for question ${questionIndex + 1}`}
       >
         <div className="grid grid-cols-2 gap-6">
-          {imageOptions.map((imageSrc, index) => (
+          {(imageOptions ?? []).map((imageSrc, index) => (
             <label
               key={`question-${questionIndex}-option-${index}`} // Ensure global uniqueness
               className={`relative flex flex-col items-center justify-center h-[220px] p-4 bg-white rounded-2xl border shadow-md transition-all duration-300 ease-in-out

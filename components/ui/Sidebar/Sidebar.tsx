@@ -6,9 +6,13 @@ import QuestionBankIcon from "@/public/sidebar-icons/question-bank.svg";
 import CreateTestIcon from "@/public/sidebar-icons/create-test.svg";
 import ResultIcon from "@/public/sidebar-icons/result.svg";
 import ProfileIcon from "@/public/sidebar-icons/profile.svg";
-
+import { useSession } from "next-auth/react";
+import { ROLE } from "@/utils/types";
 export default function Sidebar() {
-  // TODO: Display SidebarItem based on user role
+  const { data: session } = useSession();
+
+  const role = session?.user.role;
+
   return (
     <div className="fixed top-0 left-0 h-screen w-24 backdrop-blur-md bg-gradient-to-b from-yellow-50 to-blue-200  border-r border-black flex flex-col">
       {/* Top Section */}
@@ -30,11 +34,18 @@ export default function Sidebar() {
           icon={<QuestionBankIcon />}
         />
 
-        <SidebarItem
-          href="/create-test"
-          ariaLabel="चाचणी तयार करा"
-          icon={<CreateTestIcon />}
-        />
+        {role === ROLE.Teacher && (
+             <SidebarItem
+             href="/create-test"
+             ariaLabel="चाचणी तयार करा"
+             icon={<CreateTestIcon />}
+           />
+         
+        )}
+          
+           
+         
+        
 
         <SidebarItem href="/result" ariaLabel="निकाल" icon={<ResultIcon />} />
 

@@ -1,7 +1,6 @@
 import AuthProvider from "@/utils/AuthProvider";
-import { Laila, Rozha_One, Arya,Inter } from "next/font/google";
+import { Laila, Rozha_One, Arya, Inter } from "next/font/google";
 import { ToastProvider } from "@/components/ui/ToastProvider";
-import { QuestionsProvider } from "@/context/QuestionsContext";
 import "./globals.css";
 import type { Metadata } from "next";
 // Extract font configurations
@@ -48,9 +47,7 @@ export default function RootLayout({
         className={`${rozhaOne.variable} ${laila.variable} ${arya.variable} ${inter.variable} antialiased`}
       >
         <AuthProvider>
-          <ToastProvider>
-            <QuestionsProvider>{children}</QuestionsProvider>
-          </ToastProvider>
+          <ToastProvider>{children}</ToastProvider>
         </AuthProvider>
       </body>
     </html>
