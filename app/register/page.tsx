@@ -233,32 +233,39 @@ const Register = () => {
                     })}
                 </select>
               </div>
-              <div className="flex flex-col">
-                <label htmlFor="rollNo" className="text-xl font-light mb-2">
-                  रोल नंबर
-                </label>
-                <input
-                  id="rollNo"
-                  className="p-3 border border-black shadow-md rounded-2xl"
-                  type="number"
-                  placeholder="Roll No"
-                  value={rollNo}
-                  onChange={(e) => setRollNo(e.target.value)}
-                />
-              </div>
-              <div className="flex flex-col">
-                <label htmlFor="division" className="text-xl font-light mb-2">
-                  विभाजन
-                </label>
-                <input
-                  id="division"
-                  className="p-3 border border-black shadow-md rounded-2xl"
-                  type="text"
-                  placeholder="Division"
-                  value={division}
-                  onChange={(e) => setDivision(e.target.value)}
-                />
-              </div>
+              {role == "student" && (
+                <>
+                  <div className="flex flex-col">
+                    <label htmlFor="rollNo" className="text-xl font-light mb-2">
+                      रोल नंबर
+                    </label>
+                    <input
+                      id="rollNo"
+                      className="p-3 border border-black shadow-md rounded-2xl"
+                      type="number"
+                      placeholder="Roll No"
+                      value={rollNo}
+                      onChange={(e) => setRollNo(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="division"
+                      className="text-xl font-light mb-2"
+                    >
+                      विभाजन
+                    </label>
+                    <input
+                      id="division"
+                      className="p-3 border border-black shadow-md rounded-2xl"
+                      type="text"
+                      placeholder="Division"
+                      value={division}
+                      onChange={(e) => setDivision(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
 
               {/* Teacher-specific Fields */}
               {role === ROLE.Teacher && (
