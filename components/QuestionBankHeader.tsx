@@ -7,6 +7,8 @@ import Dropdown from "@/components/Dropdown/Dropdown";
 import Image from "next/image";
 import { Skeleton } from "@mui/material";
 import { useDropdowns } from "@/utils/hooks/useDropdowns";
+import { useSession } from "next-auth/react";
+import { ROLE } from "@/utils/types";
 
 const QuestionBankHeader: React.FC = () => {
   const {
@@ -22,7 +24,9 @@ const QuestionBankHeader: React.FC = () => {
   } = useDropdowns();
 
   const skeletonPlaceholders = ["skel-1", "skel-2", "skel-3", "skel-4"];
-
+  const { data: session } = useSession();
+  const role = session?.user.role;
+  const isTeacher = role === ROLE.Teacher;
   return (
     <div
       className="
@@ -108,8 +112,8 @@ const QuestionBankHeader: React.FC = () => {
               onSelect={(val) => handleSelect(val, "standard")}
               className="sm:w-[48%]"
               disabled={false} // Since data is loaded
-              allowAddOption={true}
-              allowAddOptionText="Add Standard"
+              allowAddOption={isTeacher}
+              allowAddOptionText={"Add Standard"}
               onAddOption={(newOptionName) =>
                 handleAddOption(newOptionName, "standard")
               }
@@ -128,7 +132,7 @@ const QuestionBankHeader: React.FC = () => {
               onSelect={(val) => handleSelect(val, "subject")}
               className="sm:w-[48%]"
               disabled={!selection.standard}
-              allowAddOption={true}
+              allowAddOption={isTeacher}
               allowAddOptionText="Add Subject"
               onAddOption={(newOptionName) =>
                 handleAddOption(newOptionName, "subject")
@@ -148,7 +152,7 @@ const QuestionBankHeader: React.FC = () => {
               onSelect={(val) => handleSelect(val, "chapter")}
               className="sm:w-[48%]"
               disabled={!selection.subject}
-              allowAddOption={true}
+              allowAddOption={isTeacher}
               allowAddOptionText="Add Chapter"
               onAddOption={(newOptionName) =>
                 handleAddOption(newOptionName, "chapter")
@@ -168,7 +172,7 @@ const QuestionBankHeader: React.FC = () => {
               onSelect={(val) => handleSelect(val, "exercise")}
               className="sm:w-[48%]"
               disabled={!selection.chapter}
-              allowAddOption={true}
+              allowAddOption={isTeacher}
               allowAddOptionText="Add Exercise"
               onAddOption={(newOptionName) =>
                 handleAddOption(newOptionName, "exercise")
