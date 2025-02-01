@@ -4,11 +4,9 @@ import Dropdown from "@/components/Dropdown/Dropdown";
 import React from "react";
 import { useDropdowns } from "@/utils/hooks/useDropdowns";
 import { Skeleton } from "@mui/material";
+import { useSession } from "next-auth/react";
+import { ROLE } from "@/utils/types";
 
-/**
- * Header component for Question Bank page containing selection dropdowns
- * @returns React component with selection controls
- */
 export default function PracticeTestHeader() {
   const {
     selection,
@@ -23,6 +21,10 @@ export default function PracticeTestHeader() {
   } = useDropdowns();
 
   const skeletonPlaceholders = ["skel-1", "skel-2", "skel-3", "skel-4"];
+
+  const { data: session } = useSession();
+  const role = session?.user.role;
+  const isTeacher = role === ROLE.Teacher;
 
   // Check if there are any exercises.
   const exerciseExists = exercises && exercises.length > 0;
@@ -103,7 +105,7 @@ export default function PracticeTestHeader() {
               onSelect={(val) => handleSelect(val, "standard")}
               className="sm:w-[48%]"
               disabled={false}
-              allowAddOption={true}
+              allowAddOption={isTeacher}
               allowAddOptionText="Add Standard"
               onAddOption={(newOptionName) =>
                 handleAddOption(newOptionName, "standard")
@@ -123,7 +125,7 @@ export default function PracticeTestHeader() {
               onSelect={(val) => handleSelect(val, "subject")}
               className="sm:w-[48%]"
               disabled={!selection.standard}
-              allowAddOption={true}
+              allowAddOption={isTeacher}
               allowAddOptionText="Add Subject"
               onAddOption={(newOptionName) =>
                 handleAddOption(newOptionName, "subject")
@@ -143,7 +145,7 @@ export default function PracticeTestHeader() {
               onSelect={(val) => handleSelect(val, "chapter")}
               className="sm:w-[48%]"
               disabled={!selection.subject}
-              allowAddOption={true}
+              allowAddOption={isTeacher}
               allowAddOptionText="Add Chapter"
               onAddOption={(newOptionName) =>
                 handleAddOption(newOptionName, "chapter")
@@ -163,7 +165,7 @@ export default function PracticeTestHeader() {
               onSelect={(val) => handleSelect(val, "exercise")}
               className="sm:w-[48%]"
               disabled={exerciseExists ?? selection.chapter}
-              allowAddOption={true}
+              allowAddOption={isTeacher}
               allowAddOptionText="Add Exercise"
               onAddOption={(newOptionName) =>
                 handleAddOption(newOptionName, "exercise")
