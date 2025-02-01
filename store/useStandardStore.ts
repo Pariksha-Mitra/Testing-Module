@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { DropdownItem ,StandardStore,StandardResponse } from '@/utils/types';
+import { DropdownItem, StandardStore, StandardResponse } from '@/utils/types';
 import { fetchData } from '@/utils/hooks/fetchData';
 import { useSelectionStore } from './useSelectionStore';
 
@@ -15,7 +15,7 @@ export const useStandardStore = create<StandardStore>()(
       try {
         const data = await fetchData<StandardResponse>('/api/standard');
         const standards: DropdownItem[] = data.classes.map((cls) => ({
-          id: cls._id,
+          id: String(cls._id), // Convert the id to a string
           name: cls.standardName,
         }));
         set({ standards });
@@ -26,7 +26,7 @@ export const useStandardStore = create<StandardStore>()(
           if (!standard) {
             useSelectionStore
               .getState()
-              .setSelection({ standard: String(standards[0].id) }); // Convert to string
+              .setSelection({ standard: String(standards[0].id) });
           }
         }
       } catch (err: unknown) {
@@ -42,4 +42,3 @@ export const useStandardStore = create<StandardStore>()(
     },
   }))
 );
-
