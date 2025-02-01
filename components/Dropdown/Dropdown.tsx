@@ -27,7 +27,7 @@ const Dropdown: FC<DropdownProps> = ({
   allowAddOption = false,
   allowAddOptionText = "Add new option",
   onAddOption,
-  isDynamic = false, // Default to false
+  isDynamic = false, // Design note: consider refactoring to separate behaviors instead of using a boolean flag.
   disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -51,7 +51,6 @@ const Dropdown: FC<DropdownProps> = ({
 
   // Synchronize internal options state with items prop
   const [options, setOptions] = useState<DropdownItem[]>(items);
-
   useEffect(() => {
     setOptions(items);
   }, [items]);
@@ -106,6 +105,7 @@ const Dropdown: FC<DropdownProps> = ({
     };
   }, [isOpen, handleClickOutside]);
 
+  // Removed the extra "index" parameter to fix the ESLint no-unused-vars warning.
   const handleOptionClick = useCallback(
     (option: DropdownItem) => {
       if (allowAddOption && option.id === 'add_option') {
@@ -114,9 +114,7 @@ const Dropdown: FC<DropdownProps> = ({
         return;
       }
 
-      // Handle selection
       const selectedId = option.id;
-
       if (controlledSelected !== undefined) {
         onSelect?.(selectedId);
         onChange?.(selectedId);
@@ -125,7 +123,6 @@ const Dropdown: FC<DropdownProps> = ({
         onSelect?.(selectedId);
         onChange?.(selectedId);
       }
-
       setIsOpen(false);
       buttonRef.current?.focus();
     },
@@ -150,7 +147,7 @@ const Dropdown: FC<DropdownProps> = ({
       } else if (event.key === "Enter" || event.key === " ") {
         if (highlightedIndex >= 0 && highlightedIndex < finalOptions.length) {
           const option = finalOptions[highlightedIndex];
-          handleOptionClick(option, highlightedIndex);
+          handleOptionClick(option);
         }
       } else if (event.key === "Tab") {
         setIsOpen(false);
@@ -166,7 +163,7 @@ const Dropdown: FC<DropdownProps> = ({
         if (!existingOption) {
           const newOptionName = newValue.trim();
           if (newOptionName) {
-            onAddOption?.(newOptionName); // Pass only the name as string
+            onAddOption?.(newOptionName); // Pass only the name as string.
           }
         }
       }
@@ -179,6 +176,10 @@ const Dropdown: FC<DropdownProps> = ({
     setShowModal(false);
   }, []);
 
+  // NOTE on Accessibility (SonarLint S6819 & S6819):
+  // SonarLint suggests using native <option> elements (inside a <select>) rather than
+  // custom elements with role="option". If native behavior is acceptable, consider refactoring
+  // the dropdown to use a <select> element with <option> children.
   const renderedOptions = useMemo(() => {
     return finalOptions.map((option, index) => {
       const isSelected = selected === option.id;
@@ -189,14 +190,17 @@ const Dropdown: FC<DropdownProps> = ({
         <div
           key={`${option.id}-${index}`}
           role="option"
+          tabIndex={0} // Ensure focusability
           aria-selected={isSelected}
-          onClick={() => handleOptionClick(option, index)}
-          onKeyDown={(e) =>
-            e.key === "Enter" && handleOptionClick(option, index)
-          }
+          onClick={() => handleOptionClick(option)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              handleOptionClick(option);
+            }
+          }}
           onMouseEnter={() => setHighlightedIndex(index)}
           className={clsx(
-            "cursor-pointer text-lg",
+            "cursor-pointer text-lg truncate",
             isSelected && "bg-blue-100",
             !isSelected && isHighlighted && "bg-blue-50",
             !isSelected && !isHighlighted && "bg-white",
@@ -236,7 +240,7 @@ const Dropdown: FC<DropdownProps> = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={id ? `${id}-listbox` : "dropdown-listbox"}
-        disabled={disabled} // Apply disabled attribute
+        disabled={disabled}
         className={clsx(
           "mt-2 flex items-center",
           buttonBgColor,
@@ -245,12 +249,12 @@ const Dropdown: FC<DropdownProps> = ({
           buttonBorderColor,
           "w-full transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500",
           "h-[50px] text-left",
-          disabled && "opacity-50 cursor-not-allowed" // Add styles for disabled state
+          disabled && "opacity-50 cursor-not-allowed"
         )}
       >
-        <span className="mr-2 flex-grow text-xl">{label}</span>
-        <div className="w-[80%] h-9 bg-white text-lg rounded-lg flex items-center justify-center text-black mr-2 overflow-hidden whitespace-nowrap text-ellipsis">
-          {displayValue}
+        <span className="mr-1 flex-grow text-xl">{label}</span>
+        <div className="w-[80%] text-ellipsis h-9 bg-white text-lg rounded-lg flex items-center justify-center text-black mr-2 overflow-hidden whitespace-nowrap">
+          <p className="truncate ml-1">{displayValue}</p>
         </div>
 
         <svg
@@ -297,8 +301,7 @@ const Dropdown: FC<DropdownProps> = ({
       />
     </div>
   );
-}
+};
 
 Dropdown.displayName = "Dropdown";
-
 export default Dropdown;
