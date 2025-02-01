@@ -9,8 +9,10 @@ import { useExerciseStore } from '@/store/useExerciseStore';
 import { useQuestionStore } from '@/store/useQuestionStore';
 import { useToast } from '@/components/ui/ToastProvider';
 
+type DropdownKey = 'standard' | 'subject' | 'chapter' | 'exercise';
+
 export const useDropdowns = () => {
-  const { selection, setSelection, resetSelection, } = useSelectionStore();
+  const { selection, setSelection, resetSelection } = useSelectionStore();
 
   // Standard Store
   const {
@@ -53,7 +55,7 @@ export const useDropdowns = () => {
     fetchQuestions,
     addQuestion,
     setSelectedQuestionIndex,
-    resetQuestions
+    resetQuestions,
   } = useQuestionStore();
 
   const { showToast } = useToast();
@@ -100,27 +102,29 @@ export const useDropdowns = () => {
     } else {
       resetQuestions();
     }
-  }, [selection.exercise, fetchQuestions,resetQuestions]);
+  }, [selection.exercise, fetchQuestions, resetQuestions]);
 
   // Handle selection changes
   const handleSelect = useCallback(
-    (value: string | number, dropdownKey: keyof Selection) => {
+    (value: string | number, dropdownKey: DropdownKey) => {
+      // Always convert to a string because Selection expects strings (or null)
+      const val = String(value);
       // Reset dependent selections when a higher-level selection changes
       switch (dropdownKey) {
         case 'standard':
-          setSelection({ standard: value, subject: null, chapter: null, exercise: null });
+          setSelection({ standard: val, subject: null, chapter: null, exercise: null });
           break;
         case 'subject':
-          setSelection({ subject: value, chapter: null, exercise: null });
+          setSelection({ subject: val, chapter: null, exercise: null });
           break;
         case 'chapter':
-          setSelection({ chapter: value, exercise: null });
+          setSelection({ chapter: val, exercise: null });
           break;
         case 'exercise':
-          setSelection({ exercise: value });
+          setSelection({ exercise: val });
           break;
         default:
-          setSelection({ [dropdownKey]: value });
+          setSelection({ [dropdownKey]: val });
       }
     },
     [setSelection]
@@ -128,12 +132,18 @@ export const useDropdowns = () => {
 
   // Handle adding new options
   const handleAddOption = useCallback(
-    async (newOptionName: string, dropdownKey: keyof Selection) => {
+    async (newOptionName: string, dropdownKey: DropdownKey) => {
       let apiEndpoint = '';
-      let payload: any = {};
+      // Instead of "any", we type payload as a record with unknown values.
+      let payload: Record<string, unknown> = {};
 
       switch (dropdownKey) {
         case 'standard':
+          // Use concise character class syntax per SonarLint: /\D/ tests for non-digit characters.
+          if (/\D/.test(newOptionName)) {
+            showToast('Standard name should be a number.', 'warning');
+            return;
+          }
           apiEndpoint = '/api/standard';
           payload = {
             standardName: newOptionName,
@@ -237,7 +247,11 @@ export const useDropdowns = () => {
   }, [addQuestion, selection.exercise, showToast]);
 
   const isAnyLoading =
-    loadingStandards || loadingSubjects || loadingChapters || loadingExercises || loadingQuestions;
+    loadingStandards ||
+    loadingSubjects ||
+    loadingChapters ||
+    loadingExercises ||
+    loadingQuestions;
   const errorMessages = [
     errorStandards,
     errorSubjects,
@@ -260,6 +274,6 @@ export const useDropdowns = () => {
     handleAddOption,
     handleAddQuestion,
     setSelectedQuestionIndex,
-    resetSelection, 
+    resetSelection,
   };
 };
