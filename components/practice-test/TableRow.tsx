@@ -6,7 +6,7 @@ export interface RowData {
   readonly description: string;
   readonly duration: number;
   readonly totalMarks: number;
-  readonly status: boolean; // true if attempted
+  readonly isSolved: boolean; // true if attempted
 }
 
 interface TableRowProps {
@@ -35,7 +35,7 @@ export default function TableRow({ row, onSolve, onRetry }: TableRowProps) {
 
       {/* STATUS / ACTION */}
       <td className="px-6 py-2 whitespace-nowrap text-center border-t border-black arya-bold">
-        {row.status ? (
+        {row.isSolved ? (
           <div className="flex items-center justify-center gap-3">
             <span className="text-green-600 text-lg font-medium">
               attempted

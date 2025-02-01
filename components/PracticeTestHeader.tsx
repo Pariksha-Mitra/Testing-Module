@@ -1,42 +1,36 @@
 "use client";
 
 import Dropdown from "@/components/Dropdown/Dropdown";
-import React, { useCallback, useContext, useMemo } from "react";
-import { SelectionContext } from "@/context/SelectionContext";
+import React from "react";
+import { useDropdowns } from "@/utils/hooks/useDropdowns";
+import { Skeleton } from "@mui/material";
 
 /**
  * Header component for Question Bank page containing selection dropdowns
  * @returns React component with selection controls
  */
 export default function PracticeTestHeader() {
-  const context = useContext(SelectionContext);
+  const {
+    selection,
+    standards,
+    subjects,
+    chapters,
+    exercises,
+    isAnyLoading,
+    errorMessages,
+    handleSelect,
+    handleAddOption,
+  } = useDropdowns();
 
-  if (!context) {
-    throw new Error(
-      "QuestionBankHeader must be used within a SelectionProvider"
-    );
-  }
+  const skeletonPlaceholders = ["skel-1", "skel-2", "skel-3", "skel-4"];
 
-  const { selection, setSelection } = context;
+  // Check if there are any exercises.
+  const exerciseExists = exercises && exercises.length > 0;
 
-  const handleSelect = useCallback(
-    (value: string | number, dropdownId: keyof typeof selection) => {
-      const stringValue = typeof value === "number" ? value.toString() : value;
-      console.log(`Dropdown ID: ${dropdownId}, Selected value: ${stringValue}`);
-
-      setSelection((prevSelection) => ({
-        ...prevSelection,
-        [dropdownId]: stringValue,
-      }));
-    },
-    [setSelection]
-  );
-
-  // Example data (replace with your own or fetch dynamically)
-  const classOptions = useMemo(() => ["५", "६", "७", "८", "९", "१०"], []);
-  const subjectOptions = useMemo(() => ["विषय १", "विषय २", "विषय ३"], []);
-  const lessonOptions = ["धडा १", "धडा २", "धडा ३"];
-  const homeworkOptions = ["स्वाध्याय १", "स्वाध्याय २"];
+  // When exercises exist, we use an option value "All Selected"
+  const exerciseItems = exerciseExists
+    ? [{ id: "all-selected", name: "All Selected" } , ...exercises]
+    : exercises;
 
   return (
     <div
@@ -75,60 +69,120 @@ export default function PracticeTestHeader() {
           justify-between 
           w-full 
           mt-4 
-          px-8
           gap-2 
           laila-regular
         "
       >
-        <Dropdown
-          id="class-dropdown"
-          items={classOptions}
-          label="इयत्ता:"
-          defaultValue={selection.class}
-          buttonBgColor="bg-[#fc708a]"
-          buttonBorderColor="border-white"
-          buttonBorderWidth="border-[2px]"
-          onSelect={(value) => handleSelect(value, "class")}
-          className="w-full sm:w-[20%]"
-        />
-        <Dropdown
-          id="subject-dropdown"
-          label="विषय:"
-          items={subjectOptions}
-          defaultValue={selection.subject}
-          buttonBgColor="bg-[#fc708a]"
-          buttonBorderColor="border-white"
-          buttonBorderWidth="border-[2px]"
-          onSelect={(value) => handleSelect(value, "subject")}
-          className="w-full sm:w-[20%]"
-        />
-        <Dropdown
-          id="lesson-dropdown"
-          label="धडा:"
-          items={lessonOptions}
-          defaultValue={selection.lesson}
-          buttonBgColor="bg-[#fc708a]"
-          buttonBorderColor="border-white"
-          buttonBorderWidth="border-[2px]"
-          onSelect={(value) => handleSelect(value, "lesson")}
-          className="w-full sm:w-[20%]"
-          allowAddOption
-          allowAddOptionText="add lesson"
-        />
-        <Dropdown
-          id="homework-dropdown"
-          label="स्वाध्याय:"
-          items={homeworkOptions}
-          defaultValue={selection.homework}
-          buttonBgColor="bg-[#fc708a]"
-          buttonBorderColor="border-white"
-          buttonBorderWidth="border-[2px]"
-          onSelect={(value) => handleSelect(value, "homework")}
-          className="w-full sm:w-[20%]"
-          allowAddOption
-          allowAddOptionText="add homework"
-        />
+        {isAnyLoading ? (
+          <div className="flex flex-col sm:flex-row justify-between w-full mt-4 gap-2 laila-regular">
+            {/* Skeleton placeholders */}
+            {skeletonPlaceholders.map((skeletonKey) => (
+              <Skeleton
+                key={skeletonKey}
+                sx={{ bgcolor: "#a6b1ff" }}
+                variant="rectangular"
+                width="100%"
+                height={45}
+                className="rounded-[20px]"
+                animation="wave"
+              />
+            ))}
+          </div>
+        ) : (
+          <>
+            {/* Standard Dropdown */}
+            <Dropdown
+              isDynamic
+              id="standard-dropdown"
+              items={standards}
+              label="इयत्ता:"
+              selected={selection.standard ?? undefined}
+              buttonBgColor="bg-[#fc708a]"
+              buttonBorderColor="border-white"
+              buttonBorderWidth="border-[2px]"
+              onSelect={(val) => handleSelect(val, "standard")}
+              className="sm:w-[48%]"
+              disabled={false}
+              allowAddOption={true}
+              allowAddOptionText="Add Standard"
+              onAddOption={(newOptionName) =>
+                handleAddOption(newOptionName, "standard")
+              }
+            />
+
+            {/* Subject Dropdown */}
+            <Dropdown
+              isDynamic
+              id="subject-dropdown"
+              items={subjects}
+              label="विषय:"
+              selected={selection.subject ?? undefined}
+              buttonBgColor="bg-[#fc708a]"
+              buttonBorderColor="border-white"
+              buttonBorderWidth="border-[2px]"
+              onSelect={(val) => handleSelect(val, "subject")}
+              className="sm:w-[48%]"
+              disabled={!selection.standard}
+              allowAddOption={true}
+              allowAddOptionText="Add Subject"
+              onAddOption={(newOptionName) =>
+                handleAddOption(newOptionName, "subject")
+              }
+            />
+
+            {/* Chapter Dropdown */}
+            <Dropdown
+              isDynamic
+              id="chapter-dropdown"
+              items={chapters}
+              label="धडा:"
+              selected={selection.chapter ?? undefined}
+              buttonBgColor="bg-[#fc708a]"
+              buttonBorderColor="border-white"
+              buttonBorderWidth="border-[2px]"
+              onSelect={(val) => handleSelect(val, "chapter")}
+              className="sm:w-[48%]"
+              disabled={!selection.subject}
+              allowAddOption={true}
+              allowAddOptionText="Add Chapter"
+              onAddOption={(newOptionName) =>
+                handleAddOption(newOptionName, "chapter")
+              }
+            />
+
+            {/* Exercise Dropdown */}
+            <Dropdown
+              isDynamic
+              id="exercise-dropdown"
+              items={exerciseItems}
+              label="अभ्यास:"
+              selected={exerciseExists ? "all-selected" : selection.exercise ?? undefined}
+              buttonBgColor="bg-[#fc708a]"
+              buttonBorderColor="border-white"
+              buttonBorderWidth="border-[2px]"
+              onSelect={(val) => handleSelect(val, "exercise")}
+              className="sm:w-[48%]"
+              disabled={exerciseExists ?? selection.chapter}
+              allowAddOption={true}
+              allowAddOptionText="Add Exercise"
+              onAddOption={(newOptionName) =>
+                handleAddOption(newOptionName, "exercise")
+              }
+            />
+          </>
+        )}
       </div>
+
+      {/* Error Messages */}
+      {errorMessages.length > 0 && (
+        <div className="mt-2">
+          {errorMessages.map((msg, idx) => (
+            <div key={`${msg}-${idx}`} className="text-red-500 text-sm">
+              {msg}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import React from "react";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
-import { SelectionProvider } from "@/context/SelectionContext";
 import PracticeTestHeader from "@/components/PracticeTestHeader";
 
 const PracticeTestPageLayout: React.FC<{
@@ -19,13 +18,12 @@ const PracticeTestPageLayout: React.FC<{
       <Sidebar />
 
       {/* Main Content wrapped with SelectionProvider */}
-      <SelectionProvider>
-        {/* Use md:ml-24 only on medium screens and up so it doesn't push content on mobile */}
-        <div className="flex-1  ml-28 mr-4 my-3 bg-white rounded-[20px]">
-          <PracticeTestHeader />
-          <div className="p-4 ">{children}</div>
-        </div>
-      </SelectionProvider>
+
+      {/* Use md:ml-24 only on medium screens and up so it doesn't push content on mobile */}
+      <div className="flex-1  ml-28 mr-4 my-3 bg-white rounded-[20px]">
+        <PracticeTestHeader />
+        <div className="p-4 ">{children}</div>
+      </div>
     </div>
   );
 };
