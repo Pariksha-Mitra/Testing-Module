@@ -115,6 +115,7 @@ const Dropdown: FC<DropdownProps> = ({
     };
   }, [isOpen, handleClickOutside]);
 
+  // Removed the extra "index" parameter to fix the ESLint no-unused-vars warning.
   const handleOptionClick = useCallback(
     (option: DropdownItem) => {
       if (allowAddOption && option.id === "add_option") {
@@ -187,6 +188,10 @@ const Dropdown: FC<DropdownProps> = ({
     setShowModal(false);
   }, []);
 
+  // NOTE on Accessibility (SonarLint S6819 & S6819):
+  // SonarLint suggests using native <option> elements (inside a <select>) rather than
+  // custom elements with role="option". If native behavior is acceptable, consider refactoring
+  // the dropdown to use a <select> element with <option> children.
   const renderedOptions = useMemo(() => {
     return finalOptions.map((option, index) => {
       const isSelected = selected === option.id;
