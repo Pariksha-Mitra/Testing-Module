@@ -301,7 +301,7 @@ export interface DropdownItem {
  * DropdownProps: Reusable dropdown component properties.
  */
 export interface DropdownProps {
-  items: DropdownItem[];
+  items: DropdownItem[] | string[];
   label?: string;
   onSelect?: (value: string | number) => void;
   defaultValue?: string | number;
