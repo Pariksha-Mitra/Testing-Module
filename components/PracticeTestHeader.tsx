@@ -31,7 +31,7 @@ export default function PracticeTestHeader() {
 
   // When exercises exist, we use an option value "All Selected"
   const exerciseItems = exerciseExists
-    ? [{ id: "all-selected", name: "All Selected" } , ...exercises]
+    ? [{ id: "all-selected", name: "All Selected" }, ...exercises]
     : exercises;
 
   return (
@@ -158,7 +158,11 @@ export default function PracticeTestHeader() {
               id="exercise-dropdown"
               items={exerciseItems}
               label="अभ्यास:"
-              selected={exerciseExists ? "all-selected" : selection.exercise ?? undefined}
+              selected={
+                exerciseExists
+                  ? "all-selected"
+                  : selection.exercise ?? undefined
+              }
               buttonBgColor="bg-[#fc708a]"
               buttonBorderColor="border-white"
               buttonBorderWidth="border-[2px]"
