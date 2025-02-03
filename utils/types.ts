@@ -230,9 +230,11 @@ export interface ChapterStore {
  * Store for handling exercises.
  */
 export interface ExerciseStore {
-  exercises: { id: string; name: string }[];
+  exercises: { id: string; name: string; duration:number,totalMarks:number }[];
   loading: boolean;
   error: string | null;
+  updateExerciseMetrics: (exerciseId: string, questionCount: number) => void;
+  updateMetricsForAllExercises: () => Promise<void>;
   fetchExercises: () => Promise<void>;
 }
 
