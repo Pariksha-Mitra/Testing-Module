@@ -22,6 +22,8 @@ interface IGame extends Document {
     timeLimit: number;
     status: GameStatusEnum;
     numberLevels: number;
+    thumbnail: string;
+    src: string;
 }
 
 const gameSchema: Schema<IGame> = new Schema<IGame>(
@@ -72,6 +74,16 @@ const gameSchema: Schema<IGame> = new Schema<IGame>(
             //Total number of levels
             type: Number,
             required: [true, "Number of levels is required"],
+        },
+        thumbnail: {
+            type: String,
+            required: [true, "Thumbnail is required"],
+            default: null,
+        },
+        src: {
+            type: String,
+            required: [true, "Source is required"],
+            default: null,
         },
     },
     {

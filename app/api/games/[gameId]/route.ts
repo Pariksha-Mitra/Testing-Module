@@ -59,6 +59,10 @@ interface GameContext {
  *                       type: string
  *                     numberLevels:
  *                       type: number
+ *                    thumbnail:
+ *                      type: string
+ *                    src:
+ *                     type: string
  *       400:
  *         description: Validation error or missing Game ID.
  *       404:

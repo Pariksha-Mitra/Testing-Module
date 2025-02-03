@@ -95,6 +95,12 @@ export async function GET() {
  *               numberLevels:
  *                 type: number
  *                 description: Total number of levels in the game.
+ *               thumbnail:
+ *                 type: string
+ *                 description: URL of the game's thumbnail image.
+ *               src:
+ *                 type: string
+ *                 description: URL of the game's source code.
  *     responses:
  *       201:
  *         description: Game created successfully.
@@ -135,6 +141,11 @@ export async function GET() {
  *                       type: string
  *                     numberLevels:
  *                       type: number
+ *                    thumbnail:
+ *                      type: string
+ *                    src:
+ *                      type: string
+ *
  *       400:
  *         description: Validation error or missing required fields.
  *       500:
@@ -156,6 +167,8 @@ export async function POST(req: Request) {
             timeLimit,
             status,
             numberLevels,
+            thumbnail,
+            src,
         } = await req.json();
 
         if (
@@ -165,12 +178,13 @@ export async function POST(req: Request) {
             !chapter ||
             !exercise ||
             !timeLimit ||
-            !numberLevels
+            !numberLevels ||
+            !src
         ) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: "Title, Standard, Subject, Chapter, Exercise, TimeLimit, and NumberLevels are required fields",
+                    error: "Title, Standard, Subject, Chapter, Exercise, TimeLimit, NumberLevels and Src are required fields",
                 },
                 { status: 400 }
             );
@@ -187,6 +201,8 @@ export async function POST(req: Request) {
             timeLimit,
             status,
             numberLevels,
+            thumbnail,
+            src,
         });
 
         const savedGame = await newGame.save();
