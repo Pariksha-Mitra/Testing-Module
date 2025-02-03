@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Skeleton } from "@mui/material";
 import { useDropdowns } from "@/utils/hooks/useDropdowns";
 import { useQuestionStore } from "@/store/useQuestionStore";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 const TestHeader: React.FC = () => {
   const {
@@ -28,6 +28,8 @@ const TestHeader: React.FC = () => {
 
   const searchParams = useSearchParams();
   const questionIndexParam = searchParams.get("question");
+
+  const router = useRouter();
 
   useEffect(() => {
     const initializeSelectedQuestion = async () => {
@@ -73,7 +75,6 @@ const TestHeader: React.FC = () => {
           <div className="flex flex-wrap justify-between w-full mr-3 ml-3 gap-2">
             {isAnyLoading ? (
               <div className="grid grid-cols-2 gap-4 w-full">
-                {/* Skeleton placeholders */}
                 {skeletonPlaceholders.map((skeletonKey) => (
                   <Skeleton
                     key={skeletonKey}
@@ -100,7 +101,7 @@ const TestHeader: React.FC = () => {
                   buttonBorderWidth="border-[2px]"
                   onSelect={(val) => handleSelect(val, "standard")}
                   className="sm:w-[48%]"
-                  disabled={false} // Since data is loaded
+                  disabled={false}
                   allowAddOption={true}
                   allowAddOptionText="Add Standard"
                   onAddOption={(newOptionName) =>
@@ -212,7 +213,10 @@ const TestHeader: React.FC = () => {
                     : "bg-[#a6b1ff]"
                 } w-10 h-10 text-white rounded-full font-bold`}
                 onClick={() => {
+                  // Update state...
                   setSelectedQuestionIndex(index);
+                  // Update the URL query parameter "question"
+                  router.push(`?question=${index}`);
                 }}
               >
                 {index + 1}
@@ -220,7 +224,17 @@ const TestHeader: React.FC = () => {
             ))}
             <button
               className="flex items-center justify-center bg-[#a6b1ff] w-10 h-10 rounded-full cursor-pointer"
-              onClick={handleAddQuestion}
+              // When adding a new question, update the URL as well.
+              onClick={async () => {
+                // Capture the current length as the new question's index.
+                const currentLength = questions.length;
+                // Add a new question.
+                await handleAddQuestion();
+                // Set the newly added question as selected.
+                setSelectedQuestionIndex(currentLength);
+                // Update the URL query parameter "question" to the new index.
+                router.push(`?question=${currentLength}`);
+              }}
               disabled={!selection.exercise}
               title={
                 !selection.exercise
