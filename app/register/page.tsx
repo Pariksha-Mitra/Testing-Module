@@ -26,7 +26,7 @@ const Register = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [middleName, setMiddleName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
-  const [rollNo, setRollNo] = useState<number>();
+  const [rollNo, setRollNo] = useState<string>("");
   const [division, setDivision] = useState<string>("");
   const [dateOfBirth, setDateOfBirth] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -68,7 +68,7 @@ const Register = () => {
         dateOfBirth: new Date(dateOfBirth).toISOString().split("T")[0],
         role,
         schoolId,
-        rollNo,
+        rollNo: parseInt(rollNo),
         division,
         email: role === ROLE.Teacher ? email.trim() : null,
         invitationId: role === ROLE.Teacher ? invitationId.trim() : null,
@@ -245,24 +245,28 @@ const Register = () => {
                       type="number"
                       placeholder="Roll No"
                       value={rollNo}
-                      onChange={(e) => setRollNo(parseInt(e.target.value))}
+                      onChange={(e) => setRollNo(e.target.value)}
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label
-                      htmlFor="division"
-                      className="text-xl font-light mb-2"
-                    >
+                    <label htmlFor="school" className="text-xl font-light mb-2">
                       विभाजन
                     </label>
-                    <input
-                      id="division"
-                      className="p-3 border border-black shadow-md rounded-2xl"
-                      type="text"
-                      placeholder="Division"
+                    <select
+                      id="school"
                       value={division}
-                      onChange={(e) => setDivision(e.target.value)}
-                    />
+                      onChange={(e) => {
+                        setDivision(e.target.value);
+                      }}
+                      className="p-3 border border-black shadow-md rounded-2xl"
+                    >
+                      <option value="" disabled>
+                        Select a division
+                      </option>
+                      <option value="A">Division A</option>
+                      <option value="B">Division B</option>
+                      <option value="C">Division C</option>
+                    </select>
                   </div>
                 </>
               )}
