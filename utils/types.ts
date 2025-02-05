@@ -229,10 +229,12 @@ export interface ChapterStore {
  * Store for handling exercises.
  */
 export interface ExerciseStore {
-    exercises: { id: string; name: string }[];
-    loading: boolean;
-    error: string | null;
-    fetchExercises: () => Promise<void>;
+  exercises: { id: string; name: string; duration:number,totalMarks:number }[];
+  loading: boolean;
+  error: string | null;
+  updateExerciseMetrics: (exerciseId: string, questionCount: number) => void;
+  updateMetricsForAllExercises: () => Promise<void>;
+  fetchExercises: () => Promise<void>;
 }
 
 /**
@@ -300,23 +302,23 @@ export interface DropdownItem {
  * DropdownProps: Reusable dropdown component properties.
  */
 export interface DropdownProps {
-    items: DropdownItem[];
-    label?: string;
-    onSelect?: (value: string | number) => void;
-    defaultValue?: string | number;
-    className?: string;
-    id?: string;
-    buttonBgColor?: string;
-    buttonBorderWidth?: string;
-    buttonBorderColor?: string;
-    containerClass?: string;
-    selected?: string | number;
-    onChange?: (value: string | number) => void;
-    allowAddOption?: boolean;
-    allowAddOptionText?: string;
-    onAddOption?: (newOptionName: string) => void;
-    isDynamic?: boolean;
-    disabled?: boolean;
+  items: DropdownItem[] | string[];
+  label?: string;
+  onSelect?: (value: string | number) => void;
+  defaultValue?: string | number;
+  className?: string;
+  id?: string;
+  buttonBgColor?: string;
+  buttonBorderWidth?: string;
+  buttonBorderColor?: string;
+  containerClass?: string;
+  selected?: string | number;
+  onChange?: (value: string | number) => void;
+  allowAddOption?: boolean;
+  allowAddOptionText?: string;
+  onAddOption?: (newOptionName: string) => void;
+  isDynamic?: boolean;
+  disabled?: boolean;
 }
 
 /**

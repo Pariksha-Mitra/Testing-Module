@@ -93,9 +93,7 @@ const Page: React.FC = () => {
   // Helper: Update a field in the current question
   // ---------------------
   const updateQuestionFieldHandler = useCallback(
-    <
-      K extends keyof Question
-    >(
+    <K extends keyof Question>(
       questionIndex: number,
       field: K,
       value: Question[K]
@@ -141,6 +139,22 @@ const Page: React.FC = () => {
             errors[`option_${index}`] = `Option ${index + 1} cannot be empty.`;
           }
         });
+
+        // Ensure each option is unique
+        const counts: { [key: string]: number } = {};
+        currentQuestion.options.forEach((option) => {
+          const trimmed = option.trim();
+          if (trimmed) {
+            counts[trimmed] = (counts[trimmed] || 0) + 1;
+          }
+        });
+        currentQuestion.options.forEach((option, index) => {
+          const trimmed = option.trim();
+          if (trimmed && counts[trimmed] > 1) {
+            errors[`option_${index}`] = "Each option must be unique.";
+          }
+        });
+
         // Ensure a correct answer is selected
         if (
           currentQuestion.correctAnswer === null ||
@@ -215,7 +229,11 @@ const Page: React.FC = () => {
             value as QuestionType
           );
           updateQuestionFieldHandler(selectedQuestionIndex, "questionText", "");
-          updateQuestionFieldHandler(selectedQuestionIndex, "questionDescription", ""); // Ensure description is reset if needed
+          updateQuestionFieldHandler(
+            selectedQuestionIndex,
+            "questionDescription",
+            ""
+          ); // Ensure description is reset if needed
           updateQuestionFieldHandler(selectedQuestionIndex, "options", [
             "Option 1",
             "Option 2",
@@ -286,7 +304,7 @@ const Page: React.FC = () => {
         "questionDescription",
         e.target.value
       );
-      if (validationErrors.questionDescription) { // Updated to match the field
+      if (validationErrors.questionDescription) {
         setValidationErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
           delete newErrors.questionDescription;

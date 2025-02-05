@@ -1,5 +1,3 @@
-// File: src/pages/YourPage.tsx
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -20,12 +18,13 @@ export default function Page() {
   >([]);
 
   useEffect(() => {
+    console.log("Exercises from hook:", exercises);
     if (exercises.length > 0) {
       const mappedRows = exercises.map((exercise) => ({
         description: `${exercise.name}`,
-        duration: 0, 
-        totalMarks: 100, 
-        isSolved: false, 
+        duration: exercise.duration,
+        totalMarks: exercise.totalMarks,
+        isSolved: false,
       }));
       setRows(mappedRows);
     } else {

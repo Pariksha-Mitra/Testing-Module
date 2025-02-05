@@ -4,6 +4,7 @@ import { Question, QuestionType, QuestionStore, QuestionResponse } from '@/utils
 import { fetchData } from '@/utils/hooks/fetchData';
 import { useSelectionStore } from './useSelectionStore';
 import { v4 as uuidv4 } from 'uuid';
+import { useExerciseStore } from './useExerciseStore'; // Import the exercise store
 
 export const useQuestionStore = create<QuestionStore>()(
   devtools(
@@ -47,10 +48,15 @@ export const useQuestionStore = create<QuestionStore>()(
                 numericalAnswer: q.numericalAnswer,
               }));
               set({ questions: mappedQuestions });
+
+              // Compute the number of questions
+              const questionsCount = mappedQuestions.length;
+              // Update the exercise metrics based on questions count
+              useExerciseStore.getState().updateExerciseMetrics(exercise, questionsCount);
             } else {
-              // No questions found, add a default one
-              // get().addQuestion(exercise, true);
+              // No questions found: reset questions and update metrics to 0.
               useQuestionStore.getState().resetQuestions();
+              useExerciseStore.getState().updateExerciseMetrics(exercise, 0);
             }
           } catch (err: unknown) {
             if (err instanceof Error) {
@@ -66,7 +72,7 @@ export const useQuestionStore = create<QuestionStore>()(
 
         addQuestion: (exerciseId, replace = false) => {
           const { standard, subject, chapter } = useSelectionStore.getState().selection;
-
+        
           const newQuestion: Question = {
             id: uuidv4(),
             standardId: standard ?? '',
@@ -84,11 +90,20 @@ export const useQuestionStore = create<QuestionStore>()(
             isPersisted: false,
             numericalAnswer: null,
           };
+        
+          // Get the current questions from the store
+          const currentQuestions = useQuestionStore.getState().questions;
+          const newCount = replace ? 1 : (currentQuestions.length + 1);
+        
           set((state) => ({
             questions: replace ? [newQuestion] : [...state.questions, newQuestion],
             selectedQuestionIndex: replace ? 0 : state.questions.length,
           }));
+        
+          // Update the exercise metrics
+          useExerciseStore.getState().updateExerciseMetrics(exerciseId, newCount);
         },
+        
 
         setSelectedQuestionIndex: (index) => set({ selectedQuestionIndex: index }),
 
@@ -97,6 +112,10 @@ export const useQuestionStore = create<QuestionStore>()(
             const updatedQuestions = [...state.questions];
             updatedQuestions.splice(index, 1);
             const newIndex = index > 0 ? index - 1 : 0;
+            // After deletion, update the metrics based on the new question count.
+            if (updatedQuestions.length) {
+              useExerciseStore.getState().updateExerciseMetrics(updatedQuestions[0].exerciseId, updatedQuestions.length);
+            }
             return {
               questions: updatedQuestions,
               selectedQuestionIndex: newIndex,
@@ -119,7 +138,6 @@ export const useQuestionStore = create<QuestionStore>()(
           });
         },
 
-        // Implementation of resetQuestions
         resetQuestions: () => {
           set({
             questions: [],
