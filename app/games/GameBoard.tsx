@@ -58,9 +58,10 @@ export const GameBoard: React.FC = () => {
         try {
             const response = await fetch('/api/games');
             const data = await response.json();
-            if (data && data.success && data.games){
+            if (data && data.success && data.games) {
                 const _games = data.games.map((game: any) => ({
                     id: game.id,
+                    title: game.title,
                     description: game.description,
                     gradient: getRandomGradient(),
                     class: `${game.standard}`,
@@ -89,7 +90,7 @@ export const GameBoard: React.FC = () => {
         }));
     };
 
-    const filteredGames = React.useMemo(() => {
+    const filteredGames: any[] = React.useMemo(() => {
         return games.filter((game: any) => {
             return Object.entries(selection).every(([key, value]) => {
                 if (value === 'सर्व') return true;
@@ -139,7 +140,7 @@ export const GameBoard: React.FC = () => {
                         <div className="grid grid-cols-4 gap-6">
                             {filteredGames.map((card, index) => (
                                 <button key={index} className="relative aspect-[5/2.5]">
-                                    <GameCard text={card.description} thumbnail={card.thumbnail} src={card.src} />
+                                    <GameCard text={card.title} description={card.description} thumbnail={card.thumbnail} src={card.src} />
                                 </button>
                             ))}
                         </div>

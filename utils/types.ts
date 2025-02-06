@@ -403,6 +403,7 @@ export interface NewsItemProps {
 
 export interface GameCardProps {
     text?: string;
+    description?: string;
     class?: string;
     subject?: string;
     lesson?: string;

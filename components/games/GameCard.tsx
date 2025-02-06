@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { GameCardProps } from '@/utils/types';
+import { useRouter } from 'next/navigation';
 
 const DEFAULT_GRADIENTS = [
   "bg-[linear-gradient(180deg,#FC708A_0%,#DD3151_100%)]",
@@ -12,14 +13,13 @@ const getRandomGradient = () => {
   return DEFAULT_GRADIENTS[Math.floor(Math.random() * DEFAULT_GRADIENTS.length)];
 }
 
-export const GameCard: React.FC<GameCardProps> = ({text, thumbnail, src }) => {
+export const GameCard: React.FC<GameCardProps> = ({ text, description, thumbnail, src }) => {
   const gradient = thumbnail ? '' : getRandomGradient();
-  
+  const router = useRouter();
   const navigateToGame = () => {
-    // TODO: navigate to the game pge and use the `src` for rendering the game
-    alert(`Game source: ${src}`);
+    router.push(`${src}`);
   };
-  
+
   return (
     <div
       className={`${gradient} w-full h-full rounded-lg flex items-center justify-center transition-transform hover:scale-105`}
