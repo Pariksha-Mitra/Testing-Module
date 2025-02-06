@@ -1,6 +1,6 @@
-import { connectDb } from '@/utils/db';
-import { NextResponse } from 'next/server';
-import { Question } from '@/models/questionsSchema';
+import { connectDb } from "@/utils/db";
+import { NextResponse } from "next/server";
+import { Question } from "@/models/questionsSchema";
 
 /**
  * @swagger
@@ -36,12 +36,12 @@ export async function GET() {
         path: "fk_exercise_id",
         populate: {
           path: "fk_chapter_id",
-          populate:{
+          populate: {
             path: "fk_subject_id",
             populate: {
               path: "fk_standard_id",
             },
-          }
+          },
         },
       })
       .exec();
@@ -49,7 +49,7 @@ export async function GET() {
     const flattenedQuestions = questions.map((question) => {
       const exercise = question.fk_exercise_id || {};
       const chapter = exercise.fk_chapter_id || {};
-      const subject =  chapter.fk_subject_id || {};
+      const subject = chapter.fk_subject_id || {};
       const standard = subject.fk_standard_id || {};
 
       return {
@@ -77,7 +77,10 @@ export async function GET() {
 
     return NextResponse.json({ questions: flattenedQuestions });
   } catch {
-    return NextResponse.json({ error: "Failed to fetch questions" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch questions" },
+      { status: 500 }
+    );
   }
 }
 
@@ -175,10 +178,20 @@ export async function POST(req: Request) {
       );
     }
 
-    const validAnswerFormats = ["SingleChoice", "MultipleChoice", "Text", "Number", "MCQ"];
+    const validAnswerFormats = [
+      "SingleChoice",
+      "MultipleChoice",
+      "Text",
+      "Number",
+      "MCQ",
+    ];
     if (!validAnswerFormats.includes(answerFormat)) {
       return NextResponse.json(
-        { error: `Invalid answerFormat. Expected one of: ${validAnswerFormats.join(", ")}` },
+        {
+          error: `Invalid answerFormat. Expected one of: ${validAnswerFormats.join(
+            ", "
+          )}`,
+        },
         { status: 400 }
       );
     }
@@ -213,7 +226,6 @@ export async function POST(req: Request) {
   }
 }
 
-
 /**
  * @swagger
  * /api/questions:
@@ -247,7 +259,8 @@ export async function DELETE(req: Request) {
 
     if (!questionId) {
       return NextResponse.json(
-        { success: false, error: "Question ID is required" }, { status: 400 }
+        { success: false, error: "Question ID is required" },
+        { status: 400 }
       );
     }
 
@@ -255,16 +268,19 @@ export async function DELETE(req: Request) {
 
     if (!deletedQuestion) {
       return NextResponse.json(
-        { success: false, error: "Question not found" }, { status: 404 }
+        { success: false, error: "Question not found" },
+        { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "Question deleted successfully" }, { status: 200 }
+      { success: true, message: "Question deleted successfully" },
+      { status: 200 }
     );
   } catch {
     return NextResponse.json(
-      { success: false, error: "Failed to delete question" }, { status: 500 }
+      { success: false, error: "Failed to delete question" },
+      { status: 500 }
     );
   }
 }

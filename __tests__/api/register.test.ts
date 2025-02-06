@@ -1,8 +1,8 @@
-import bcrypt from 'bcryptjs';
-import SchoolModel from '@/models/schoolSchema';
-import UserModel from '@/models/user.model';
-import { POST } from '@/app/api/register/route';
-import { ROLE } from '@/utils/types';
+import bcrypt from "bcryptjs";
+import SchoolModel from "@/models/schoolSchema";
+import UserModel from "@/models/user.model";
+import { POST } from "@/app/api/register/route";
+import { ROLE } from "@/utils/types";
 
 jest.mock("@/utils/db", () => ({
   connectDb: jest.fn(),
@@ -104,18 +104,18 @@ describe("Register API", () => {
   });
 
   it("returns 404 for invalid school", async () => {
-      (SchoolModel.findById as jest.Mock).mockResolvedValueOnce(null);
-      const request = new Request("http://localhost:3000/api/register", {
-        method: "POST",
-        body: JSON.stringify(mockTeacherData),
-      });
-  
-      const response = await POST(request);
-      const data = await response.json();
-  
-      expect(response.status).toBe(404);
-      expect(data.message).toBe("Invalid School id or School is not registered");
+    (SchoolModel.findById as jest.Mock).mockResolvedValueOnce(null);
+    const request = new Request("http://localhost:3000/api/register", {
+      method: "POST",
+      body: JSON.stringify(mockTeacherData),
     });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(data.message).toBe("Invalid School id or School is not registered");
+  });
 
   it("returns 409 for existing user", async () => {
     (UserModel.findOne as jest.Mock).mockResolvedValueOnce({ exists: true });

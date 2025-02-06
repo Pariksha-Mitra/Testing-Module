@@ -1,4 +1,4 @@
-import { createMocks } from 'node-mocks-http';
+import { createMocks } from "node-mocks-http";
 import { GET } from "../../../app/api/auth/[...nextauth]/route";
 import { NextAuthOptions } from "next-auth";
 
@@ -16,6 +16,6 @@ describe("NextAuth Configuration", () => {
     });
 
     expect(GET).toBeDefined();
-    expect(typeof GET).toBe('function');
+    expect(typeof GET).toBe("function");
   });
 });

@@ -1,11 +1,11 @@
-import SchoolModel from '@/models/schoolSchema';
-import { connectDb } from '@/utils/db';
-import { DELETE } from '@/app/api/school/deleteSchool/route';
-import { GET } from '@/app/api/school/listSchool/route';
-import { NextRequest } from 'next/server';
-import { POST } from '@/app/api/school/addSchool/route';
-import { PUT } from '@/app/api/school/updateSchool/route';
-import { schoolSchema } from '@/models/schoolSchema';
+import SchoolModel from "@/models/schoolSchema";
+import { connectDb } from "@/utils/db";
+import { DELETE } from "@/app/api/school/deleteSchool/route";
+import { GET } from "@/app/api/school/listSchool/route";
+import { NextRequest } from "next/server";
+import { POST } from "@/app/api/school/addSchool/route";
+import { PUT } from "@/app/api/school/updateSchool/route";
+import { schoolSchemaZod } from "@/models/schoolSchema";
 
 jest.mock("@/utils/db", () => ({
   connectDb: jest.fn(),
@@ -24,7 +24,7 @@ jest.mock("@/models/schoolSchema", () => ({
 }));
 
 jest.mock("@/models/schoolSchema", () => ({
-  schoolSchema: {
+  schoolSchemaZod: {
     safeParse: jest.fn(),
   },
 }));
@@ -47,7 +47,7 @@ describe("API /api/school", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (connectDb as jest.Mock).mockResolvedValue(undefined);
-  });  
+  });
 
   describe("POST /api/school", () => {
     it("should successfully create a new school", async () => {
@@ -58,7 +58,7 @@ describe("API /api/school", () => {
       };
       const mockSchool = { id: "123", save: jest.fn().mockResolvedValue(true) };
 
-      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+      (schoolSchemaZod.safeParse as jest.Mock).mockReturnValue({
         success: true,
         data: validSchoolData,
       });
@@ -77,7 +77,7 @@ describe("API /api/school", () => {
     });
 
     it("should handle validation errors", async () => {
-      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+      (schoolSchemaZod.safeParse as jest.Mock).mockReturnValue({
         success: false,
         error: { message: "Validation failed" },
       });
@@ -110,7 +110,7 @@ describe("API /api/school", () => {
           id: "mockedId",
         };
 
-        (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+        (schoolSchemaZod.safeParse as jest.Mock).mockReturnValue({
           success: true,
           data: {
             name: "Test School",
@@ -154,7 +154,7 @@ describe("API /api/school", () => {
         expect(responseData).toMatchObject({
           message: "Database configuration missing",
           success: false,
-        });        
+        });
       });
     });
   });
@@ -217,7 +217,7 @@ describe("API /api/school", () => {
       };
       const updatedSchool = { ...validData };
 
-      (schoolSchema.safeParse as jest.Mock).mockReturnValue({
+      (schoolSchemaZod.safeParse as jest.Mock).mockReturnValue({
         success: true,
         data: validData,
       });
