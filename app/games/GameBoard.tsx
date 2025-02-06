@@ -4,32 +4,6 @@ import { GameCard } from '@/components/games';
 import Sidebar from '@/components/ui/Sidebar/Sidebar';
 import Dropdown from '@/components/Dropdown/Dropdown';
 
-const GAME_CARDS = [
-    { gradient: "bg-[url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx8G_GuZDTq1he8GB6jB6HW25HG45iGRfan9I6BPVE3cqRx7XlXuXzQnotGh1Ly5x1YCg&usqp=CAU')] bg-cover bg-center", class: "५", subject: "विषय १", lesson: "धडा १", homework: "स्वाध्याय १" },
-    { gradient: "bg-[linear-gradient(180deg,#FC708A_0%,#DD3151_100%)]", class: "६", subject: "विषय २", lesson: "धडा २", homework: "स्वाध्याय २", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#7E7CFE_0%,#2F4DC4_100%)]", class: "७", subject: "विषय १", lesson: "धडा १", homework: "स्वाध्याय १", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#6AD9A1_0%,#329965_100%)]", class: "८", subject: "विषय ३", lesson: "धडा ३", homework: "स्वाध्याय २", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#7E7CFE_0%,#2F4DC4_100%)]", class: "९", subject: "विषय २", lesson: "धडा २", homework: "स्वाध्याय १", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#6AD9A1_0%,#329965_100%)]", class: "१०", subject: "विषय १", lesson: "धडा ३", homework: "स्वाध्याय २", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#FCE459_0%,#DCA12B_100%)]", class: "५", subject: "विषय २", lesson: "धडा १", homework: "स्वाध्याय १", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#FC708A_0%,#DD3151_100%)]", class: "६", subject: "विषय ३", lesson: "धडा २", homework: "स्वाध्याय २", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#FC708A_0%,#DD3151_100%)]", class: "७", subject: "विषय १", lesson: "धडा ३", homework: "स्वाध्याय १", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#FCE459_0%,#DCA12B_100%)]", class: "८", subject: "विषय २", lesson: "धडा १", homework: "स्वाध्याय २", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#7E7CFE_0%,#2F4DC4_100%)]", class: "९", subject: "विषय ३", lesson: "धडा २", homework: "स्वाध्याय १", description: "" },
-    { gradient: "bg-[linear-gradient(180deg,#6AD9A1_0%,#329965_100%)]", class: "१०", subject: "विषय १", lesson: "धडा ३", homework: "स्वाध्याय २", description: "" }
-];
-
-const DEFAULT_GRADIENTS = [
-    "bg-[linear-gradient(180deg,#FC708A_0%,#DD3151_100%)]",
-    "bg-[linear-gradient(180deg,#7E7CFE_0%,#2F4DC4_100%)]",
-    "bg-[linear-gradient(180deg,#6AD9A1_0%,#329965_100%)]",
-    "bg-[linear-gradient(180deg,#FCE459_0%,#DCA12B_100%)]"
-]
-
-const getRandomGradient = () => {
-    return DEFAULT_GRADIENTS[Math.floor(Math.random() * DEFAULT_GRADIENTS.length)];
-}
-
 const OPTIONS = {
     class: ["सर्व", "५", "६", "७", "८", "९", "१०"],
     subject: ["सर्व", "विषय १", "विषय २", "विषय ३"],
@@ -58,11 +32,11 @@ export const GameBoard: React.FC = () => {
         try {
             const response = await fetch('/api/games');
             const data = await response.json();
-            if (data && data.success && data.games){
+            if (data && data.success && data.games) {
                 const _games = data.games.map((game: any) => ({
                     id: game.id,
+                    title: game.title,
                     description: game.description,
-                    gradient: getRandomGradient(),
                     class: `${game.standard}`,
                     subject: game.subject,
                     lesson: game.chapter,
@@ -89,7 +63,7 @@ export const GameBoard: React.FC = () => {
         }));
     };
 
-    const filteredGames = React.useMemo(() => {
+    const filteredGames: any[] = React.useMemo(() => {
         return games.filter((game: any) => {
             return Object.entries(selection).every(([key, value]) => {
                 if (value === 'सर्व') return true;
@@ -139,7 +113,7 @@ export const GameBoard: React.FC = () => {
                         <div className="grid grid-cols-4 gap-6">
                             {filteredGames.map((card, index) => (
                                 <button key={index} className="relative aspect-[5/2.5]">
-                                    <GameCard text={card.description} thumbnail={card.thumbnail} src={card.src} />
+                                    <GameCard text={card.title} description={card.description} thumbnail={card.thumbnail} src={card.src} />
                                 </button>
                             ))}
                         </div>
