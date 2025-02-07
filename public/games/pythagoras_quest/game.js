@@ -1,7 +1,7 @@
 const config = {
     type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: document.getElementById('game-container').offsetWidth,
+    height: window.innerHeight - 50,
     parent: 'game-container',
     scene: {
         preload: preload,
@@ -93,7 +93,7 @@ function preload() {
     this.load.svg('heart', 'assets/heart.svg');
     // Load background image
     this.load.image('background', 'assets/background.jpg');
-    
+
     // Add audio loading
     this.load.audio('bgMusic', 'assets/music.mp3');
     this.load.audio('correctSound', 'assets/correct.wav');
@@ -112,21 +112,21 @@ shuffleArray(questions);
 
 function createStartScreen() {
     const self = this;
-    
+
     // Add background
-    this.add.image(config.width/2, config.height/2, 'background')
+    this.add.image(config.width / 2, config.height / 2, 'background')
         .setDisplaySize(config.width, config.height)
         .setDepth(-1);
-    
+
     // Start background music here
     if (!bgMusic) {
-        bgMusic = this.sound.add('bgMusic', { 
-            loop: true, 
-            volume: 0.3 
+        bgMusic = this.sound.add('bgMusic', {
+            loop: true,
+            volume: 0.3
         });
         bgMusic.play();
     }
-    
+
     // Title
     this.add.text(config.width / 2, config.height / 3, 'Pythagoras Quest', {
         fontSize: '64px',
@@ -159,7 +159,7 @@ function showDifficultySelection(scene) {
     scene.children.removeAll();
 
     // Add background
-    scene.add.image(config.width/2, config.height/2, 'background')
+    scene.add.image(config.width / 2, config.height / 2, 'background')
         .setDisplaySize(config.width, config.height)
         .setDepth(-1);
 
@@ -210,15 +210,15 @@ let timerText;
 
 function create() {
     const self = this;
-    
+
     // Add background
-    this.add.image(config.width/2, config.height/2, 'background')
+    this.add.image(config.width / 2, config.height / 2, 'background')
         .setDisplaySize(config.width, config.height)
         .setDepth(-1);
-    
+
     // Initialize UI first
     ui = createGameUI(this);
-    
+
     questionText = this.add.text(config.width / 2, 100, '', {
         fontSize: '24px',
         color: '#000',
@@ -299,7 +299,7 @@ function create() {
 
         const question = questions[currentQuestion];
         const dropZone = dropZones[0];
-        
+
         if (question.type === "triangle-drag" && dropZone) {
             const distance = Phaser.Math.Distance.Between(
                 gameObject.x,
@@ -307,7 +307,7 @@ function create() {
                 dropZone.x,
                 dropZone.y
             );
-            
+
             if (distance < dropZone.radius) {
                 const answer = gameObject.list ? gameObject.list[1].text : gameObject.text;
                 if (answer === question.options[question.correct]) {
@@ -339,7 +339,7 @@ function create() {
         const question = questions[currentQuestion];
         cleanupCurrentQuestion();
         questionText.setText(question.question);
-    
+
         if (question.type === "multiple-choice") {
             // Show MCQ buttons and set their text
             answerButtons.forEach((btn, index) => {
@@ -349,7 +349,7 @@ function create() {
                     btn.buttonText.setText(question.options[index]);
                 }
             });
-            
+
             // Hide any existing drop zones
             dropZones.forEach(zone => zone?.setVisible(false));
         } else if (question.type === "drag-and-drop") {
@@ -358,7 +358,7 @@ function create() {
                 btn.button.setVisible(false);
                 btn.buttonText.setVisible(false);
             });
-            
+
             // Create drop zone
             const dropZone = this.add.rectangle(
                 config.width / 2,
@@ -382,12 +382,12 @@ function create() {
                     align: 'center',
                     borderRadius: '10px'
                 })
-                .setInteractive({ useHandCursor: true, draggable: true })
-                .setOrigin(0.5);
-                
+                    .setInteractive({ useHandCursor: true, draggable: true })
+                    .setOrigin(0.5);
+
                 item.on('pointerover', () => item.setStyle({ backgroundColor: '#45a049' }));
                 item.on('pointerout', () => item.setStyle({ backgroundColor: '#4CAF50' }));
-                
+
                 draggableItems.push(item);
             });
 
@@ -399,19 +399,19 @@ function create() {
                 btn.button.setVisible(false);
                 btn.buttonText.setVisible(false);
             });
-            
+
             draggableItems.forEach(item => item.destroy());
             draggableItems = [];
 
             // Draw triangle with larger scale
-            const triangle = drawTriangle(self, config.width/2 - 150, config.height/2 + 150, 
+            const triangle = drawTriangle(self, config.width / 2 - 150, config.height / 2 + 150,
                 question.triangleData.a, question.triangleData.b, 40); // increased scale to 40
             draggableItems.push(triangle);
 
             // Create draggable options with circular background
             question.options.forEach((option, index) => {
                 const circleRadius = 30; // Same as triangle drop zone radius
-                
+
                 // Create circle and text first
                 const circle = self.add.circle(0, 0, circleRadius, 0x4CAF50);
                 const text = self.add.text(0, 0, option, {
@@ -438,16 +438,16 @@ function create() {
             });
 
             // Calculate triangle points with the new scale
-            const baseX = config.width/2 - 150;
-            const baseY = config.height/2 + 150;
+            const baseX = config.width / 2 - 150;
+            const baseY = config.height / 2 + 150;
             const height = question.triangleData.b * 40;
             const base = question.triangleData.a * 40;
-            
+
             // Create larger circular drop zone outside the hypotenuse
             const hypotenuseAngle = Math.atan2(-height, base);
             const dropCircle = self.add.circle(
-                baseX + (base/2) + Math.cos(hypotenuseAngle) * 50,  // 50 pixels away from hypotenuse
-                baseY - (height/2) + Math.sin(hypotenuseAngle) * 50,
+                baseX + (base / 2) + Math.cos(hypotenuseAngle) * 50,  // 50 pixels away from hypotenuse
+                baseY - (height / 2) + Math.sin(hypotenuseAngle) * 50,
                 30,                 // increased radius
                 0x666666,
                 0.3
@@ -464,10 +464,10 @@ function create() {
 
     // Add pause button with new styling
     pauseButton = this.add.container(config.width - 150, 20);
-    
+
     const pauseBg = this.add.rectangle(0, 0, 120, 40, 0x4CAF50)
         .setStrokeStyle(2, 0x45a049);
-    
+
     const pauseText = this.add.text(0, 0, 'PAUSE', {
         fontSize: '24px',
         color: '#ffffff',
@@ -528,7 +528,7 @@ function create() {
     // Create music control button
     const musicBtnBg = this.add.rectangle(0, 0, 120, 40, 0x4CAF50)
         .setStrokeStyle(2, 0x45a049);
-    
+
     const musicBtnText = this.add.text(0, 0, 'MUSIC ON', {
         fontSize: '20px',
         color: '#ffffff',
@@ -548,7 +548,7 @@ function create() {
         });
 }
 
-function update() {}
+function update() { }
 
 function checkAnswer(selectedIndex) {
     const question = questions[currentQuestion];
@@ -567,7 +567,7 @@ function checkAnswer(selectedIndex) {
 function cleanupCurrentQuestion() {
     draggableItems.forEach(item => item.destroy());
     draggableItems = [];
-    
+
     dropZones.forEach(zone => {
         if (zone) {
             zone.destroy();
@@ -605,12 +605,12 @@ function endGame() {
         questionText.setText('Game Over! You lost all lives!');
     } else {
         questionText.setText(
-            gameState.timeLeft <= 0 
-                ? 'Time\'s up! Game Over!' 
+            gameState.timeLeft <= 0
+                ? 'Time\'s up! Game Over!'
                 : `Game Over! Your score: ${gameState.score}`
         );
     }
-    
+
     // Clean up all game elements
     answerButtons.forEach(btn => {
         btn.button.destroy();
@@ -620,7 +620,7 @@ function endGame() {
     dropZones.forEach(zone => zone.destroy());
     progressBar.destroy();
     progressText.destroy();
-    
+
     // Display retry button
     const retryButton = this.add.rectangle(
         config.width / 2,
@@ -642,11 +642,11 @@ function endGame() {
 function drawTriangle(scene, x, y, sideA, sideB, scale = 40) { // increased default scale
     const graphics = scene.add.graphics();
     graphics.lineStyle(3, 0x000000);
-    
+
     // Calculate height using Pythagoras
     const height = sideB * scale;
     const base = sideA * scale;
-    
+
     // Draw triangle
     graphics.beginPath();
     graphics.moveTo(x, y);
@@ -655,11 +655,11 @@ function drawTriangle(scene, x, y, sideA, sideB, scale = 40) { // increased defa
     graphics.lineTo(x, y);
     graphics.closePath();
     graphics.strokePath();
-    
+
     // Add side labels
-    const labelA = scene.add.text(x + base/2, y + 10, `a = ${sideA}`, { fontSize: '16px', color: '#000' }).setOrigin(0.5);
-    const labelB = scene.add.text(x - 20, y - height/2, `b = ${sideB}`, { fontSize: '16px', color: '#000' }).setOrigin(1, 0.5);
-    
+    const labelA = scene.add.text(x + base / 2, y + 10, `a = ${sideA}`, { fontSize: '16px', color: '#000' }).setOrigin(0.5);
+    const labelB = scene.add.text(x - 20, y - height / 2, `b = ${sideB}`, { fontSize: '16px', color: '#000' }).setOrigin(1, 0.5);
+
     // Store additional elements for cleanup
     additionalElements.push(labelA, labelB);
 
@@ -668,7 +668,7 @@ function drawTriangle(scene, x, y, sideA, sideB, scale = 40) { // increased defa
 
 function createGameUI(scene) {
     if (!scene) return null;
-    
+
     const ui = {
         scoreText: scene.add.text(10, 10, 'Score: 0', {
             fontSize: '24px',
@@ -687,7 +687,7 @@ function createGameUI(scene) {
     for (let i = 0; i < gameState.lives; i++) {
         const heart = scene.add.image(config.width - 50 - (i * 50), 150, 'heart')
             .setScale(0.4);
-        
+
         // Add hover animation
         scene.tweens.add({
             targets: heart,
@@ -707,10 +707,10 @@ function createGameUI(scene) {
 
 function showFeedback(scene, correct) {
     if (!scene) return;
-    
+
     // Play appropriate sound
     scene.sound.play(correct ? 'correctSound' : 'wrongSound', { volume: 0.5 });
-    
+
     const feedbackConfig = {
         fontSize: '48px',
         color: correct ? '#00ff00' : '#ff0000',
@@ -718,7 +718,7 @@ function showFeedback(scene, correct) {
         fontFamily: 'Arial',
         selectable: true
     };
-    
+
     const feedbackText = scene.add.text(
         config.width / 2,
         config.height / 2,
@@ -741,7 +741,7 @@ function showFeedback(scene, correct) {
         gameState.streak++;
         gameState.multiplier = Math.min(3, 1 + Math.floor(gameState.streak / 3));
         gameState.score += 100 * gameState.multiplier;
-        
+
         // Spawn stars effect
         for (let i = 0; i < 5; i++) {
             const star = scene.add.image(
@@ -770,7 +770,7 @@ function showFeedback(scene, correct) {
                 hearts[gameState.lives].destroy();
             }
         }
-        
+
         if (gameState.lives <= 0) {
             endGame.call(scene);
             return;
@@ -823,14 +823,14 @@ function togglePause(scene) {
         scene.time.paused = true;
         // Add pause overlay
         const overlay = scene.add.rectangle(
-            config.width/2, 
-            config.height/2, 
-            config.width, 
-            config.height, 
-            0x000000, 
+            config.width / 2,
+            config.height / 2,
+            config.width,
+            config.height,
+            0x000000,
             0.5
         );
-        scene.add.text(config.width/2, config.height/2, 'PAUSED', {
+        scene.add.text(config.width / 2, config.height / 2, 'PAUSED', {
             fontSize: '32px',
             color: '#ffffff',
             fontFamily: 'Arial',
@@ -865,9 +865,9 @@ function addPowerUp(type) {
 // Add new function after the togglePause function
 function toggleMusic() {
     if (!bgMusic) return;
-    
+
     isMusicPlaying = !isMusicPlaying;
-    
+
     if (isMusicPlaying) {
         bgMusic.resume();
         if (musicButton) {
