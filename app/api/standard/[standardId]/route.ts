@@ -96,7 +96,7 @@ export async function GET(req: Request, context: Context) {
   try {
     await connectDb();
 
-    const { standardId } = context.params;
+    const { standardId } = await context.params;
     
     // Check if standardId is provided
     if (!standardId) {
@@ -122,7 +122,7 @@ export async function GET(req: Request, context: Context) {
       standard 
     }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching standard:", error);
+    console.error("Error in GET req in  standard, dynamic route:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch standard data" },
       { status: 500 }

@@ -1,6 +1,6 @@
 import { connectDb } from '@/utils/db';
 import { Exercise, Question } from '@/models/questionsSchema';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * @swagger
@@ -198,5 +198,50 @@ export async function DELETE(req: Request) {
       { error: "Failed to delete the exercise and related questions" },
       { status: 500 }
     );
+  }
+}
+
+
+export async function PUT(req:NextRequest) {
+  try {
+    await connectDb();
+
+    const body = await req.json();
+
+    const {exerciseId, title, description, chapterId} = body;
+
+    if(!exerciseId || !title || !chapterId || !description){
+      return NextResponse.json(
+        {error: "Id, title, description and chapterId is required"},
+        {status: 400}
+      )
+    }
+
+    const existingExercise = await Exercise.findOne({_id:exerciseId});
+    console.log(exerciseId, existingExercise);
+    if(!existingExercise){
+      return NextResponse.json(
+        {error: "no existing record found for exercise"},
+        {status: 404}
+      )
+    }
+
+    if(title) existingExercise.title = title;
+    if(description) existingExercise.description = description;
+    if(chapterId) existingExercise.fk_chapter_id = chapterId;
+
+    await existingExercise.save();
+
+    return NextResponse.json(
+      {success: "Exercise updated successfully"},
+      {status: 200}
+    )
+
+  } catch (error) {
+    console.log("error updating exercise", error)
+    return NextResponse.json(
+      {error: "Something went wrong in updating exercise"},
+      {status: 500}
+    )
   }
 }

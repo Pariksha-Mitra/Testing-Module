@@ -5,7 +5,7 @@ import {
     Subject
     } from '@/models/questionsSchema';
 import { connectDb } from '@/utils/db';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Add type for create chapter request
 interface CreateChapterRequest {
@@ -20,6 +20,8 @@ interface CreateChapterRequest {
  *   get:
  *     summary: Get all chapters
  *     description: Fetches a list of all chapters from the database.
+ *     tags:
+ *       - Chapters
  *     responses:
  *       200:
  *         description: Successfully retrieved chapters.
@@ -55,6 +57,8 @@ export async function GET() {
  *   post:
  *     summary: Create a new chapter
  *     description: Creates a new chapter in the database associated with a specific subject.
+ *     tags:
+ *        - Chapters
  *     requestBody:
  *       required: true
  *       content:
@@ -106,7 +110,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if the provided Standard exists
+    // Check if the provided subject exists
     const subjectIdExists = await Subject.findById(subjectId);
     if (!subjectIdExists) {
       return NextResponse.json(
@@ -133,7 +137,7 @@ export async function POST(req: Request) {
           _id: savedChapter._id,
           title: savedChapter.title,
           description: savedChapter.description,
-          fk_subject_id: savedChapter.subject,
+          fk_subject_id: savedChapter.fk_subject_id,
         },
       },
       { status: 201 }
@@ -153,6 +157,8 @@ export async function POST(req: Request) {
  *   delete:
  *     summary: Delete a chapter by ID
  *     description: Deletes a chapter along with related exercises and questions from the database.
+ *     tags:
+ *       - Chapters
  *     parameters:
  *       - in: query
  *         name: id
@@ -232,4 +238,47 @@ export async function DELETE(req: Request) {
       { status: 500 }
     );
   }
+}
+
+
+export async function PUT(req:NextRequest) {
+  try {
+    await connectDb();
+
+    const {chapterId, title, description, subjectId} = await req.json();
+
+    if(!chapterId || !title || !subjectId){
+      return NextResponse.json(
+        {error: "Id, title subjectId are required "},
+        {status: 400}
+      );
+    }
+
+    const existingChapter = await Chapter.findOne({_id: chapterId});
+    if(!existingChapter){
+      return NextResponse.json(
+        {error: "No existing record found for chapter"},
+        {status: 404}
+      )
+    }
+
+    if(title)existingChapter.title = title;
+    if(description)existingChapter.description = description;
+    if(subjectId)existingChapter.fk_subject_id = subjectId;
+
+    await existingChapter.save();
+
+    return NextResponse.json(
+      {success: "Chapter upated successfully", chapter: existingChapter },
+      {status: 200}
+    )
+
+  } catch (error) {
+    console.log("Error updating chapter", error)
+    return NextResponse.json(
+      {error: "Something went wrong in updating chapter"},
+      {status: 500}
+    )
+  }
+  
 }

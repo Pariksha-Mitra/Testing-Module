@@ -93,7 +93,7 @@ export async function GET(req: Request, context: Context) {
     await connectDb();
 
     // Extract the questionId from the request params
-    const { questionId } = context.params;
+    const { questionId } = await context.params;
     console.log("questionId = ", questionId);
 
     // Fetch the single question by its ID and populate the related documents
@@ -124,6 +124,7 @@ export async function GET(req: Request, context: Context) {
     const flattenedQuestion = {
       _id: singleQuestion._id,
       questionText: singleQuestion.questionText,
+      questionDescription: singleQuestion.questionDescription,
       questionType: singleQuestion.questionType,
       answerFormat: singleQuestion.answerFormat,
       options: singleQuestion.options,
@@ -133,8 +134,7 @@ export async function GET(req: Request, context: Context) {
       exerciseDescription: singleQuestion.fk_exercise_id?.description,
       exerciseId: singleQuestion.fk_exercise_id?._id, // Added exercise ID
       chapterTitle: singleQuestion.fk_exercise_id?.fk_chapter_id?.title,
-      chapterDescription:
-        singleQuestion.fk_exercise_id?.fk_chapter_id?.description,
+      chapterDescription:singleQuestion.fk_exercise_id?.fk_chapter_id?.description,
       chapterId: singleQuestion.fk_exercise_id?.fk_chapter_id?._id, // Added chapter ID
       subjectName: singleQuestion.fk_subject_id?.subjectName, // Updated to use fk_subject_id
       subjectDescription: singleQuestion.fk_subject_id?.description, // Updated to use fk_subject_id

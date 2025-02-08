@@ -1,6 +1,6 @@
-import { connectDb } from '@/utils/db';
-import { Exercise } from '@/models/questionsSchema';
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { Exercise } from "@/models/questionsSchema";
+import {connectDb} from "@/utils/db";
 
 /**
  * @swagger
@@ -51,45 +51,25 @@ import { NextResponse } from 'next/server';
  *           type: "string"
  */
 
-// Define interface for context
-interface ExerciseContext {
-  params: {
-    exerciseId: string;
-  };
-}
 
-export async function GET(req: Request, context: ExerciseContext) {
+export async function GET(req: Request, context: { params: { exerciseId: string } }) {
   try {
     await connectDb();
-
-    const { exerciseId } = context.params;
-
-    if (!exerciseId) {
-      return NextResponse.json(
-        { success: false, error: "Exercise ID is required" },
-        { status: 400 }
-      );
-    }
-
-    const singleExercise = await Exercise.findById(exerciseId).populate(
-      "fk_chapter_id"
-    ); // Add population if needed
+    const { exerciseId } = await context.params;
+    const singleExercise = await Exercise.findById(exerciseId);
 
     if (!singleExercise) {
       return NextResponse.json(
-        { success: false, error: "Exercise not found" },
+        { error: "Exercise not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(
-      { success: true, singleExercise },
-      { status: 200 }
-    );
+    return NextResponse.json({ singleExercise }, { status: 200 });
   } catch (error) {
     console.error("Error retrieving single exercise:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to retrieve the single exercise" },
+      { error: "Failed to retrieve the single exercise" },
       { status: 500 }
     );
   }

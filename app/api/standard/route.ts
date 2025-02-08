@@ -1,5 +1,5 @@
 import { connectDb } from '@/utils/db';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import {
   Chapter,
   Exercise,
@@ -153,7 +153,9 @@ export async function GET() {
     console.log("hello");
     const classes = await Standard.find();
     return NextResponse.json({ classes }, { status: 200 });
-  } catch {
+  } catch (error){
+    console.log("error while handling GET req in standardId dynamic route",error);
+
     return NextResponse.json(
       { error: "Failed to retrive the Classes Information" },
       { status: 400 }
@@ -180,7 +182,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.log("Error creating standard:", error);
+    console.log("Error creating standard in POST req:", error);
     return NextResponse.json(
       { error: "Failed to create standard" },
       { status: 500 }
@@ -231,6 +233,45 @@ export async function DELETE(req: Request) {
     console.error("Error deleting standard and related data:", error);
     return NextResponse.json(
       { error: "Failed to delete standard and related data" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    await connectDb();
+
+    const { standardId, standardName, description } = await req.json();
+
+    if (!standardId || !standardName) {
+      return NextResponse.json(
+        { error: "Record standardId and standardName are required", standardId, standardName },
+        { status: 400 }
+      );
+    }
+
+    const existingStandard = await Standard.findById({_id:standardId});
+    if (!existingStandard) {
+      return NextResponse.json(
+        { error: "No existing record found for standard" },
+        { status: 404 }
+      );
+    }
+
+    if (standardName) existingStandard.standardName = standardName;
+    if (description) existingStandard.description = description;
+
+    await existingStandard.save();
+
+    return NextResponse.json(
+      { message: "Standard updated successfully", standard: existingStandard },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating standard:", error);
+    return NextResponse.json(
+      { error: "Something went wrong while updating standard" },
       { status: 500 }
     );
   }

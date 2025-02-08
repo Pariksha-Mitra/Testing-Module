@@ -1,48 +1,145 @@
-import React from 'react';
+"use client";
 
-interface DashboardCard {
-  color: string;
-  title: string;
-  ariaLabel: string;
-}
+import React from "react";
+import "@/styles/scrollbar.css";
+import { ROLE, NewsItemProps } from "@/utils/types";
+import Section from "@/components/dashboard/common/Section";
+import NewsContent from "@/components/dashboard/student/sections/NewsContent";
+import AnalysisContent from "@/components/dashboard/student/sections/AnalysisContent";
+import GamesContent from "@/components/dashboard/student/sections/GamesContent";
+import TestsContent from "@/components/dashboard/student/sections/TestsContent";
+import { useSession } from "next-auth/react";
+import { Skeleton } from "@mui/material";
 
-const Dashboard: React.FC = () => {
-  const dashboardCards: DashboardCard[] = [
-    {
-      color: "bg-[#7CD9FE]",
-      title: "Card 1",
-      ariaLabel: "Dashboard statistics 1",
-    },
-    {
-      color: "bg-[#FA8097]",
-      title: "Card 2",
-      ariaLabel: "Dashboard statistics 2",
-    },
-    {
-      color: "bg-[#6AD9A1]",
-      title: "Card 3",
-      ariaLabel: "Dashboard statistics 3",
-    },
-    {
-      color: "bg-[#FFC756]",
-      title: "Card 4",
-      ariaLabel: "Dashboard statistics 4",
-    },
+const Page: React.FC = () => {
+  const { data: session } = useSession();
+
+  const role = session?.user.role;
+
+  const data = [
+    { color: "#FF6384", value: 20, label: "parameter 1" },
+    { color: "#FFCD56", value: 15, label: "parameter 2" },
+    { color: "#36A2EB", value: 25, label: "parameter 3" },
+    { color: "#4BC0C0", value: 30, label: "parameter 4" },
+    { color: "#9966FF", value: 10, label: "parameter 5" },
+  ];
+  const total = data.reduce((sum, seg) => sum + seg.value, 0);
+
+  const news: NewsItemProps[] = [
+    { id: "1", isNew: true, title: "Title 1" },
+    { id: "2", isNew: true, title: "Title 2" },
+    { id: "3", isNew: false, title: "Title 3" },
+    { id: "4", isNew: false, title: "Title 4" },
+    { id: "5", isNew: false, title: "Title 5" },
+    { id: "6", isNew: false, title: "Title 6" },
+    { id: "7", isNew: false, title: "Title 7" },
+    { id: "8", isNew: false, title: "Title 8" },
+    { id: "9", isNew: false, title: "Title 9" },
   ];
 
+  const renderContent = () => {
+    switch (role) {
+      case ROLE.Student:
+        return (
+          <>
+            {/* News Section */}
+            <Section title="सध्याच्या गोष्टी" backgroundColor="bg-[#7CD9FE]">
+              <NewsContent news={news} />
+            </Section>
+
+            {/* Analysis Section */}
+            <Section
+              title="विश्लेषण"
+              backgroundColor="bg-[#FC708A]"
+              rounded="rounded-2xl"
+            >
+              <AnalysisContent data={data} total={total} />
+            </Section>
+
+            {/* Games Section */}
+            <Section
+              title="गेम्स"
+              backgroundColor="bg-[#CBD32E]"
+              className="relative min-h-[300px]"
+            >
+              <GamesContent />
+            </Section>
+
+            {/* Tests Section */}
+            <Section
+              title="चाचण्या"
+              backgroundColor="bg-[#F7D827]"
+              className="container mx-auto px-4"
+            >
+              <TestsContent />
+            </Section>
+          </>
+        );
+
+      case ROLE.Teacher:
+        return (
+          <>
+            {/* Placeholder Sections for Teacher */}
+            <Section title="" backgroundColor="bg-white">
+              <div></div>
+            </Section>
+            <Section title="" backgroundColor="bg-white">
+              <div></div>
+            </Section>
+            <Section title="" backgroundColor="bg-white">
+              <div></div>
+            </Section>
+            <Section title="" backgroundColor="bg-white">
+              <div></div>
+            </Section>
+          </>
+        );
+
+      default:
+        return (
+          <>
+            {/* Placeholder Sections for Unknown Role */}
+            <Section title="" backgroundColor="bg-[#7CD9FE]">
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
+            </Section>
+            <Section title="" backgroundColor="bg-[#FC708A]">
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
+            </Section>
+            <Section title="" backgroundColor="bg-[#CBD32E]">
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
+            </Section>
+            <Section title="" backgroundColor="bg-[#F7D827]">
+              <Skeleton
+                className="rounded-[20px]"
+                variant="rectangular"
+                width="100%"
+                height={400}
+              />
+            </Section>
+          </>
+        );
+    }
+  };
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-      {dashboardCards.map((card, index) => (
-        <section
-          key={index}
-          aria-label={card.ariaLabel}
-          className={`${card.color} rounded-lg h-64 shadow hover:shadow-lg transition-all duration-300 p-4`}
-        >
-          <h2 className="text-xl font-semibold text-white">{card.title}</h2>
-        </section>
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-4 mt-4 w-full md:h-[81%]">
+      {renderContent()}
     </div>
   );
 };
 
-export default Dashboard;
+export default Page;

@@ -7,10 +7,10 @@ import { NextResponse } from 'next/server';
  * paths:
  *   /api/chapters/{chapterId}:
  *     get:
- *       tags:
- *         - Chapters
  *       summary: "Get a single chapter by ID"
  *       description: "Retrieve a single chapter from the database by its ID."
+ *       tags:
+ *         - Chapters
  *       parameters:
  *         - name: "chapterId"
  *           in: "path"
@@ -45,8 +45,8 @@ export async function GET(request: Request, context: ChapterContext) {
   try {
     await connectDb();
 
-    const { chapterId } = context.params; // Match URL parameter case
-
+    const { chapterId } = await context.params; // Match URL parameter case
+    console.log(chapterId)
     if (!chapterId) {
       return NextResponse.json(
         { success: false, error: "Chapter ID is required" },
@@ -56,7 +56,7 @@ export async function GET(request: Request, context: ChapterContext) {
 
     const singleChapter = await Chapter.findById(chapterId).populate(
       "fk_subject_id"
-    ); // Add population if needed
+    ); 
 
     if (!singleChapter) {
       return NextResponse.json(

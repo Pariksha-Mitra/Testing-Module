@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import { connectDb } from "@/utils/db";
 import { NextResponse } from "next/server";
 import { Question } from "@/models/questionsSchema";
+=======
+import { connectDb } from '@/utils/db';
+import { NextResponse } from 'next/server';
+import { Chapter, Exercise, Question, Standard, Subject } from "@/models/questionsSchema";
+>>>>>>> ca21aa9cc07a9326c398d3a484bf813d5c35a045
 
 /**
  * @swagger
@@ -46,39 +52,57 @@ export async function GET() {
       })
       .exec();
 
+<<<<<<< HEAD
     const flattenedQuestions = questions.map((question) => {
       const exercise = question.fk_exercise_id || {};
       const chapter = exercise.fk_chapter_id || {};
       const subject = chapter.fk_subject_id || {};
       const standard = subject.fk_standard_id || {};
+=======
+    const flattenedQuestions = await Promise.all(questions.map(async (question) => {
+      const exercise = await Exercise.findById(question.fk_exercise_id);
+      const chapter = await Chapter.findById(question.fk_chapter_id);
+      const subject = await Subject.findById(question.fk_subject_id);
+      const standard = await Standard.findById(question.fk_standard_id);
+>>>>>>> ca21aa9cc07a9326c398d3a484bf813d5c35a045
 
       return {
         _id: question._id,
         questionText: question.questionText,
+        questionDescription: question.questionDescription,
         questionType: question.questionType,
         answerFormat: question.answerFormat,
         options: question.options,
         correctAnswer: question.correctAnswer,
         numericalAnswer: question.numericalAnswer,
-        exerciseTitle: exercise.title,
-        exerciseDescription: exercise.description,
-        exerciseId: exercise._id,
-        chapterTitle: chapter.title,
-        chapterDescription: chapter.description,
-        chapterId: chapter._id,
-        subjectName: subject.subjectName,
-        subjectDescription: subject.description,
-        subjectId: subject._id,
-        standardName: standard.standardName,
-        standardDescription: standard.description,
-        standardId: standard._id,
+        exerciseTitle: exercise?.title,
+        exerciseDescription: exercise?.description,
+        exerciseId: exercise?._id,
+        chapterTitle: chapter?.title,
+        chapterDescription: chapter?.description,
+        chapterId: chapter?._id,
+        subjectName: subject?.subjectName,
+        subjectDescription: subject?.description,
+        subjectId: subject?._id,
+        standardName: standard?.standardName,
+        standardDescription: standard?.description,
+        standardId: standard?._id,
       };
-    });
+    }));
 
+<<<<<<< HEAD
     return NextResponse.json({ questions: flattenedQuestions });
   } catch {
     return NextResponse.json(
       { error: "Failed to fetch questions" },
+=======
+    return NextResponse.json({ success: true, questions: flattenedQuestions });
+  } catch (error) {
+    console.log("error while handling GET req in question", error);
+
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch questions" },
+>>>>>>> ca21aa9cc07a9326c398d3a484bf813d5c35a045
       { status: 500 }
     );
   }
@@ -99,19 +123,22 @@ export async function GET() {
  *           schema:
  *             type: object
  *             required:
- *               - standard
- *               - chapter
- *               - exercise
+ *               - standardId
+ *               - subjectId
+ *               - chapterId
+ *               - exerciseId
  *               - questionText
  *               - questionType
  *               - answerFormat
  *               - correctAnswer
  *             properties:
- *               standard:
+ *               standardId:
  *                 type: string
- *               chapter:
+ *               subjectId:
  *                 type: string
- *               exercise:
+ *               chapterId:
+ *                 type: string
+ *               exerciseId:
  *                 type: string
  *               questionText:
  *                 type: string
@@ -147,6 +174,7 @@ export async function POST(req: Request) {
       chapterId,
       exerciseId,
       questionText,
+      questionDescription,
       questionType,
       answerFormat,
       options,
@@ -163,21 +191,22 @@ export async function POST(req: Request) {
       !questionType ||
       !answerFormat ||
       (questionType === "MCQ" && !correctAnswer) ||
-      (questionType === "Numerical" && numericalAnswer == null)
+      (questionType === "NUMERICAL" && numericalAnswer == null)
     ) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { success: false, error: "Missing required fields" },
         { status: 400 }
       );
     }
 
     if (questionType === "MCQ" && (!options || options.length === 0)) {
       return NextResponse.json(
-        { error: "MCQ questions require at least one option." },
+        { success: false, error: "MCQ questions require at least one option." },
         { status: 400 }
       );
     }
 
+<<<<<<< HEAD
     const validAnswerFormats = [
       "SingleChoice",
       "MultipleChoice",
@@ -192,6 +221,12 @@ export async function POST(req: Request) {
             ", "
           )}`,
         },
+=======
+    const validAnswerFormats = ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TEXT", "NUMBER", "MCQ"];
+    if (!validAnswerFormats.includes(answerFormat)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid answerFormat. Expected one of: ${validAnswerFormats.join(", ")}` },
+>>>>>>> ca21aa9cc07a9326c398d3a484bf813d5c35a045
         { status: 400 }
       );
     }
@@ -202,6 +237,7 @@ export async function POST(req: Request) {
       fk_chapter_id: chapterId,
       fk_exercise_id: exerciseId,
       questionText,
+      questionDescription,
       questionType,
       answerFormat,
       options: questionType === "MCQ" ? options : [],
@@ -214,13 +250,14 @@ export async function POST(req: Request) {
     const savedQuestion = await newQuestion.save();
 
     return NextResponse.json(
-      { message: "Question added successfully", question: savedQuestion },
+      { success: true, message: "Question added successfully", question: savedQuestion },
       { status: 201 }
     );
   } catch (error) {
-    console.error(error);
+    console.log("error while handling POST req in question", error);
+
     return NextResponse.json(
-      { error: "Failed to add question" },
+      { success: false, error: "Failed to add question" },
       { status: 500 }
     );
   }
@@ -277,9 +314,166 @@ export async function DELETE(req: Request) {
       { success: true, message: "Question deleted successfully" },
       { status: 200 }
     );
-  } catch {
+  } catch (error) {
+    console.log("error while handling DELETE req in question", error);
     return NextResponse.json(
       { success: false, error: "Failed to delete question" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * @swagger
+ * /api/questions:
+ *   patch:
+ *     tags:
+ *       - Questions
+ *     summary: Update an existing question
+ *     description: Updates the details of an existing question by its ID.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: The ID of the question to update.
+ *               standardId:
+ *                 type: string
+ *               subjectId:
+ *                 type: string
+ *               chapterId:
+ *                 type: string
+ *               exerciseId:
+ *                 type: string
+ *               questionText:
+ *                 type: string
+ *               questionDescription:
+ *                 type: string
+ *               questionType:
+ *                 type: string
+ *               answerFormat:
+ *                 type: string
+ *               options:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               correctAnswer:
+ *                 type: string
+ *               numericalAnswer:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Question updated successfully.
+ *       400:
+ *         description: Invalid input or missing required fields.
+ *       404:
+ *         description: Question not found.
+ *       500:
+ *         description: Failed to update question.
+ */
+export async function PATCH(req: Request) {
+  try {
+    await connectDb();
+
+    const body = await req.json();
+
+    const {
+      id,
+      standardId,
+      subjectId,
+      chapterId,
+      exerciseId,
+      questionText,
+      questionDescription,
+      questionType,
+      answerFormat,
+      options,
+      correctAnswer,
+      numericalAnswer,
+    } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Question ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const updateFields: Partial<typeof body> = {};
+
+    if (standardId) updateFields.fk_standard_id = standardId;
+    if (subjectId) updateFields.fk_subject_id = subjectId;
+    if (chapterId) updateFields.fk_chapter_id = chapterId;
+    if (exerciseId) updateFields.fk_exercise_id = exerciseId;
+    if (questionText) updateFields.questionText = questionText;
+    if (questionDescription) updateFields.questionDescription = questionDescription; // Corrected condition
+    if (questionType) updateFields.questionType = questionType;
+    if (answerFormat) updateFields.answerFormat = answerFormat;
+    if (options && questionType === "MCQ") updateFields.options = options;
+    if (correctAnswer && questionType === "MCQ") updateFields.correctAnswer = correctAnswer;
+    if (numericalAnswer != null && questionType === "NUMERICAL") updateFields.numericalAnswer = numericalAnswer;
+
+    // Validate answerFormat if it's being updated
+    if (answerFormat) {
+      const validAnswerFormats = ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TEXT", "NUMBER", "MCQ"];
+      if (!validAnswerFormats.includes(answerFormat)) {
+        return NextResponse.json(
+          { success: false, error: `Invalid answerFormat. Expected one of: ${validAnswerFormats.join(", ")}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Additional validations based on questionType
+    if (questionType === "MCQ") {
+      if (options && options.length === 0) {
+        return NextResponse.json(
+          { success: false, error: "MCQ questions require at least one option." },
+          { status: 400 }
+        );
+      }
+      if (!correctAnswer) {
+        return NextResponse.json(
+          { success: false, error: "MCQ questions require a correctAnswer." },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (questionType === "NUMERICAL" && numericalAnswer == null) {
+      return NextResponse.json(
+        { success: false, error: "Numerical questions require a numericalAnswer." },
+        { status: 400 }
+      );
+    }
+
+    const updatedQuestion = await Question.findByIdAndUpdate(
+      id,
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedQuestion) {
+      return NextResponse.json(
+        { success: false, error: "Question not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, message: "Question updated successfully", question: updatedQuestion },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log("error while handling PATCH req in question", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to update question" },
       { status: 500 }
     );
   }

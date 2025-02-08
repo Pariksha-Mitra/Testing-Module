@@ -1,5 +1,5 @@
-import mongoose, { Schema, Types } from 'mongoose';
-import { ROLE } from '../utils/types';
+import mongoose, { Schema, Types } from "mongoose";
+import { ROLE } from "../utils/types";
 
 interface User extends Document, Schema {
   firstName: string;
@@ -13,12 +13,20 @@ interface User extends Document, Schema {
   dateOfBirth: Date;
   image?: string;
   invitationId?: string;
+  rollNo?: number;
+  division?: division;
   role: ROLE;
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+}
+
+enum division {
+  A = "A",
+  B = "B",
+  C = "C",
 }
 
 const userSchema: Schema<User> = new Schema<User>({
@@ -116,6 +124,12 @@ const userSchema: Schema<User> = new Schema<User>({
   },
   resetPasswordExpires: {
     type: Date,
+  },
+  rollNo: {
+    type: Number,
+  },
+  division: {
+    type: String,
   },
 });
 

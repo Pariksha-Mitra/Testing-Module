@@ -1,8 +1,3 @@
-"use client"
-import AddOptionModal from './AddOptionModal';
-import clsx from 'clsx';
-import { DropdownProps } from '@/utils/types';
-import '@/styles/scrollbar.css';
 import React, {
   FC,
   useState,
@@ -11,6 +6,22 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
+import clsx from "clsx";
+import AddOptionModal from "./AddOptionModal";
+import { DropdownProps, DropdownItem } from "@/utils/types";
+import "@/styles/scrollbar.css";
+
+// Helper functions to normalize items.
+function normalizeDynamicItems(items: DropdownItem[]): DropdownItem[] {
+  return items;
+}
+
+function normalizeStaticItems(items: string[]): DropdownItem[] {
+  return items.map((item) => ({
+    id: item,
+    name: item,
+  }));
+}
 
 const Dropdown: FC<DropdownProps> = ({
   items,
@@ -28,27 +39,20 @@ const Dropdown: FC<DropdownProps> = ({
   allowAddOption = false,
   allowAddOptionText = "Add new option",
   onAddOption,
+  isDynamic = false,
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-
-  // Local selected state for uncontrolled usage
   const [selected, setSelected] = useState<string | number | null>(
     controlledSelected ?? defaultValue ?? null
   );
-
-  // Keep track of which index is currently highlighted for arrow key navigation
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
-
-  // Local options, including any newly added
-  const [options, setOptions] = useState<(string | number)[]>(items);
-
-  // States for displaying the modal
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const listRef = useRef<HTMLSelectElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
-  // Keep selected in sync with controlled props or defaultValue changes
+  // Update internal selection when controlled props change.
   useEffect(() => {
     if (controlledSelected !== undefined) {
       setSelected(controlledSelected);
@@ -57,7 +61,14 @@ const Dropdown: FC<DropdownProps> = ({
     }
   }, [defaultValue, controlledSelected]);
 
-  // Precompute the final list of items we will render
+  // Use separate helper functions to normalize items.
+  const normalizedOptions: DropdownItem[] = useMemo(() => {
+    return isDynamic
+      ? normalizeDynamicItems(items as DropdownItem[])
+      : normalizeStaticItems(items as string[]);
+  }, [items, isDynamic]);
+
+  // Prepend "Add new option" if allowed.
   const finalOptions = useMemo(() => {
     const safeText =
       typeof allowAddOptionText === "string" ||
@@ -65,27 +76,32 @@ const Dropdown: FC<DropdownProps> = ({
         ? allowAddOptionText
         : JSON.stringify(allowAddOptionText);
 
-    return allowAddOption ? [safeText, ...options] : options;
-  }, [allowAddOption, allowAddOptionText, options]);
+    if (allowAddOption) {
+      const addOptionItem: DropdownItem = {
+        id: "add_option",
+        name: safeText.toString(),
+      };
+      return [addOptionItem, ...normalizedOptions];
+    }
+    return normalizedOptions;
+  }, [allowAddOption, allowAddOptionText, normalizedOptions]);
 
   const toggleDropdown = useCallback(() => {
-    setIsOpen((prev) => !prev);
-  }, []);
+    if (!disabled) {
+      setIsOpen((prev) => !prev);
+    }
+  }, [disabled]);
 
-  // Close the dropdown if user clicks outside
-  const handleClickOutside = useCallback(
-    (event: MouseEvent) => {
-      if (
-        listRef.current &&
-        !listRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    },
-    [listRef, buttonRef]
-  );
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (
+      listRef.current &&
+      !listRef.current.contains(event.target as Node) &&
+      buttonRef.current &&
+      !buttonRef.current.contains(event.target as Node)
+    ) {
+      setIsOpen(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -99,25 +115,23 @@ const Dropdown: FC<DropdownProps> = ({
     };
   }, [isOpen, handleClickOutside]);
 
-  // Handle when a user clicks an option
+  // Removed the extra "index" parameter to fix the ESLint no-unused-vars warning.
   const handleOptionClick = useCallback(
-    (option: string | number, index: number) => {
-      // If the first item is "Add new option" text, open the modal
-      if (allowAddOption && index === 0) {
+    (option: DropdownItem) => {
+      if (allowAddOption && option.id === "add_option") {
         setIsOpen(false);
         setShowModal(true);
         return;
       }
 
+      const selectedId = option.id;
       if (controlledSelected !== undefined) {
-        // Controlled mode
-        onSelect?.(option);
-        onChange?.(option);
+        onSelect?.(selectedId);
+        onChange?.(selectedId);
       } else {
-        // Uncontrolled mode
-        setSelected(option);
-        onSelect?.(option);
-        onChange?.(option);
+        setSelected(selectedId);
+        onSelect?.(selectedId);
+        onChange?.(selectedId);
       }
       setIsOpen(false);
       buttonRef.current?.focus();
@@ -125,7 +139,6 @@ const Dropdown: FC<DropdownProps> = ({
     [allowAddOption, onSelect, onChange, controlledSelected]
   );
 
-  // Keyboard navigation
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -142,84 +155,99 @@ const Dropdown: FC<DropdownProps> = ({
           prev > 0 ? prev - 1 : finalOptions.length - 1
         );
       } else if (event.key === "Enter" || event.key === " ") {
-        // If we have a highlighted option, select it
         if (highlightedIndex >= 0 && highlightedIndex < finalOptions.length) {
-          handleOptionClick(finalOptions[highlightedIndex], highlightedIndex);
+          const option = finalOptions[highlightedIndex];
+          handleOptionClick(option);
         }
       } else if (event.key === "Tab") {
-        // Close the dropdown if user tabs away
         setIsOpen(false);
       }
     },
     [highlightedIndex, finalOptions, handleOptionClick]
   );
 
-  // When a new option is confirmed from the modal
   const handleModalConfirm = useCallback(
     (newValue: string) => {
-      if (!options.includes(newValue)) {
-        setOptions((prev) => [...prev, newValue]);
-        onAddOption?.(newValue); // notify the parent if needed
+      if (allowAddOption && isDynamic) {
+        const existingOption = normalizedOptions.find(
+          (opt) => opt.name === newValue
+        );
+        if (!existingOption) {
+          const newOptionName = newValue.trim();
+          if (newOptionName) {
+            onAddOption?.(newOptionName);
+          }
+        }
       }
       setShowModal(false);
     },
-    [options, onAddOption]
+    [normalizedOptions, onAddOption, isDynamic, allowAddOption]
   );
 
-  // Rendered options
+  const handleModalClose = useCallback(() => {
+    setShowModal(false);
+  }, []);
+
+  // NOTE on Accessibility (SonarLint S6819 & S6819):
+  // SonarLint suggests using native <option> elements (inside a <select>) rather than
+  // custom elements with role="option". If native behavior is acceptable, consider refactoring
+  // the dropdown to use a <select> element with <option> children.
   const renderedOptions = useMemo(() => {
     return finalOptions.map((option, index) => {
-      const isSelected = selected === option;
+      const isSelected = selected === option.id;
       const isHighlighted = highlightedIndex === index;
-      const isAddOptionText = allowAddOption && index === 0;
+      const isAddOptionText = allowAddOption && option.id === "add_option";
 
       return (
-        <option
-          key={`${option}-${index}`}
-          value={option.toString()}
-          onClick={() => handleOptionClick(option, index)}
-          onKeyDown={(e) =>
-            e.key === "Enter" && handleOptionClick(option, index)
-          }
+        <div
+          key={`${option.id}-${index}`}
+          role="option"
+          tabIndex={0}
+          aria-selected={isSelected}
+          onClick={() => handleOptionClick(option)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              handleOptionClick(option);
+            }
+          }}
           onMouseEnter={() => setHighlightedIndex(index)}
           className={clsx(
-            "cursor-pointer text-lg",
+            "cursor-pointer text-lg truncate",
             isSelected && "bg-blue-100",
             !isSelected && isHighlighted && "bg-blue-50",
             !isSelected && !isHighlighted && "bg-white",
             "hover:bg-blue-50",
             index !== finalOptions.length - 1 && "border-b border-gray-200",
             "px-4 py-2",
-            isAddOptionText && "text-[#0019fb] "
+            isAddOptionText && "text-[#0019fb]"
           )}
         >
-          {option}
-        </option>
+          {option.name}
+        </div>
       );
     });
-  }, [
-    finalOptions,
-    selected,
-    highlightedIndex,
-    handleOptionClick,
-    allowAddOption,
-  ]);
+  }, [finalOptions, selected, highlightedIndex, handleOptionClick, allowAddOption]);
+
+  const displayValue = useMemo(() => {
+    if (isDynamic) {
+      const selectedItem = normalizedOptions.find(
+        (opt) => opt.id === selected
+      );
+      return selectedItem ? selectedItem.name : "-";
+    } else {
+      return selected ?? "-";
+    }
+  }, [isDynamic, normalizedOptions, selected]);
 
   return (
-    <div
-      className={clsx(
-        "laila-regular relative w-full",
-        className,
-        containerClass
-      )}
-    >
-      {/* Dropdown button */}
+    <div className={clsx("laila-regular relative w-full", className, containerClass)}>
       <button
         ref={buttonRef}
         onClick={toggleDropdown}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={id ? `${id}-listbox` : "dropdown-listbox"}
+        disabled={disabled}
         className={clsx(
           "mt-2 flex items-center",
           buttonBgColor,
@@ -227,14 +255,14 @@ const Dropdown: FC<DropdownProps> = ({
           buttonBorderWidth,
           buttonBorderColor,
           "w-full transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500",
-          "h-[50px] text-left"
+          "h-[50px] text-left",
+          disabled && "opacity-50 cursor-not-allowed"
         )}
       >
-        <span className="mr-2 flex-grow text-xl">{label}</span>
-        <div className="w-[80%] h-9 bg-white text-lg rounded-lg flex items-center justify-center text-black mr-2 overflow-hidden whitespace-nowrap text-ellipsis">
-          {selected ?? "-"}
+        <span className="mr-1 flex-grow text-xl">{label}</span>
+        <div className="w-[80%] text-ellipsis h-9 bg-white text-lg rounded-lg flex items-center justify-center text-black mr-2 overflow-hidden whitespace-nowrap">
+          <p className="truncate ml-1">{displayValue}</p>
         </div>
-
         <svg
           className={clsx(
             "w-4 h-4 transform transition-transform duration-200",
@@ -257,23 +285,22 @@ const Dropdown: FC<DropdownProps> = ({
         </svg>
       </button>
 
-      {/* Dropdown menu */}
       {isOpen && (
-        <select
+        <div
           ref={listRef}
-          size={5}
+          role="listbox"
           id={id ? `${id}-listbox` : "dropdown-listbox"}
           className="absolute thin-scrollbar left-0 mt-1 w-full bg-white text-black text-center rounded-[20px] shadow-lg z-10 max-h-52 overflow-y-auto"
           onKeyDown={handleKeyDown}
+          tabIndex={-1}
         >
           {renderedOptions}
-        </select>
+        </div>
       )}
 
-      {/* Separated Modal Component */}
       <AddOptionModal
         visible={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={handleModalClose}
         onConfirm={handleModalConfirm}
         title="नवीन तयार करा"
         placeholder="enter name here"
@@ -283,5 +310,4 @@ const Dropdown: FC<DropdownProps> = ({
 };
 
 Dropdown.displayName = "Dropdown";
-
-export default React.memo(Dropdown);
+export default Dropdown;

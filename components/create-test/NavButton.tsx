@@ -8,20 +8,28 @@ export const NavButton: React.FC<NavButtonProps> = ({
   onClick,
   ariaLabel,
   tooltipText = "Default Tooltip",
+  disabled = false, // Default to false
 }) => {
   const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+    if (disabled) {
+      e.preventDefault();
+      return;
+    }
     onClick?.();
   };
 
   return (
     <div className="relative group">
       {/* Button */}
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={ariaLabel || imageAlt}
-        className="flex flex-col justify-center items-center px-16 py-1.5 bg-rose-400 rounded-3xl border-[1.5px] border-white border-solid shadow-sm max-md:px-5 cursor-pointer hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 transition-colors"
+      <button
+        type="button"
+        aria-label={ariaLabel ?? imageAlt}
+        disabled={disabled}
+        className={`flex flex-col justify-center items-center px-16 py-1.5 bg-rose-400 rounded-3xl border-[1.5px] border-white border-solid shadow-sm max-md:px-5 cursor-pointer hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 transition-colors ${
+          disabled
+            ? "opacity-50 cursor-not-allowed pointer-events-none"
+            : ""
+        }`}
         onClick={handleClick}
       >
         <Image
@@ -31,12 +39,14 @@ export const NavButton: React.FC<NavButtonProps> = ({
           height={42}
           className="object-contain aspect-square"
         />
-      </div>
+      </button>
 
       {/* Tooltip */}
-      <div className="laila-medium  text-black w-[80%] absolute bottom-full border border-black border-solid left-1/2 transform -translate-x-1/2 mb-2 px-11 py-1 bg-white rounded-t-3xl rounded-br-3xl opacity-0 group-hover:opacity-100 transition-opacity">
-        {tooltipText}
-      </div>
+      {!disabled && (
+        <div className="laila-medium text-black w-[80%] absolute bottom-full border border-black border-solid left-1/2 transform -translate-x-1/2 mb-2 px-11 py-1 bg-white rounded-t-3xl rounded-br-3xl opacity-0 group-hover:opacity-100 transition-opacity">
+          {tooltipText}
+        </div>
+      )}
     </div>
   );
 };

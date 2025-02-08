@@ -1,11 +1,11 @@
-import bcrypt from 'bcrypt';
-import SchoolModel from '@/models/schoolSchema';
-import userModel from '@/models/user.model';
-import { ApiError, handleApiError } from '@/utils/api-error';
-import { connectDb } from '@/utils/db';
-import { NextResponse } from 'next/server';
-import { registerSchema } from '@/models/registerSchema';
-import { ROLE } from '@/utils/types';
+import bcrypt from "bcrypt";
+import SchoolModel from "@/models/schoolSchema";
+import userModel from "@/models/user.model";
+import { ApiError, handleApiError } from "@/utils/api-error";
+import { connectDb } from "@/utils/db";
+import { NextResponse } from "next/server";
+import { registerSchema } from "@/models/registerSchema";
+import { ROLE } from "@/utils/types";
 
 interface RegisterRequestBody {
   firstName: string;
@@ -16,8 +16,15 @@ interface RegisterRequestBody {
   schoolId: string;
   email?: string;
   invitationId?: string;
+  rollNo?: number;
+  division?: division;
 }
 
+enum division {
+  A = "A",
+  B = "B",
+  C = "C",
+}
 /**
  * @swagger
  * /api/register:
@@ -66,6 +73,14 @@ interface RegisterRequestBody {
  *                 type: string
  *                 description: Invitation ID for teacher registration (optional)
  *                 example: INVITE123
+ *               rollNo:
+ *                 type: number
+ *                 description: Roll Number of the student
+ *                 example: 2
+ *               division:
+ *                 type: string
+ *                 description: Division of the student's class
+ *                 example: C
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -156,6 +171,8 @@ export async function POST(req: Request) {
       schoolId,
       email,
       invitationId,
+      rollNo,
+      division,
     }: RegisterRequestBody = await req.json();
 
     const validSchoolId = await SchoolModel.findById(schoolId);
@@ -165,6 +182,18 @@ export async function POST(req: Request) {
         {
           message: "Invalid School id or School is not registered",
           schoolId,
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    if(invitationId && (invitationId !== process.env.INVITATION_ID)) {
+      return NextResponse.json(
+        {
+          message: "Invalid invitation ID",
+          invitationId,
         },
         {
           status: 404,
@@ -183,6 +212,7 @@ export async function POST(req: Request) {
       dateOfBirth,
       role,
       schoolId,
+      ...(role === ROLE.Student ? { rollNo, division } : {}),
       ...(role === ROLE.Teacher ? { email, invitationId } : {}),
     };
 
@@ -237,6 +267,7 @@ export async function POST(req: Request) {
         schoolId,
         username,
         password: hashedPassword,
+        ...(role === ROLE.Student ? { rollNo, division } : {}),
       };
     }
 

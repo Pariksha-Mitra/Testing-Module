@@ -2,6 +2,12 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { IoArrowBack } from "react-icons/io5";
+import { Question } from '@/utils/types';
+
+interface props {
+    title: string;
+    questions: Question[]
+}
 
 const DetailedQuestion = () => {
     const router = useRouter();
@@ -12,7 +18,7 @@ const DetailedQuestion = () => {
                 <button
                     onClick={() => router.back()}
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-pink-500 text-white p-3 rounded-full shadow-md"
-                >
+                >.
                     <IoArrowBack size={24} />
                 </button>
                 DETAILED TEST RESULT

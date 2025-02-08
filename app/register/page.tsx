@@ -1,19 +1,18 @@
-"use client"
-import AuthHeader from '@/components/ui/AuthHeader';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import Slide from '@mui/material/Slide';
-import useFetchSchools from '@/utils/hooks/useFetchSchools';
-import { ROLE } from '@/utils/types';
-import { TransitionProps } from '@mui/material/transitions';
-import { useRouter } from 'next/navigation';
-import { useToast } from '@/components/ui/ToastProvider';
-
+"use client";
+import AuthHeader from "@/components/ui/AuthHeader";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import Slide from "@mui/material/Slide";
+import useFetchSchools from "@/utils/hooks/useFetchSchools";
+import { ROLE } from "@/utils/types";
+import { TransitionProps } from "@mui/material/transitions";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/ToastProvider";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement },
@@ -27,6 +26,8 @@ const Register = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [middleName, setMiddleName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
+  const [rollNo, setRollNo] = useState<string>("");
+  const [division, setDivision] = useState<string>("");
   const [dateOfBirth, setDateOfBirth] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [schoolId, setSchoolId] = useState<string>("");
@@ -34,7 +35,7 @@ const Register = () => {
   const [username, setUsername] = useState<string>("");
   const [open, setOpen] = useState(false);
   const { showToast } = useToast();
-  const { schools, isLoading } = useFetchSchools()
+  const { schools, isLoading } = useFetchSchools();
   const router = useRouter();
 
   useEffect(() => {
@@ -67,11 +68,13 @@ const Register = () => {
         dateOfBirth: new Date(dateOfBirth).toISOString().split("T")[0],
         role,
         schoolId,
+        rollNo,
+        division,
         email: role === ROLE.Teacher ? email.trim() : null,
         invitationId: role === ROLE.Teacher ? invitationId.trim() : null,
       };
 
-      console.log(schoolId)
+      console.log(schoolId);
 
       const response = await fetch("/api/register", {
         method: "POST",
@@ -97,23 +100,28 @@ const Register = () => {
         showToast("An unknown error occurred", "error");
       }
     }
-
   };
 
   return (
     <>
-      <AuthHeader />
-      <div className="w-full min-h-screen py-10 bg-gradient-to-b from-yellow-50 via-white to-blue-300">
-        <div className="w-full h-full flex flex-col justify-center items-center">
+      <div className="flex flex-col w-full h-screen  bg-gradient-to-b from-yellow-50 via-white to-blue-300 overflow-auto">
+        <div className="relative h-[25%]">
+          <AuthHeader />
+        </div>
+        <div className="mt-10 w-full flex justify-center items-center flex-col">
           <form
             onSubmit={handleSubmit}
             className="bg-white bg-opacity-60 border border-black shadow-lg rounded-2xl p-8 w-11/12 max-w-4xl"
           >
-            <h2 className="text-4xl font-bold text-center mb-8">नोंदणी करा</h2>
+            <h2 className="text-4xl font-bold text-center mb-8 laila-semibold">
+              नोंदणी करा
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Form Fields */}
               <div className="flex flex-col">
-                <label htmlFor="firstName" className="text-xl font-light mb-2">पहिले नाव</label>
+                <label htmlFor="firstName" className="text-xl font-light mb-2">
+                  पहिले नाव
+                </label>
                 <input
                   id="firstName"
                   className="p-3 border border-black shadow-md rounded-2xl"
@@ -125,7 +133,9 @@ const Register = () => {
               </div>
 
               <div className="flex flex-col">
-                <label htmlFor="middleName" className="text-xl font-light mb-2">मधले नाव</label>
+                <label htmlFor="middleName" className="text-xl font-light mb-2">
+                  मधले नाव
+                </label>
                 <input
                   id="middleName"
                   className="p-3 border border-black shadow-md rounded-2xl"
@@ -137,7 +147,9 @@ const Register = () => {
               </div>
 
               <div className="flex flex-col">
-                <label htmlFor="surname" className="text-xl font-light mb-2">आडनाव</label>
+                <label htmlFor="surname" className="text-xl font-light mb-2">
+                  आडनाव
+                </label>
                 <input
                   id="surname"
                   className="p-3 border border-black shadow-md rounded-2xl"
@@ -149,7 +161,12 @@ const Register = () => {
               </div>
 
               <div className="flex flex-col">
-                <label htmlFor="dateOfBirth" className="text-xl font-light mb-2">जन्मतारीख</label>
+                <label
+                  htmlFor="dateOfBirth"
+                  className="text-xl font-light mb-2"
+                >
+                  जन्मतारीख
+                </label>
                 <input
                   id="dateOfBirth"
                   type="date"
@@ -162,21 +179,25 @@ const Register = () => {
 
               {/* Role Selection */}
               <div className="flex flex-col">
-                <label htmlFor="role" className="text-xl font-light mb-2">भूमिका</label>
+                <label htmlFor="role" className="text-xl font-light mb-2">
+                  भूमिका
+                </label>
                 <div id="role" className="flex">
                   <button
                     type="button"
                     onClick={() => setRole(ROLE.Teacher)}
-                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-l-xl ${role === ROLE.Teacher && "bg-red-400 text-white"
-                      }`}
+                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-l-xl ${
+                      role === ROLE.Teacher && "bg-red-400 text-white"
+                    }`}
                   >
                     शिक्षक
                   </button>
                   <button
                     type="button"
                     onClick={() => setRole(ROLE.Student)}
-                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-r-xl ${role === ROLE.Student && "bg-red-400 text-white"
-                      } `}
+                    className={`flex-1 linear duration-300 p-3 border border-black shadow-md rounded-r-xl ${
+                      role === ROLE.Student && "bg-red-400 text-white"
+                    } `}
                   >
                     विद्यार्थी
                   </button>
@@ -185,12 +206,14 @@ const Register = () => {
 
               {/* School Name */}
               <div className="flex flex-col">
-                <label htmlFor="school" className="text-xl font-light mb-2">शाळेचे नाव</label>
+                <label htmlFor="school" className="text-xl font-light mb-2">
+                  शाळेचे नाव
+                </label>
                 <select
                   id="school"
                   value={schoolId}
                   onChange={(e) => {
-                    setSchoolId(e.target.value)
+                    setSchoolId(e.target.value);
                   }}
                   className="p-3 border border-black shadow-md rounded-2xl"
                 >
@@ -199,20 +222,61 @@ const Register = () => {
                   </option>
                   {!isLoading &&
                     schools.map((school) => {
-                      return <option key={school.id as string} value={school.id as string}>
-                        {school.name}
-                      </option>
+                      return (
+                        <option
+                          key={school.id as string}
+                          value={school.id as string}
+                        >
+                          {school.name}
+                        </option>
+                      );
                     })}
                 </select>
-
-
               </div>
+              {role == "student" && (
+                <>
+                  <div className="flex flex-col">
+                    <label htmlFor="rollNo" className="text-xl font-light mb-2">
+                      रोल नंबर
+                    </label>
+                    <input
+                      id="rollNo"
+                      className="p-3 border border-black shadow-md rounded-2xl"
+                      type="number"
+                      placeholder="Roll No"
+                      value={rollNo}
+                      onChange={(e) => setRollNo(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="division"
+                      className="text-xl font-light mb-2"
+                    >
+                      विभाजन
+                    </label>
+                    <input
+                      id="division"
+                      className="p-3 border border-black shadow-md rounded-2xl"
+                      type="text"
+                      placeholder="Division"
+                      value={division}
+                      onChange={(e) => setDivision(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
 
               {/* Teacher-specific Fields */}
               {role === ROLE.Teacher && (
                 <>
                   <div className="flex flex-col">
-                    <label htmlFor="teacherEmail" className="text-xl font-light mb-2">ई-मेल</label>
+                    <label
+                      htmlFor="teacherEmail"
+                      className="text-xl font-light mb-2"
+                    >
+                      ई-मेल
+                    </label>
                     <input
                       id="teacherEmail"
                       type="email"
@@ -223,7 +287,10 @@ const Register = () => {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <label htmlFor="invitationCode" className="text-xl font-light mb-2">
+                    <label
+                      htmlFor="invitationCode"
+                      className="text-xl font-light mb-2"
+                    >
                       आमंत्रण कोड
                     </label>
                     <input

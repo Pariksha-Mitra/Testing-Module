@@ -13,4 +13,4 @@ const InfoTab = ({ title, color, image }: {
     )
 }
 
-export default InfoTab
+export default InfoTab;
