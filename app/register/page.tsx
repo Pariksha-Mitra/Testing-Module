@@ -26,7 +26,7 @@ const Register = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [middleName, setMiddleName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
-  const [rollNo, setRollNo] = useState<string>("");
+  const [rollNo, setRollNo] = useState<number>();
   const [division, setDivision] = useState<string>("");
   const [dateOfBirth, setDateOfBirth] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -245,7 +245,7 @@ const Register = () => {
                       type="number"
                       placeholder="Roll No"
                       value={rollNo}
-                      onChange={(e) => setRollNo(e.target.value)}
+                      onChange={(e) => setRollNo(parseInt(e.target.value))}
                     />
                   </div>
                   <div className="flex flex-col">
