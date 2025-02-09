@@ -60,7 +60,7 @@ const Page: React.FC = () => {
             <Section
               title="गेम्स"
               backgroundColor="bg-[#CBD32E]"
-              className="relative min-h-[300px]"
+              className="relative min-h-[250px]"
             >
               <GamesContent />
             </Section>
@@ -136,7 +136,7 @@ const Page: React.FC = () => {
     }
   };
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-4 mt-4 w-full md:h-[81%]">
+    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-4 mt-5 w-full md:h-[80%]">
       {renderContent()}
     </div>
   );

@@ -10,7 +10,7 @@ const DashboardLayout: React.FC<{
   }
   return (
     <div
-      className="relative flex h-screen"
+      className="relative flex max-h-screen"
       style={{
         background:
           "linear-gradient(to bottom, #FBFFB7 0%, #FFFFFF 56%, #65D4FF 100%)",
