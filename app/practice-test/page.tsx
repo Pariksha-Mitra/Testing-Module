@@ -21,15 +21,24 @@ export default function Page() {
   useEffect(() => {
     console.log("Exercises from hook:", exercises);
     if (exercises.length > 0) {
-      const mappedRows = exercises.map((exercise) => ({
-        id: `${exercise.id}`,
-        title: `${exercise.name}`,
-        duration: exercise.duration,
-        totalMarks: exercise.totalMarks,
-        isSolved: false,
-      }));
-      setRows(mappedRows);
-      console.log("Mapped rows:", mappedRows);
+      // Filter out exercises with duration 0
+      const filteredExercises = exercises.filter(
+        (exercise) => exercise.duration !== 0
+      );
+      if (filteredExercises.length > 0) {
+        const mappedRows = filteredExercises.map((exercise) => ({
+          id: `${exercise.id}`,
+          title: `${exercise.name}`,
+          duration: exercise.duration,
+          totalMarks: exercise.totalMarks,
+          isSolved: false,
+        }));
+        setRows(mappedRows);
+        console.log("Mapped rows:", mappedRows);
+      } else {
+        // If no exercises have a duration > 0, clear the rows.
+        setRows([]);
+      }
     } else {
       setRows([]);
     }
@@ -52,7 +61,7 @@ export default function Page() {
       return (
         <div className="mb-4">
           {errorMessages.map((error, idx) => (
-            <p key={idx+error.charCodeAt(0)} className="text-red-500">
+            <p key={idx + error.charCodeAt(0)} className="text-red-500">
               {error}
             </p>
           ))}
@@ -60,6 +69,7 @@ export default function Page() {
       );
     }
 
+    // If there are no rows (for example, if the only exercise(s) have duration 0)
     if (rows.length > 0) {
       return <PracticeTestTable rows={rows} />;
     }
