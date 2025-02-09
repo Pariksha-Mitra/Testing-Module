@@ -1,11 +1,16 @@
 "use client";
-import React, { useCallback } from "react";
-import TableRow, { RowData } from "./TableRow"; 
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  startTransition,
+} from "react";
+import TableRow, { RowData } from "./TableRow";
 import { useAttemptTestStore } from "@/store/useAttemptTestStore";
 import { useRouter } from "next/navigation";
 import { useQuestionStore } from "@/store/useQuestionStore";
 import { useSelectionStore } from "@/store/useSelectionStore";
-import PracticeTestModal from "./PracticeTestModal"; 
+import PracticeTestModal from "./PracticeTestModal";
 
 interface PracticeTestTableProps {
   readonly rows: ReadonlyArray<RowData>;
@@ -22,39 +27,49 @@ const PracticeTestTable: React.FC<PracticeTestTableProps> = ({ rows }) => {
   const setTestTitle = useAttemptTestStore((state) => state.setTestTitle);
   const resetTest = useAttemptTestStore.getState().resetTest;
 
-  // Local state for controlling the modal and the selected row (exercise)
-  const [showDialog, setShowDialog] = React.useState(false);
-  const [selectedRow, setSelectedRow] = React.useState<RowData | null>(null);
+  // Manage a single state for the selected row (and modal visibility).
+  const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
 
-  // When a user clicks “solve”, store the row details and open the modal
+  // Prefetch the /attempt-test route for faster navigation.
+  useEffect(() => {
+    router.prefetch("/attempt-test");
+  }, [router]);
+
+  // When a user clicks "सोडवा" (solve) on a row, open the modal.
   const handleSolveClick = useCallback((row: RowData) => {
     setSelectedRow(row);
-    setShowDialog(true);
   }, []);
 
-  // Actual test start logic once the user confirms in the modal
+  // When the user confirms in the modal, set up test state and navigate.
   const handleConfirmSolve = useCallback(async () => {
     if (!selectedRow) return;
 
-    // Clear the storage and reset the test state
+    // Clear persisted storage and reset test state.
     useAttemptTestStore.persist.clearStorage();
     resetTest();
 
-    // Set up the exercise using the selected row details
+    // Set up exercise details.
     setExerciseWithDuration(selectedRow.id, selectedRow.duration);
     setSelection({ exercise: selectedRow.id });
+    setTestTitle(selectedRow.title);
 
-    // Fetch questions for the selected exercise
+    // Option 1: Immediately navigate to /attempt-test.
+    // You can fetch questions on the /attempt-test page (recommended).
+    startTransition(() => {
+      router.push("/attempt-test");
+    });
+
+    
+    // Option 2: If you want to fetch questions before navigating:
     await useQuestionStore.getState().fetchQuestions(selectedRow.id);
     const fetchedQuestions = useQuestionStore.getState().questions;
     setQuestions(fetchedQuestions);
-    setTestTitle(selectedRow.title);
+    startTransition(() => {
+      router.push("/attempt-test");
+    });
+    
 
-    // Navigate to the attempt-test page
-    router.push("/attempt-test");
-
-    // Close the modal and clear the selected row
-    setShowDialog(false);
+    // Clear the modal.
     setSelectedRow(null);
   }, [
     selectedRow,
@@ -62,12 +77,11 @@ const PracticeTestTable: React.FC<PracticeTestTableProps> = ({ rows }) => {
     setExerciseWithDuration,
     setTestTitle,
     setSelection,
-    setQuestions,
     router,
+     setQuestions  
   ]);
 
   const handleCancelSolve = useCallback(() => {
-    setShowDialog(false);
     setSelectedRow(null);
   }, []);
 
@@ -84,16 +98,7 @@ const PracticeTestTable: React.FC<PracticeTestTableProps> = ({ rows }) => {
     <>
       {/* Table of exercises */}
       <table
-        className="
-          w-full 
-          border
-          border-black
-          rounded-[20px]
-          border-separate
-          border-spacing-0
-          overflow-hidden
-          shadow-lg
-        "
+        className="w-full border border-black rounded-[20px] border-separate border-spacing-0 overflow-hidden shadow-lg"
         aria-label="Practice Test Table"
       >
         <thead>
@@ -124,7 +129,6 @@ const PracticeTestTable: React.FC<PracticeTestTableProps> = ({ rows }) => {
             </th>
           </tr>
         </thead>
-
         <tbody className="bg-white divide-y divide-gray-200">
           {rows.map((row) => (
             <TableRow
@@ -137,8 +141,8 @@ const PracticeTestTable: React.FC<PracticeTestTableProps> = ({ rows }) => {
         </tbody>
       </table>
 
-      {/* Render the separated modal when needed */}
-      {showDialog && selectedRow && (
+      {/* Render the modal when a row is selected */}
+      {selectedRow && (
         <PracticeTestModal
           row={selectedRow}
           onConfirm={handleConfirmSolve}

@@ -27,7 +27,7 @@ interface ModalHeaderProps {
 }
 const ModalHeader: React.FC<ModalHeaderProps> = ({ title, onBack }) => (
   <div className="flex flex-row bg-[#9747FF] text-white items-center py-3 px-4 text-wrap">
-    <button onClick={onBack} >
+    <button onClick={onBack}>
       <RightArrow />
     </button>
     <h1 className="text-4xl font-bold laila-bold text-center flex-1">
@@ -47,9 +47,7 @@ interface InfoItemProps {
 }
 const InfoItem: React.FC<InfoItemProps> = ({ icon, text, className }) => (
   <div
-    className={`flex flex-row items-center text-xl drop-shadow-md text-white font-medium text-center py-2 rounded-[10px] ${
-      className ? className : ""
-    }`}
+    className={`flex flex-row items-center text-xl drop-shadow-md text-white font-medium text-center py-2 rounded-[10px] ${className}`}
   >
     <div className="mr-2">{icon}</div>
     <div>{text}</div>
@@ -67,12 +65,12 @@ const PracticeTestModal: React.FC<PracticeTestModalProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Focus the modal container when it mounts
+  // Focus the modal container when it mounts.
   useEffect(() => {
     modalRef.current?.focus();
   }, []);
 
-  // Listen for Escape key press to cancel/close the modal
+  // Listen for Escape key press to cancel/close the modal.
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
