@@ -14,8 +14,10 @@ export default function Sidebar() {
   const role = session?.user.role;
 
   return (
-    <div className="fixed top-0 left-0 h-screen w-24 backdrop-blur-md bg-gradient-to-b from-yellow-50 to-blue-200  border-r border-black flex flex-col">
-      {/* Top Section */}
+    <div className="fixed top-0 left-0 h-screen w-24  bg-white bg-opacity-60 border-r border-black flex flex-col">
+      {/* backdrop-blur-md bg-gradient-to-b from-yellow-50 to-blue-200  */}
+      
+      
       <div className="flex flex-col items-center p-4">
         <div className="w-16 h-16 bg-[#FF7878] rounded-full mb-4"></div>
       </div>
