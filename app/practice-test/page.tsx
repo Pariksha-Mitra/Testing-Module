@@ -10,7 +10,8 @@ export default function Page() {
 
   const [rows, setRows] = useState<
     Array<{
-      description: string;
+      id: string;
+      title: string;
       duration: number;
       totalMarks: number;
       isSolved: boolean;
@@ -21,12 +22,14 @@ export default function Page() {
     console.log("Exercises from hook:", exercises);
     if (exercises.length > 0) {
       const mappedRows = exercises.map((exercise) => ({
-        description: `${exercise.name}`,
+        id: `${exercise.id}`,
+        title: `${exercise.name}`,
         duration: exercise.duration,
         totalMarks: exercise.totalMarks,
         isSolved: false,
       }));
       setRows(mappedRows);
+      console.log("Mapped rows:", mappedRows);
     } else {
       setRows([]);
     }
@@ -44,26 +47,26 @@ export default function Page() {
         />
       );
     }
-  
+
     if (errorMessages.length > 0) {
       return (
         <div className="mb-4">
           {errorMessages.map((error, idx) => (
-            <p key={idx} className="text-red-500">
+            <p key={idx+error.charCodeAt(0)} className="text-red-500">
               {error}
             </p>
           ))}
         </div>
       );
     }
-  
+
     if (rows.length > 0) {
       return <PracticeTestTable rows={rows} />;
     }
-  
+
     return <p>No exercises / practice test available.</p>;
   };
-  
+
   return (
     <div className="p-4">
       {/* Dropdowns for selecting Standard, Subject, Chapter, Exercise */}
