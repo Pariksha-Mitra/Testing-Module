@@ -255,7 +255,12 @@ export interface QuestionStore {
   selectedQuestionIndex: number;
   loading: boolean;
   error: string | null;
-  fetchQuestions: () => Promise<void>;
+  // New flag to control which exercise ID to use
+  useSelectionExercise: boolean;
+  // Setter for the above flag
+  setUseSelectionExercise: (flag: boolean) => void;
+  // Updated fetchQuestions accepts an optional exerciseId override.
+  fetchQuestions: (exerciseIdOverride?: string) => Promise<void>;
   addQuestion: (exerciseId: string, replace?: boolean) => void;
   setSelectedQuestionIndex: (index: number) => void;
   deleteQuestion: (index: number) => void;
