@@ -8,7 +8,7 @@ export interface AttemptTestState {
   exerciseId: string | null;
   exerciseDuration: number; // in seconds
   questions: Question[];
-  attemptedAnswers: Record<string, string | number | null>;
+  attemptedAnswers: Record<string, AnswerType>;
   visitedQuestions: string[];
   currentQuestionIndex: number;
   timeElapsed: number;
@@ -25,7 +25,7 @@ export interface AttemptTestState {
   setTestTitle: (title: string) => void;
   setQuestions: (questions: Question[]) => void;
   markQuestionVisited: (questionId: string) => void;
-  attemptQuestion: (questionId: string, answer: string | number | null) => void;
+  attemptQuestion: (questionId: string, answer: AnswerType) => void;
   setCurrentQuestionIndex: (index: number) => void;
   incrementTime: (delta: number) => void;
   submitTest: () => void;
@@ -34,6 +34,8 @@ export interface AttemptTestState {
   // Anti-cheat methods
   incrementCheatCount: () => void;
 }
+
+type AnswerType = string | number | null;
 
 export const useAttemptTestStore = create<AttemptTestState>()(
   persist(
@@ -51,7 +53,7 @@ export const useAttemptTestStore = create<AttemptTestState>()(
 
         // Anti-cheat
         cheatCount: 0,
-        maxCheatAttempts: 300, // for demonstration, allow 3 infractions
+        maxCheatAttempts: 3, 
 
         setExercise: (exerciseId: string) =>
           set((state) => {
