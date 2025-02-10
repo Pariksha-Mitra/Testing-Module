@@ -1,7 +1,7 @@
 "use client"
 import Sidebar from '@/components/ui/Sidebar/Sidebar';
 import { usePathname } from 'next/navigation';
-import React, { Suspense, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 const GameNotFound: React.FC = () => {
   return (
@@ -40,7 +40,7 @@ const Page: React.FC = () => {
     } else {
       setGameNotFound(true);
     }
-  }, []);
+  }, [segments, gameIndex]);
 
   return (
     <div className="flex min-h-screen min-w-screen overflow-hidden">

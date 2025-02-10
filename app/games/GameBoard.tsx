@@ -19,6 +19,38 @@ interface Selection {
     description?: string;
 }
 
+type Game = {
+    id: string;
+    title: string;
+    description: string;
+    class: string;
+    subject: string;
+    lesson: string;
+    homework: string;
+    thumbnail: string;
+    src: string;
+};
+
+type ApiGame = {
+    id: string;
+    title: string;
+    standard: number;
+    subject: string;
+    chapter: string;
+    exercise: number;
+    description: string;
+    difficulty: "EASY" | "MEDIUM" | "HARD"; // Assuming fixed difficulty levels
+    timeLimit: number;
+    status: "ACTIVE" | "INACTIVE"; // Assuming status has fixed values
+    numberLevels: number;
+    thumbnail: string;
+    src: string;
+    _id: string;
+    createdAt: string; // ISO date string
+    updatedAt: string; // ISO date string
+    __v: number;
+};
+
 export const GameBoard: React.FC = () => {
     const [selection, setSelection] = React.useState<Selection>({
         class: 'सर्व',
@@ -26,14 +58,14 @@ export const GameBoard: React.FC = () => {
         lesson: 'सर्व',
         homework: 'सर्व'
     });
-    const [games, setGames] = React.useState([]);
+    const [games, setGames] = React.useState<Game[]>([]);
 
     const fetchGames = async () => {
         try {
             const response = await fetch('/api/games');
             const data = await response.json();
             if (data && data.success && data.games) {
-                const _games = data.games.map((game: any) => ({
+                const _games = data.games.map((game: ApiGame) => ({
                     id: game.id,
                     title: game.title,
                     description: game.description,
@@ -63,8 +95,8 @@ export const GameBoard: React.FC = () => {
         }));
     };
 
-    const filteredGames: any[] = React.useMemo(() => {
-        return games.filter((game: any) => {
+    const filteredGames: Game[] = React.useMemo(() => {
+        return games.filter((game: Game) => {
             return Object.entries(selection).every(([key, value]) => {
                 if (value === 'सर्व') return true;
                 return game[key as keyof typeof game] === value;
@@ -112,7 +144,7 @@ export const GameBoard: React.FC = () => {
                     {filteredGames.length > 0 ? (
                         <div className="grid grid-cols-4 gap-6">
                             {filteredGames.map((card, index) => (
-                                <button key={index} className="relative aspect-[5/2.5]">
+                                <button key={index} className="relative">
                                     <GameCard text={card.title} description={card.description} thumbnail={card.thumbnail} src={card.src} />
                                 </button>
                             ))}

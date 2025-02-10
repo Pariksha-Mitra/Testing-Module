@@ -14,7 +14,6 @@ const getRandomGradient = () => {
 }
 
 export const GameCard: React.FC<GameCardProps> = ({ text, description, thumbnail, src }) => {
-  const gradient = thumbnail ? '' : getRandomGradient();
   const router = useRouter();
   const navigateToGame = () => {
     router.push(`${src}`);
@@ -22,18 +21,26 @@ export const GameCard: React.FC<GameCardProps> = ({ text, description, thumbnail
 
   return (
     <div
-      className={`${gradient} w-full h-full rounded-lg flex items-center justify-center transition-transform hover:scale-105`}
-      style={{ backgroundImage: thumbnail ? `url(${thumbnail})` : '', backgroundSize: 'cover', backgroundPosition: 'center' }}
+      className="w-full max-w-xs border rounded-lg shadow-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform"
+      onClick={navigateToGame}
     >
-      {text && (
-        <span
-          className={`text-black text-xl font-bold m-3 rounded-lg p-3 ${thumbnail ? 'bg-gray-300' : ''}`}
-          style={{ opacity: 0.93 }}
-          onClick={navigateToGame}
-        >
-          {text}
-        </span>
+      {/* Game Image */}
+      {thumbnail ? (
+        <div
+          className="w-full h-48 bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${thumbnail})`
+          }}
+        />
+      ) : (
+        <div className={`w-full h-48 ${getRandomGradient()}`} />
       )}
+
+      {/* Game Title and Description */}
+      <div className="p-4">
+        <h3 className="text-xl font-bold">{text}</h3>
+        <p className="text-sm text-gray-600">{description}</p>
+      </div>
     </div>
   );
 };
