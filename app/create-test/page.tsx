@@ -815,6 +815,7 @@ const Page: React.FC = () => {
           {/* Dropdown (प्रकार:) */}
           <div className="w-full md:w-[30%] flex-start">
             <Dropdown
+              isDynamic
               id="dropdown-2"
               items={Object.values(QuestionType).map((type) => ({
                 id: type,

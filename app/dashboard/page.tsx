@@ -2,7 +2,7 @@
 
 import React from "react";
 import "@/styles/scrollbar.css";
-import { ROLE, NewsItemProps } from "@/utils/types";
+import { NewsItemProps } from "@/utils/types";
 import Section from "@/components/dashboard/common/Section";
 import NewsContent from "@/components/dashboard/student/sections/NewsContent";
 import AnalysisContent from "@/components/dashboard/student/sections/AnalysisContent";
@@ -12,9 +12,7 @@ import { useSession } from "next-auth/react";
 import { Skeleton } from "@mui/material";
 
 const Page: React.FC = () => {
-  const { data: session } = useSession();
-
-  const role = session?.user.role;
+  const { status } = useSession();
 
   const data = [
     { color: "#FF6384", value: 20, label: "parameter 1" },
@@ -38,8 +36,8 @@ const Page: React.FC = () => {
   ];
 
   const renderContent = () => {
-    switch (role) {
-      case ROLE.Student:
+    switch (status) {
+      case "authenticated":
         return (
           <>
             {/* News Section */}
@@ -60,7 +58,7 @@ const Page: React.FC = () => {
             <Section
               title="गेम्स"
               backgroundColor="bg-[#CBD32E]"
-              className="relative min-h-[300px]"
+              className="relative min-h-[250px]"
             >
               <GamesContent />
             </Section>
@@ -72,25 +70,6 @@ const Page: React.FC = () => {
               className="container mx-auto px-4"
             >
               <TestsContent />
-            </Section>
-          </>
-        );
-
-      case ROLE.Teacher:
-        return (
-          <>
-            {/* Placeholder Sections for Teacher */}
-            <Section title="" backgroundColor="bg-white">
-              <div></div>
-            </Section>
-            <Section title="" backgroundColor="bg-white">
-              <div></div>
-            </Section>
-            <Section title="" backgroundColor="bg-white">
-              <div></div>
-            </Section>
-            <Section title="" backgroundColor="bg-white">
-              <div></div>
             </Section>
           </>
         );
@@ -136,7 +115,7 @@ const Page: React.FC = () => {
     }
   };
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-4 mt-4 w-full md:h-[81%]">
+    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-4 mt-5 w-full md:h-[80%]">
       {renderContent()}
     </div>
   );

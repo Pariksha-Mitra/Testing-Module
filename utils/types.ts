@@ -250,20 +250,25 @@ export interface SelectionStore {
  * Store for handling questions.
  */
 export interface QuestionStore {
-    questions: Question[];
-    selectedQuestionIndex: number;
-    loading: boolean;
-    error: string | null;
-    fetchQuestions: () => Promise<void>;
-    addQuestion: (exerciseId: string, replace?: boolean) => void;
-    setSelectedQuestionIndex: (index: number) => void;
-    deleteQuestion: (index: number) => void;
-    updateQuestionField: <K extends keyof Question>(
-        questionIndex: number,
-        field: K,
-        value: Question[K]
-    ) => void;
-    resetQuestions: () => void;
+  questions: Question[];
+  selectedQuestionIndex: number;
+  loading: boolean;
+  error: string | null;
+  // New flag to control which exercise ID to use
+  useSelectionExercise: boolean;
+  // Setter for the above flag
+  setUseSelectionExercise: (flag: boolean) => void;
+  // Updated fetchQuestions accepts an optional exerciseId override.
+  fetchQuestions: (exerciseIdOverride?: string) => Promise<void>;
+  addQuestion: (exerciseId: string, replace?: boolean) => void;
+  setSelectedQuestionIndex: (index: number) => void;
+  deleteQuestion: (index: number) => void;
+  updateQuestionField: <K extends keyof Question>(
+    questionIndex: number,
+    field: K,
+    value: Question[K]
+  ) => void;
+  resetQuestions: () => void;
 }
 
 //

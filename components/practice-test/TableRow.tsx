@@ -2,8 +2,8 @@
 import React from "react";
 
 export interface RowData {
-  readonly id?: string;
-  readonly description: string;
+  readonly id: string;
+  readonly title: string;
   readonly duration: number;
   readonly totalMarks: number;
   readonly isSolved: boolean; // true if attempted
@@ -20,7 +20,7 @@ export default function TableRow({ row, onSolve, onRetry }: TableRowProps) {
     <tr className="hover:bg-gray-50 border-r border-black">
       {/* DESCRIPTION */}
       <td className="px-6 py-2 font-inter whitespace-nowrap text-lg text-gray-900 text-center border-r border-t border-black last:border-r-0">
-        {row.description}
+        {row.title}
       </td>
 
       {/* DURATION */}

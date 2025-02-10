@@ -32,9 +32,9 @@ const DonutChart: React.FC<DonutChartProps> = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0 md:space-x-6">
+    <div className="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0 md:space-x-6 overflow-auto">
       {/* Legend Section */}
-      <div className="w-full md:w-1/2">
+      <div className="w-full md:w-3/2">
         <div className="flex flex-col justify-center ">
           {segments.map((segment) => (
             <div key={segment.label} className="flex justify-center items-center mb-2 md:mr-20">
@@ -55,7 +55,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
 
       {/* Donut Chart Section */}
       <div className="w-full md:w-1/2 flex justify-center">
-        <div className="relative w-40 h-40 sm:w-52 sm:h-52 md:w-48 md:h-48 lg:w-60 lg:h-60">
+        <div className="relative w-36 h-36 sm:w-52 sm:h-52 md:w-44 md:h-44 lg:w-52 lg:h-52">
           <svg
             viewBox="0 0 42 42"
             className="w-full h-full"

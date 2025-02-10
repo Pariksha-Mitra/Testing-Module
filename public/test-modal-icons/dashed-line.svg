@@ -1,0 +1,18 @@
+<svg
+              width="667"
+              height="1"
+              viewBox="0 0 667 1"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="block mx-auto"
+            >
+              <line
+                x1="0.5"
+                y1="0.5"
+                x2="666.5"
+                y2="0.499942"
+                stroke="black"
+                stroke-linecap="round"
+                stroke-dasharray="7 7"
+              />
+            </svg>

@@ -31,7 +31,7 @@ export default function PracticeTestHeader() {
 
   // When exercises exist, we use an option value "All Selected"
   const exerciseItems = exerciseExists
-    ? [{ id: "all-selected", name: "All Selected" }, ...exercises]
+    ? [{ id: "all-selected", name: "All Selected" }]
     : exercises;
 
   return (

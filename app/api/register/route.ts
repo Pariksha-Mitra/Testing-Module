@@ -188,7 +188,7 @@ export async function POST(req: Request) {
         }
       );
     }
-
+    
     if(invitationId && (invitationId !== process.env.INVITATION_ID)) {
       return NextResponse.json(
         {

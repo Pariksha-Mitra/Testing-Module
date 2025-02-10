@@ -37,7 +37,7 @@ const TestsContent: React.FC = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col md:flex-row flex-wrap gap-6 w-full overflow-y-auto thin-scrollbar">
+    <div className="relative flex  flex-col md:flex-row flex-wrap gap-6 w-full overflow-y-auto thin-scrollbar">
       {testItems.map((item) => (
         <div
           key={item.type}
@@ -49,8 +49,8 @@ const TestsContent: React.FC = () => {
           <Image
             src={item.imageSrc}
             alt={item.title}
-            width={60}
-            height={60}
+            width={50}
+            height={50}
             priority
             className="my-1"
           />
