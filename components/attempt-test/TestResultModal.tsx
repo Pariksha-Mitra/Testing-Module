@@ -20,7 +20,7 @@ const formatTime = (timeInSeconds: number): string => {
   return `${minutes} : ${seconds} मिनिटे`;
 };
 
-/** 
+/**
  * Reusable component to display a result item.
  */
 interface InfoItemProps {
@@ -29,10 +29,14 @@ interface InfoItemProps {
   valueClassName?: string;
 }
 
-const InfoItem: React.FC<InfoItemProps> = ({ label, value, valueClassName }) => (
-  <div className="flex items-center justify-between bg-white rounded-[15px] px-6 py-2 shadow-inner">
-    <span>{label}</span>
-    <span className={valueClassName}>{value}</span>
+const InfoItem: React.FC<InfoItemProps> = ({
+  label,
+  value,
+  valueClassName,
+}) => (
+  <div className="flex items-center justify-center bg-white rounded-[15px] px-6 py-2 shadow-inner relative">
+    <span className="absolute left-5">{label}</span>
+    <span className={valueClassName+" ml-[100px]"}>{value}</span>
   </div>
 );
 
@@ -46,7 +50,11 @@ interface ModalButtonProps {
   variant: "primary" | "secondary";
 }
 
-const ModalButton: React.FC<ModalButtonProps> = ({ onClick, text, variant }) => {
+const ModalButton: React.FC<ModalButtonProps> = ({
+  onClick,
+  text,
+  variant,
+}) => {
   const baseClasses =
     "w-full text-xl text-white py-1 rounded-lg transition-colors border-2 border-white";
   const variantClasses =
@@ -73,14 +81,14 @@ const TestResultModal: React.FC<TestResultModalProps> = ({
   onFinish,
 }) => {
   return (
-    <div className="w-full max-w-md mx-auto bg-white bg-opacity-5 rounded-xl overflow-hidden shadow-lg border border-black">
+    <div className="w-full max-w-lg mx-auto bg-white bg-opacity-5 rounded-xl overflow-hidden shadow-lg border border-black">
       <div className="bg-[#9747FF] text-white py-4 text-center">
         <h1 className="text-4xl font-bold laila-bold">TEST RESULT</h1>
       </div>
 
-      <div className="p-6">
+      <div className="px-6 py-2">
         {/* Displaying the test result items */}
-        <div className="space-y-3 mb-6 laila-semibold w-3/4 justify-center items-center mx-auto text-lg">
+        <div className="space-y-2 mb-6 laila-semibold w-3/4 justify-center items-center mx-auto text-lg">
           <InfoItem
             label="योग्य उत्तरे :"
             value={correctAnswers}
@@ -105,17 +113,17 @@ const TestResultModal: React.FC<TestResultModalProps> = ({
 
         {/* Congratulatory message and icons */}
         <div className="text-center mb-6 laila-semibold">
-          <div className="text-[#FF637F] text-4xl mb-4">शुभेच्छा!</div>
+          <div className="text-[#FF637F] text-4xl">शुभेच्छा!</div>
 
           <div className="my-4 ml-[-40px] w-full">
             <DashedLine />
           </div>
 
-          <div className="text-[#A533FD] text-2xl mb-4">
+          <div className="text-[#A533FD] text-2xl mb-2">
             चाचणी पूर्ण केल्याबद्दल तुम्हाला एक तारा मिळाला आहे !
           </div>
 
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-2">
             <div className="relative">
               <div className="flex items-center justify-center">
                 <Star />
