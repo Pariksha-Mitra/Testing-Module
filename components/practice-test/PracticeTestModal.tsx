@@ -26,13 +26,11 @@ interface ModalHeaderProps {
   onBack: () => void;
 }
 const ModalHeader: React.FC<ModalHeaderProps> = ({ title, onBack }) => (
-  <div className="flex flex-row bg-[#9747FF] text-white items-center py-3 px-4 text-wrap">
-    <button onClick={onBack}>
+  <div className="flex flex-row bg-[#9747FF] text-white items-center py-3 px-4 text-wrap w-full relative justify-center">
+    <button onClick={onBack} className="absolute left-0">
       <RightArrow />
     </button>
-    <h1 className="text-4xl font-bold laila-bold text-center flex-1">
-      {title}
-    </h1>
+    <h1 className="text-4xl font-bold laila-bold">{title}</h1>
   </div>
 );
 
@@ -47,7 +45,7 @@ interface InfoItemProps {
 }
 const InfoItem: React.FC<InfoItemProps> = ({ icon, text, className }) => (
   <div
-    className={`flex flex-row items-center text-xl drop-shadow-md text-white font-medium text-center py-2 rounded-[10px] ${className}`}
+    className={`flex flex-row items-center text-xl font-semibold text-slate-900 py-2 rounded-[10px] ${className}`}
   >
     <div className="mr-2">{icon}</div>
     <div>{text}</div>
@@ -109,16 +107,14 @@ const PracticeTestModal: React.FC<PracticeTestModalProps> = ({
           id="modal-description"
           className="p-4 px-9 flex flex-col items-center laila-bold bg-white bg-opacity-5"
         >
-          <div className="w-full bg-[#FFDA62] rounded-[15px] mb-6 p-2 text-shadow border border-black shadow-lg">
+          <div className="w-full max-w-[400px] bg-[#FFDA62] rounded-[15px] mb-6 p-2  border border-black shadow-lg">
             <InfoItem
               icon={<QuestionIcon />}
               text={`${row.duration / 2} बहुपर्यायी प्रश्न`}
-              className="mb-3"
             />
             <InfoItem
               icon={<TimeIcon />}
               text={`चाचणी सोडवण्यासाठी ${row.duration} मिनिटे`}
-              className="mb-3"
             />
             <InfoItem
               icon={<PointsIcon />}
