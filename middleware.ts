@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (token?.role === ROLE.Student && url.pathname === "/create-test") {
+  if (token?.role === ROLE.Student && url.pathname === "/create-practice-test") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -46,7 +46,7 @@ export const config = {
     "/new-password",
     "/api-docs",
     "/api/swagger",
-    "/create-test",
+    "/create-practice-test",
     "/question-bank"
   ],
 };

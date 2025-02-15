@@ -38,7 +38,7 @@ export default function Sidebar() {
 
         {role === ROLE.Teacher && (
              <SidebarItem
-             href="/create-test"
+             href="/create-practice-test"
              ariaLabel="चाचणी तयार करा"
              icon={<CreateTestIcon />}
            />

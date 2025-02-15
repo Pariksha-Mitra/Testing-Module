@@ -25,9 +25,9 @@ export const QuestionList: React.FC<QuestionListProps> = ({
         md:p-4
       "
     >
-      {/** Show 'Add question' card (which links to /create-test) only if user is Teacher */}
+      {/** Show 'Add question' card (which links to /create-practice-test) only if user is Teacher */}
       {isTeacher && (
-        <Link href="/create-test">
+        <Link href="/create-practice-test">
           <QuestionCard
             q_no="+"
             questionText="Add question"
