@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense } from "react";
-import CustomTestHeader from "@/components/CustomTestHeader";
+import TestHeader from "@/components/TestHeader";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import { Skeleton } from "@mui/material";
@@ -27,7 +27,7 @@ const TestPageLayout: React.FC<{
               </div>
             }
           >
-            <CustomTestHeader />
+            <TestHeader />
           </Suspense>
           {children}
         </div>

@@ -32,6 +32,10 @@ export const QuestionLayout: React.FC<{
   handleDescriptionChange,
   handleCorrectAnswerChange,
 }) => {
+  
+  if (!question) {
+    return <div>Loading question...</div>;
+  }
   const index = 0; // Since it's standalone, pass index as needed
 
   switch (question.questionType) {
