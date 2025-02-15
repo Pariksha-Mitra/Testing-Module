@@ -19,7 +19,6 @@ export default function Page() {
   >([]);
 
   useEffect(() => {
-    console.log("Exercises from hook:", exercises);
     if (exercises.length > 0) {
       // Filter out exercises with duration 0
       const filteredExercises = exercises.filter(
@@ -34,7 +33,6 @@ export default function Page() {
           isSolved: false,
         }));
         setRows(mappedRows);
-        console.log("Mapped rows:", mappedRows);
       } else {
         // If no exercises have a duration > 0, clear the rows.
         setRows([]);

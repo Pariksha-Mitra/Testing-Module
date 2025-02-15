@@ -243,7 +243,10 @@ const Page: React.FC = () => {
       >
         <TestResultModal
           {...results}
-          onCheckAnswers={() => {}}
+          onCheckAnswers={() => {
+            // Navigate to "check-answers" page:
+            router.push("detailed-result");
+          }}
           onFinish={() => {
             startTransition(() => {
               router.push("/");

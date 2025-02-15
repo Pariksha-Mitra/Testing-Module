@@ -11,6 +11,7 @@ export default function AttemptTestHeader() {
     visitedQuestions,
   } = useAttemptTestStore();
 
+
   return (
     <div
       className="
@@ -25,6 +26,7 @@ export default function AttemptTestHeader() {
       <div className="flex flex-col items-center justify-center w-full md:w-3/4">
         <div className="flex items-center p-4 justify-center w-full text-center gap-8">
           <h1 className="text-4xl laila-bold">{testTitle}</h1>
+          
         </div>
       </div>
 
