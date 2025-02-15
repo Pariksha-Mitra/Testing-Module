@@ -43,7 +43,7 @@ export const NavButton: React.FC<NavButtonProps> = ({
 
       {/* Tooltip */}
       {!disabled && (
-        <div className="laila-medium text-black w-[80%] absolute bottom-full border border-black border-solid left-1/2 transform -translate-x-1/2 mb-2 px-11 py-1 bg-white rounded-t-3xl rounded-br-3xl opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="laila-medium text-black  absolute bottom-[90%] border border-black border-solid right-1/1 transform translate-x-1/2 mb-2 px-11 py-1 bg-white rounded-t-3xl rounded-br-3xl opacity-0 group-hover:opacity-100 transition-opacity">
           {tooltipText}
         </div>
       )}

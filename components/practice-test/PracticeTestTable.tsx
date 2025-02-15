@@ -48,22 +48,21 @@ const PracticeTestTable: React.FC<PracticeTestTableProps> = ({ rows }) => {
     useAttemptTestStore.persist.clearStorage();
     resetTest();
 
-    // Set up exercise details.
+    
     setExerciseWithDuration(selectedRow.id, selectedRow.duration);
     setSelection({ exercise: selectedRow.id });
-    setTestTitle(selectedRow.title);
 
-    // Option 1: Immediately navigate to /attempt-test.
-    // You can fetch questions on the /attempt-test page (recommended).
     startTransition(() => {
       router.push("/attempt-test");
     });
 
-    
-    // Option 2: If you want to fetch questions before navigating:
+  
     await useQuestionStore.getState().fetchQuestions(selectedRow.id);
     const fetchedQuestions = useQuestionStore.getState().questions;
     setQuestions(fetchedQuestions);
+    
+    setTestTitle(selectedRow.title);
+
     startTransition(() => {
       router.push("/attempt-test");
     });
