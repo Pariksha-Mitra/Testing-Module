@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angle Pair Match-Up - Educational Math Game</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            background: linear-gradient(to right, #4a90e2, #357abd);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            z-index: 100;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #357abd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #instructions {
+            max-width: 800px;
+            margin: 1.5rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #instructions h2 {
+            color: #4a90e2;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        #instructions ul {
+            list-style-type: none;
+        }
+
+        #instructions li {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        #instructions li:before {
+            content: "•";
+            color: #4a90e2;
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: -0.2rem;
+        }
+
+        footer {
+            margin-top: 2rem;
+            padding: 1rem;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        canvas {
+            margin-right: 250px;
+
+        }
+
+
+
+        @media (max-width: 850px) {
+            #game-container {
+                width: 95%;
+                height: auto;
+                aspect-ratio: 4/3;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            #instructions {
+                margin: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Accessibility improvements */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        nav {
+            /* position: fixed; */
+            /* position: absolute; */
+            /* top: 0px; */
+            width: 100%;
+            height: 50px;
+            background: rgba(99, 120, 253, 0.4);
+            backdrop-filter: blur(5px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            /* margin-bottom: 20px; */
+        }
+
+        .back-button {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            /* used the same color as was used for the 	"खेळ खेळून शिका" tab */
+            background: #6666cc;
+            border-radius: 5px;
+            font-family: 'Arial', sans-serif;
+            transition: all 0.3s ease;
+            margin-left: 100px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            margin: 5px 0 5px 100px;
+            padding: 12px 25px;
+        }
+
+        .back-button:hover {
+            background: #5252a3;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="/games" class="back-button">Back to Games</a>
+    </nav>
+    <header>
+        <h1>Angle Pair Match-Up</h1>
+        <div class="subtitle">Master Complementary & Supplementary Angles</div>
+    </header>
+
+    <div id="instructions" role="region" aria-label="Game Instructions">
+        <h2>How to Play</h2>
+        <ul>
+            <li>Drag angles from the left column and match them with their pairs on the right</li>
+            <li>Complementary angles add up to 90 degrees</li>
+            <li>Supplementary angles add up to 180 degrees</li>
+            <li>Complete all levels to become an Angle Master!</li>
+        </ul>
+    </div>
+
+    <div id="game-container" role="main">
+        <div id="loading-screen">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <span>Loading game...</span>
+        </div>
+    </div>
+
+    <footer>
+        <p>Created for educational purposes. Designed to align with 7th-grade mathematics curriculum.</p>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <script src="game3.js"></script>
+</body>
+
+</html>
